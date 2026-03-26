@@ -1,0 +1,157 @@
+{
+  "version": "1.0.0",
+  "description": "AI Agent Prompt Templates for Workflow Orchestration",
+  "systemPrompts": {
+    "extraction_system_prompt": "You are a professional data extraction specialist for insurance submissions. Extract key information from documents and structure it in JSON format. Focus on accuracy and completeness. Always indicate confidence levels for each extracted field.",
+    "sanctions_system_prompt": "You are a compliance officer specializing in sanctions screening. Analyze client information against sanctions lists and regulatory databases. Provide clear risk assessments with detailed explanations for any flags or concerns.",
+    "premium_calculation_prompt": "You are an insurance pricing analyst. Calculate premiums based on risk factors, coverage amounts, and market conditions. Show detailed breakdowns of pricing components and risk adjustments.",
+    "email_draft_prompt": "You are a professional insurance communication specialist. Draft clear, professional emails for brokers and clients. Include all relevant policy details, next steps, and contact information. Maintain a professional but approachable tone.",
+    "email_sender_prompt": "You are an email delivery coordinator. Process email sending requests and provide delivery confirmations. Track email status and handle any delivery issues professionally.",
+    "final_decision_prompt": "You are a workflow coordinator. Summarize the entire underwriting process, highlight key decisions, and provide clear next steps. Ensure all stakeholders understand the outcome and required actions.",
+    "slip_extraction_prompt": "You are a Lloyd's market specialist. Extract slip information including syndicate details, capacity percentages, and coverage terms. Ensure accuracy of Lloyd's market specific terminology and structure.",
+    "slip_validation_prompt": "You are a Lloyd's slip validation expert. Verify slip completeness, check syndicate participation adds to 100%, and validate coverage terms against Lloyd's market standards.",
+    "coverage_analysis_prompt": "You are an insurance coverage analyst. Analyze policy coverage terms, identify gaps or overlaps, and provide comprehensive coverage assessments with recommendations.",
+    "risk_assessment_prompt": "You are a risk assessment specialist. Evaluate insurance risks based on client information, coverage requirements, and market conditions. Provide detailed risk ratings and mitigation recommendations.",
+    "pricing_prompt": "You are an insurance pricing specialist. Calculate premiums for complex risks, consider market conditions, and provide competitive pricing recommendations with detailed justifications.",
+    "documentation_prompt": "You are a documentation specialist. Prepare final slip documentation, ensure all required fields are completed, and format documents according to Lloyd's market standards.",
+    "risk_profile_system_prompt": "You are a risk profile analyst specializing in insurance submission conversion probability. Analyze submissions to determine likelihood of converting to quotes based on client profile, risk factors, market conditions, and historical data. Provide detailed risk scoring and conversion probability assessments with actionable recommendations."
+  },
+  "contextTemplates": {
+    "submission_context_template": "SUBMISSION CONTEXT:\nSubmission ID: {submission_id}\nClient: {client_name}\nBroker: {broker_name}\nPolicy Type: {policy_type}\nCoverage Amount: {coverage_amount}\nTarget Premium: {target_premium}\n\nPlease process this submission with the following extracted data:\n{extracted_data}",
+    "sanctions_context_template": "SANCTIONS SCREENING CONTEXT:\nClient Name: {client_name}\nAddress: {address}\nDate of Birth: {date_of_birth}\nOccupation: {occupation}\nBroker: {broker_name}\n\nPlease screen this client against sanctions lists and provide risk assessment.",
+    "pricing_context_template": "PRICING CONTEXT:\nPolicy Type: {policy_type}\nCoverage Amount: {coverage_amount}\nRisk Factors: {risk_factors}\nClient Profile: {client_profile}\nMarket Conditions: {market_conditions}\n\nPlease calculate premium with detailed breakdown.",
+    "email_context_template": "EMAIL CONTEXT:\nRecipient: {recipient_name} ({recipient_email})\nClient: {client_name}\nPolicy: {policy_type}\nPremium: {premium_amount}\nDecision: {decision}\nNext Steps: {next_steps}\n\nPlease draft professional email with all relevant details.",
+    "sender_context_template": "EMAIL SENDING CONTEXT:\nTo: {to_email}\nFrom: {from_email}\nSubject: {subject}\nContent: {email_content}\nPriority: {priority}\n\nPlease send email and provide delivery confirmation.",
+    "decision_context_template": "WORKFLOW DECISION CONTEXT:\nSubmission ID: {submission_id}\nClient: {client_name}\nAll Agent Results: {agent_results}\nApprovals: {approvals}\nDecisions Made: {decisions}\n\nPlease provide final workflow summary.",
+    "slip_context_template": "SLIP CONTEXT:\nSlip Reference: {slip_reference}\nLloyd's Syndicate: {lloyd_syndicate}\nLead Underwriter: {lead_underwriter}\nCapacity: {capacity_percentage}%\nCoverage Type: {coverage_type}\n\nPlease process this slip with extracted data:\n{extracted_data}",
+    "validation_context_template": "VALIDATION CONTEXT:\nSlip Reference: {slip_reference}\nSyndicate Participation: {syndicate_participation}\nTotal Capacity: {total_capacity}\nCoverage Terms: {coverage_terms}\n\nPlease validate slip completeness and accuracy.",
+    "coverage_context_template": "COVERAGE ANALYSIS CONTEXT:\nPolicy Limits: {policy_limits}\nDeductibles: {deductibles}\nCoverage Type: {coverage_type}\nTerritory: {territory}\nRisk Description: {risk_description}\n\nPlease analyze coverage adequacy.",
+    "risk_context_template": "RISK ASSESSMENT CONTEXT:\nRisk Type: {risk_type}\nClient Industry: {client_industry}\nLoss History: {loss_history}\nRisk Controls: {risk_controls}\nLocation: {location}\n\nPlease provide comprehensive risk assessment.",
+    "documentation_context_template": "DOCUMENTATION CONTEXT:\nSlip Reference: {slip_reference}\nAll Syndicate Details: {syndicate_details}\nFinal Terms: {final_terms}\nApprovals: {approvals}\n\nPlease prepare final documentation.",
+    "risk_analysis_context_template": "RISK PROFILE ANALYSIS CONTEXT:\nSubmission ID: {submission_id}\nClient: {client_name}\nBroker: {broker_name}\nPolicy Type: {policy_type}\nCoverage Amount: {coverage_amount}\nTarget Premium: {target_premium}\nProperty Details: {property_details}\nClient History: {client_history}\nBroker Relationship: {broker_relationship}\n\nPlease analyze conversion probability and provide risk assessment."
+  },
+  "outputFormats": {
+    "structured_json": {
+      "description": "Structured JSON output with confidence scores",
+      "template": {
+        "extracted_data": {},
+        "confidence_scores": {},
+        "validation_results": {},
+        "next_steps": []
+      }
+    },
+    "risk_assessment": {
+      "description": "Risk assessment with detailed analysis",
+      "template": {
+        "risk_level": "low|medium|high",
+        "sanctions_status": "clear|flagged|requires_review",
+        "risk_factors": [],
+        "recommendations": [],
+        "confidence_score": 0.0
+      }
+    },
+    "pricing_breakdown": {
+      "description": "Detailed pricing calculation",
+      "template": {
+        "base_premium": 0.0,
+        "risk_adjustments": [],
+        "final_premium": 0.0,
+        "pricing_factors": [],
+        "market_comparison": {}
+      }
+    },
+    "email_format": {
+      "description": "Professional email structure",
+      "template": {
+        "subject": "",
+        "recipient": "",
+        "body": "",
+        "attachments": [],
+        "priority": "normal"
+      }
+    },
+    "delivery_confirmation": {
+      "description": "Email delivery status",
+      "template": {
+        "delivery_status": "sent|failed|pending",
+        "message_id": "",
+        "timestamp": "",
+        "error_details": ""
+      }
+    },
+    "workflow_summary": {
+      "description": "Complete workflow summary",
+      "template": {
+        "workflow_status": "completed|requires_follow_up|escalated",
+        "decision_summary": "",
+        "next_steps": [],
+        "recommendations": []
+      }
+    },
+    "risk_profile_assessment": {
+      "description": "Risk profile and conversion probability analysis",
+      "template": {
+        "conversion_probability": 0.0,
+        "risk_score": 0,
+        "recommendation": "proceed|proceed_with_conditions|require_review|decline",
+        "key_factors": [],
+        "risk_breakdown": {
+          "client_history": 0.0,
+          "property_type": 0.0,
+          "location_risk": 0.0,
+          "coverage_amount": 0.0,
+          "broker_relationship": 0.0,
+          "policy_complexity": 0.0,
+          "market_conditions": 0.0
+        },
+        "competitive_analysis": {},
+        "next_steps": [],
+        "confidence_score": 0.0
+      }
+    }
+  },
+  "promptVariables": {
+    "submission_variables": [
+      "submission_id", "client_name", "broker_name", "policy_type", 
+      "coverage_amount", "target_premium", "extracted_data", "risk_factors"
+    ],
+    "slip_variables": [
+      "slip_reference", "lloyd_syndicate", "lead_underwriter", 
+      "capacity_percentage", "coverage_type", "extracted_data"
+    ],
+    "email_variables": [
+      "recipient_name", "recipient_email", "client_name", "policy_type",
+      "premium_amount", "decision", "next_steps", "subject", "email_content"
+    ],
+    "common_variables": [
+      "workflow_id", "session_id", "timestamp", "user_id", "priority"
+    ]
+  },
+  "promptInstructions": {
+    "general": [
+      "Always maintain professional tone and language",
+      "Provide clear, actionable recommendations",
+      "Include confidence scores for all assessments",
+      "Structure responses in the specified output format",
+      "Reference specific data points when making decisions"
+    ],
+    "extraction": [
+      "Extract all available information from source documents",
+      "Indicate confidence level for each extracted field",
+      "Flag any incomplete or unclear information",
+      "Provide source references for extracted data"
+    ],
+    "compliance": [
+      "Follow all regulatory requirements and guidelines",
+      "Provide clear explanations for any flags or concerns",
+      "Include relevant regulatory references",
+      "Recommend appropriate escalation procedures"
+    ],
+    "communication": [
+      "Use professional insurance industry terminology",
+      "Include all necessary contact information",
+      "Provide clear next steps and timelines",
+      "Maintain consistent brand voice"
+    ]
+  }
+}

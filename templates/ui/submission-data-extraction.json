@@ -1,0 +1,285 @@
+{
+  "version": "1.0.0",
+  "description": "Data Extraction Interface Configuration for Submission Workflows",
+  "interface": {
+    "title": "Data Extraction Completed - Human Review Required",
+    "subtitle": "Please review the extracted data below. You can edit any fields if needed, then approve or reject the extraction.",
+    "formType": "DataExtractionForm",
+    "layout": "multi-section",
+    "submissionSelector": {
+      "enabled": true,
+      "label": "Submission ID:",
+      "defaultValue": "UW-2025-001",
+      "options": ["UW-2025-001", "UW-2025-002", "UW-2025-003", "UW-2025-004", "UW-2025-005"],
+      "refreshable": true
+    },
+    "editButton": {
+      "enabled": true,
+      "label": "Edit Data",
+      "position": "top-right",
+      "icon": "edit"
+    }
+  },
+  "sections": [
+    {
+      "id": "general-details",
+      "title": "GENERAL DETAILS",
+      "type": "field-grid",
+      "columns": 2,
+      "fields": [
+        {
+          "id": "broker_ref_hu_number",
+          "csvField": "broker_ref_number",
+          "label": "Broker Ref HU Number",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "validation": {
+            "pattern": "^REF-HU-[0-9]{6}$",
+            "message": "Must be in format REF-HU-XXXXXX"
+          }
+        },
+        {
+          "id": "intermediary_name",
+          "csvField": "intermediary_name",
+          "label": "Intermediary Name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high"
+        },
+        {
+          "id": "broker_contact_name",
+          "csvField": "title",
+          "label": "Broker Contact Name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high"
+        },
+        {
+          "id": "broker_email",
+          "csvField": "email_address",
+          "label": "Broker Email",
+          "type": "email",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "validation": {
+            "pattern": "^[^@]+@[^@]+\\.[^@]+$",
+            "message": "Please enter a valid email address"
+          }
+        },
+        {
+          "id": "target_premium",
+          "csvField": "target_premium",
+          "label": "Target Premium",
+          "type": "currency",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "medium",
+          "prefix": "£",
+          "validation": {
+            "min": 100,
+            "max": 1000000,
+            "message": "Premium must be between £100 and £1,000,000"
+          }
+        },
+        {
+          "id": "quote_effective_date",
+          "csvField": "quote_effective_date",
+          "label": "Quote Effective Date",
+          "type": "date",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "format": "DD/MM/YY"
+        },
+        {
+          "id": "previous_insurer",
+          "csvField": "previous_insurer",
+          "label": "Previous Insurer",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "confidenceScore": "medium"
+        }
+      ]
+    },
+    {
+      "id": "policy-holders",
+      "title": "POLICY HOLDERS",
+      "type": "tabbed-section",
+      "tabs": [
+        {
+          "id": "policy-holder-1",
+          "title": "Policy Holder 1",
+          "active": true,
+          "fields": [
+            {
+              "id": "contact_role",
+              "csvField": "contact_role",
+              "label": "Contact Role",
+              "type": "text",
+              "required": true,
+              "editable": true,
+              "confidenceScore": "medium",
+              "gridPosition": "span-1"
+            },
+            {
+              "id": "title",
+              "csvField": "title",
+              "label": "Title",
+              "type": "select",
+              "required": true,
+              "editable": true,
+              "confidenceScore": "high",
+              "options": ["Mr", "Mrs", "Ms", "Dr", "Prof"],
+              "gridPosition": "span-1"
+            },
+            {
+              "id": "first_name",
+              "csvField": "first_name",
+              "label": "First Name",
+              "type": "text",
+              "required": true,
+              "editable": true,
+              "confidenceScore": "high",
+              "gridPosition": "span-1"
+            },
+            {
+              "id": "middle_name",
+              "csvField": "middle_name",
+              "label": "Middle Name",
+              "type": "text",
+              "required": false,
+              "editable": true,
+              "confidenceScore": "high",
+              "gridPosition": "span-1"
+            },
+            {
+              "id": "surname",
+              "csvField": "surname",
+              "label": "Surname",
+              "type": "text",
+              "required": true,
+              "editable": true,
+              "confidenceScore": "high",
+              "gridPosition": "span-1"
+            },
+            {
+              "id": "date_of_birth",
+              "csvField": "date_of_birth",
+              "label": "Date of Birth",
+              "type": "date",
+              "required": true,
+              "editable": true,
+              "confidenceScore": "high",
+              "format": "DD/MM/YY",
+              "gridPosition": "span-1"
+            },
+            {
+              "id": "occupation",
+              "csvField": "occupation",
+              "label": "Occupation",
+              "type": "text",
+              "required": true,
+              "editable": true,
+              "confidenceScore": "medium",
+              "gridPosition": "span-2"
+            },
+            {
+              "id": "house_number",
+              "csvField": "house_number",
+              "label": "House Number",
+              "type": "text",
+              "required": true,
+              "editable": true,
+              "confidenceScore": "high",
+              "gridPosition": "span-1"
+            },
+            {
+              "id": "house_name",
+              "csvField": "house_name",
+              "label": "House Name",
+              "type": "text",
+              "required": false,
+              "editable": true,
+              "confidenceScore": "medium",
+              "gridPosition": "span-1"
+            },
+            {
+              "id": "address_line_1",
+              "csvField": "address_line_1",
+              "label": "Address Line 1",
+              "type": "text",
+              "required": true,
+              "editable": true,
+              "confidenceScore": "high",
+              "gridPosition": "span-2"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": {
+    "primary": {
+      "label": "Approve & Continue",
+      "type": "approve",
+      "style": "primary",
+      "endpoint": "/api/workflows/{sessionId}/approve-extraction",
+      "method": "POST",
+      "confirmMessage": "Are you sure you want to approve this data extraction?",
+      "successMessage": "Data extraction approved successfully"
+    },
+    "secondary": {
+      "label": "Reject & Stop",
+      "type": "reject",
+      "style": "danger",
+      "endpoint": "/api/workflows/{sessionId}/reject-extraction",
+      "method": "POST",
+      "confirmMessage": "Are you sure you want to reject this data extraction?",
+      "successMessage": "Data extraction rejected"
+    }
+  },
+  "styling": {
+    "backgroundColor": "bg-gray-50",
+    "sectionSpacing": "space-y-6",
+    "fieldSpacing": "space-y-4",
+    "confidenceBadges": {
+      "high": {
+        "color": "bg-green-100 text-green-800",
+        "label": "High ({percentage}%)"
+      },
+      "medium": {
+        "color": "bg-yellow-100 text-yellow-800",
+        "label": "Medium ({percentage}%)"
+      },
+      "low": {
+        "color": "bg-red-100 text-red-800",
+        "label": "Low ({percentage}%)"
+      }
+    },
+    "fieldStyles": {
+      "default": "w-full px-3 py-2 border border-gray-300 rounded-md",
+      "disabled": "bg-gray-100 text-gray-600",
+      "error": "border-red-500 bg-red-50"
+    }
+  },
+  "validation": {
+    "validateOnChange": true,
+    "showErrorsInline": true,
+    "requiredFieldMessage": "This field is required",
+    "emailValidation": "Please enter a valid email address",
+    "dateValidation": "Please enter a valid date",
+    "numericValidation": "Please enter a valid number"
+  },
+  "dataSource": {
+    "csvFile": "submissions.csv",
+    "keyField": "submission_id",
+    "confidenceCalculation": "average",
+    "refreshInterval": 300
+  }
+}

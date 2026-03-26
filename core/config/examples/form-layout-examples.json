@@ -1,0 +1,254 @@
+{
+  "version": "1.0.0",
+  "description": "Comprehensive Form Layout Configuration Examples",
+  "layoutTypes": {
+    "field-grid": {
+      "description": "Grid-based layout with configurable columns",
+      "example": {
+        "type": "field-grid",
+        "columns": 2,
+        "fields": [
+          {
+            "id": "broker_ref_hu_number",
+            "label": "Broker Ref HU Number",
+            "gridPosition": "span-1",
+            "order": 1
+          },
+          {
+            "id": "intermediary_name", 
+            "label": "Intermediary Name",
+            "gridPosition": "span-1",
+            "order": 2
+          },
+          {
+            "id": "broker_contact_name",
+            "label": "Broker Contact Name", 
+            "gridPosition": "span-1",
+            "order": 3
+          },
+          {
+            "id": "broker_email",
+            "label": "Broker Email",
+            "gridPosition": "span-1",
+            "order": 4
+          },
+          {
+            "id": "target_premium",
+            "label": "Target Premium",
+            "gridPosition": "span-1",
+            "order": 5
+          },
+          {
+            "id": "quote_effective_date",
+            "label": "Quote Effective Date",
+            "gridPosition": "span-1",
+            "order": 6
+          },
+          {
+            "id": "previous_insurer",
+            "label": "Previous Insurer",
+            "gridPosition": "span-2",
+            "order": 7
+          }
+        ]
+      }
+    },
+    "tabbed-section": {
+      "description": "Tabbed interface for grouping related fields",
+      "example": {
+        "type": "tabbed-section",
+        "tabs": [
+          {
+            "id": "policy-holder-1",
+            "title": "Policy Holder 1",
+            "active": true,
+            "fields": [
+              {
+                "id": "contact_role",
+                "label": "Contact Role",
+                "gridPosition": "span-1",
+                "order": 1
+              },
+              {
+                "id": "title",
+                "label": "Title",
+                "gridPosition": "span-1",
+                "order": 2
+              },
+              {
+                "id": "first_name",
+                "label": "First Name",
+                "gridPosition": "span-1",
+                "order": 3
+              },
+              {
+                "id": "middle_name",
+                "label": "Middle Name",
+                "gridPosition": "span-1",
+                "order": 4
+              },
+              {
+                "id": "surname",
+                "label": "Surname",
+                "gridPosition": "span-1",
+                "order": 5
+              },
+              {
+                "id": "date_of_birth",
+                "label": "Date of Birth",
+                "gridPosition": "span-1",
+                "order": 6
+              },
+              {
+                "id": "occupation",
+                "label": "Occupation",
+                "gridPosition": "span-2",
+                "order": 7
+              },
+              {
+                "id": "address_line_1",
+                "label": "Address Line 1",
+                "gridPosition": "span-2",
+                "order": 8
+              }
+            ]
+          },
+          {
+            "id": "policy-holder-2",
+            "title": "Policy Holder 2",
+            "active": false,
+            "fields": [
+              {
+                "id": "ph2_first_name",
+                "label": "First Name",
+                "gridPosition": "span-1",
+                "order": 1
+              },
+              {
+                "id": "ph2_surname",
+                "label": "Surname",
+                "gridPosition": "span-1",
+                "order": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "table": {
+      "description": "Table layout for structured data",
+      "example": {
+        "type": "table",
+        "columns": [
+          {
+            "id": "syndicate_number",
+            "label": "Syndicate Number",
+            "width": "20%",
+            "sortable": true
+          },
+          {
+            "id": "syndicate_name",
+            "label": "Syndicate Name",
+            "width": "40%",
+            "sortable": true
+          },
+          {
+            "id": "participation_percentage",
+            "label": "Participation %",
+            "width": "20%",
+            "sortable": true
+          },
+          {
+            "id": "syndicate_capacity",
+            "label": "Capacity",
+            "width": "20%",
+            "sortable": true
+          }
+        ],
+        "rows": [
+          {
+            "syndicate_number": "1234",
+            "syndicate_name": "Lloyd's Marine",
+            "participation_percentage": "25%",
+            "syndicate_capacity": "£500,000"
+          }
+        ]
+      }
+    }
+  },
+  "gridPositioning": {
+    "description": "How gridPosition controls field layout within sections",
+    "options": {
+      "span-1": "Takes 1 column width (half width in 2-column grid)",
+      "span-2": "Takes 2 column widths (full width in 2-column grid)",
+      "span-3": "Takes 3 column widths (full width in 3-column grid)",
+      "span-full": "Takes full width regardless of grid columns"
+    },
+    "examples": {
+      "2_column_grid": {
+        "columns": 2,
+        "layout": [
+          {"field": "broker_ref_hu_number", "gridPosition": "span-1", "result": "Left column"},
+          {"field": "intermediary_name", "gridPosition": "span-1", "result": "Right column"},
+          {"field": "broker_contact_name", "gridPosition": "span-1", "result": "Left column (new row)"},
+          {"field": "broker_email", "gridPosition": "span-1", "result": "Right column"},
+          {"field": "target_premium", "gridPosition": "span-1", "result": "Left column (new row)"},
+          {"field": "quote_effective_date", "gridPosition": "span-1", "result": "Right column"},
+          {"field": "previous_insurer", "gridPosition": "span-2", "result": "Full width (new row)"}
+        ]
+      },
+      "3_column_grid": {
+        "columns": 3,
+        "layout": [
+          {"field": "title", "gridPosition": "span-1", "result": "Column 1"},
+          {"field": "first_name", "gridPosition": "span-1", "result": "Column 2"},
+          {"field": "surname", "gridPosition": "span-1", "result": "Column 3"},
+          {"field": "address", "gridPosition": "span-3", "result": "Full width (new row)"}
+        ]
+      }
+    }
+  },
+  "fieldOrdering": {
+    "description": "How fields are ordered within sections",
+    "methods": {
+      "array_order": {
+        "description": "Fields appear in the order they are defined in the fields array",
+        "example": "fields: [field1, field2, field3] → displays field1, field2, field3"
+      },
+      "explicit_order": {
+        "description": "Fields have explicit order property to override array order",
+        "example": {
+          "fields": [
+            {"id": "field1", "order": 3},
+            {"id": "field2", "order": 1},
+            {"id": "field3", "order": 2}
+          ],
+          "result": "Displays field2, field3, field1"
+        }
+      }
+    }
+  },
+  "conditionalFields": {
+    "description": "Show/hide fields based on conditions",
+    "examples": {
+      "show_if": {
+        "id": "joint_policy_holder",
+        "label": "Joint Policy Holder Details",
+        "showIf": {
+          "field": "policy_type",
+          "value": "joint",
+          "operator": "equals"
+        }
+      },
+      "hide_if": {
+        "id": "previous_claims",
+        "label": "Previous Claims",
+        "hideIf": {
+          "field": "new_customer",
+          "value": true,
+          "operator": "equals"
+        }
+      }
+    }
+  }
+}

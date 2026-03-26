@@ -1,0 +1,313 @@
+{
+  "version": "1.0.0",
+  "description": "Data Extraction Interface Configuration for Slip Workflows",
+  "interface": {
+    "title": "Slip Data Extraction Completed - Human Review Required",
+    "subtitle": "Please review the extracted slip data below. You can edit any fields if needed, then approve or reject the extraction.",
+    "formType": "SlipDataExtractionForm",
+    "layout": "multi-section",
+    "submissionSelector": {
+      "enabled": true,
+      "label": "Slip Reference:",
+      "defaultValue": "SLP-2025-001",
+      "options": ["SLP-2025-001", "SLP-2025-002", "SLP-2025-003", "SLP-2025-004", "SLP-2025-005"],
+      "refreshable": true
+    },
+    "editButton": {
+      "enabled": true,
+      "label": "Edit Data",
+      "position": "top-right",
+      "icon": "edit"
+    }
+  },
+  "sections": [
+    {
+      "id": "slip-details",
+      "title": "SLIP DETAILS",
+      "type": "field-grid",
+      "columns": 2,
+      "fields": [
+        {
+          "id": "slip_reference",
+          "csvField": "slip_reference",
+          "label": "Slip Reference",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "validation": {
+            "pattern": "^SLP-[0-9]{4}-[0-9]{3}$",
+            "message": "Must be in format SLP-YYYY-XXX"
+          }
+        },
+        {
+          "id": "lloyd_syndicate",
+          "csvField": "lloyd_syndicate",
+          "label": "Lloyd's Syndicate",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high"
+        },
+        {
+          "id": "lead_underwriter",
+          "csvField": "lead_underwriter",
+          "label": "Lead Underwriter",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high"
+        },
+        {
+          "id": "capacity_percentage",
+          "csvField": "capacity_percentage",
+          "label": "Capacity Percentage",
+          "type": "percentage",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "medium",
+          "suffix": "%",
+          "validation": {
+            "min": 0,
+            "max": 100,
+            "message": "Percentage must be between 0% and 100%"
+          }
+        },
+        {
+          "id": "coverage_type",
+          "csvField": "coverage_type",
+          "label": "Coverage Type",
+          "type": "select",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "options": ["Marine", "Aviation", "Energy", "Property", "Casualty", "Cyber"]
+        },
+        {
+          "id": "market_date",
+          "csvField": "market_date",
+          "label": "Market Date",
+          "type": "date",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "format": "DD/MM/YYYY"
+        }
+      ]
+    },
+    {
+      "id": "coverage-details",
+      "title": "COVERAGE DETAILS",
+      "type": "field-grid",
+      "columns": 2,
+      "fields": [
+        {
+          "id": "policy_limits",
+          "csvField": "policy_limits",
+          "label": "Policy Limits",
+          "type": "currency",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "prefix": "£",
+          "validation": {
+            "min": 1000,
+            "max": 100000000,
+            "message": "Policy limits must be between £1,000 and £100,000,000"
+          }
+        },
+        {
+          "id": "deductibles",
+          "csvField": "deductibles",
+          "label": "Deductibles",
+          "type": "currency",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "medium",
+          "prefix": "£",
+          "validation": {
+            "min": 0,
+            "max": 10000000,
+            "message": "Deductibles must be between £0 and £10,000,000"
+          }
+        },
+        {
+          "id": "territory",
+          "csvField": "territory",
+          "label": "Territory",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high"
+        },
+        {
+          "id": "period_from",
+          "csvField": "period_from",
+          "label": "Period From",
+          "type": "date",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "format": "DD/MM/YYYY"
+        },
+        {
+          "id": "period_to",
+          "csvField": "period_to",
+          "label": "Period To",
+          "type": "date",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "format": "DD/MM/YYYY"
+        },
+        {
+          "id": "currency",
+          "csvField": "currency",
+          "label": "Currency",
+          "type": "select",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "options": ["GBP", "USD", "EUR", "JPY", "CAD", "AUD"]
+        }
+      ]
+    },
+    {
+      "id": "risk-information",
+      "title": "RISK INFORMATION",
+      "type": "field-grid",
+      "columns": 1,
+      "fields": [
+        {
+          "id": "risk_description",
+          "csvField": "risk_description",
+          "label": "Risk Description",
+          "type": "textarea",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "medium",
+          "rows": 4
+        },
+        {
+          "id": "special_conditions",
+          "csvField": "special_conditions",
+          "label": "Special Conditions",
+          "type": "textarea",
+          "required": false,
+          "editable": true,
+          "confidenceScore": "low",
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "id": "syndicate-participation",
+      "title": "SYNDICATE PARTICIPATION",
+      "type": "table",
+      "columns": [
+        {
+          "id": "syndicate_number",
+          "csvField": "syndicate_number",
+          "label": "Syndicate Number",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high"
+        },
+        {
+          "id": "syndicate_name",
+          "csvField": "syndicate_name",
+          "label": "Syndicate Name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high"
+        },
+        {
+          "id": "participation_percentage",
+          "csvField": "participation_percentage",
+          "label": "Participation %",
+          "type": "percentage",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "medium",
+          "suffix": "%"
+        },
+        {
+          "id": "syndicate_capacity",
+          "csvField": "syndicate_capacity",
+          "label": "Capacity",
+          "type": "currency",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "prefix": "£"
+        }
+      ]
+    }
+  ],
+  "actions": {
+    "primary": {
+      "label": "Approve & Continue",
+      "type": "approve",
+      "style": "primary",
+      "endpoint": "/api/workflows/{sessionId}/approve-extraction",
+      "method": "POST",
+      "confirmMessage": "Are you sure you want to approve this slip data extraction?",
+      "successMessage": "Slip data extraction approved successfully"
+    },
+    "secondary": {
+      "label": "Reject & Stop",
+      "type": "reject",
+      "style": "danger",
+      "endpoint": "/api/workflows/{sessionId}/reject-extraction",
+      "method": "POST",
+      "confirmMessage": "Are you sure you want to reject this slip data extraction?",
+      "successMessage": "Slip data extraction rejected"
+    }
+  },
+  "styling": {
+    "backgroundColor": "bg-gray-50",
+    "sectionSpacing": "space-y-6",
+    "fieldSpacing": "space-y-4",
+    "confidenceBadges": {
+      "high": {
+        "color": "bg-green-100 text-green-800",
+        "label": "High ({percentage}%)"
+      },
+      "medium": {
+        "color": "bg-yellow-100 text-yellow-800",
+        "label": "Medium ({percentage}%)"
+      },
+      "low": {
+        "color": "bg-red-100 text-red-800",
+        "label": "Low ({percentage}%)"
+      }
+    },
+    "fieldStyles": {
+      "default": "w-full px-3 py-2 border border-gray-300 rounded-md",
+      "disabled": "bg-gray-100 text-gray-600",
+      "error": "border-red-500 bg-red-50"
+    },
+    "tableStyles": {
+      "header": "bg-gray-100 font-medium text-gray-900",
+      "row": "border-b border-gray-200",
+      "cell": "px-4 py-2"
+    }
+  },
+  "validation": {
+    "validateOnChange": true,
+    "showErrorsInline": true,
+    "requiredFieldMessage": "This field is required",
+    "emailValidation": "Please enter a valid email address",
+    "dateValidation": "Please enter a valid date",
+    "numericValidation": "Please enter a valid number",
+    "percentageValidation": "Please enter a valid percentage (0-100)"
+  },
+  "dataSource": {
+    "csvFile": "slip-data.csv",
+    "keyField": "slip_reference",
+    "confidenceCalculation": "weighted",
+    "refreshInterval": 600
+  }
+}

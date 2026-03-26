@@ -1,0 +1,68 @@
+{
+  "form_title": "Policy Data Extraction Review",
+  "form_subtitle": "Review and approve extracted data from the uploaded property insurance policy document",
+  "confidence_threshold": { "high": 0.90, "medium": 0.75, "low": 0.0 },
+  "sections": [
+    {
+      "id": "insured_details",
+      "title": "Insured Details",
+      "fields": [
+        { "id": "insured_name", "label": "Insured Name", "value": "Robert J. Harrington & Elena M. Harrington", "confidence": 0.97, "type": "text", "required": true, "source": { "page": 1, "bbox": [146, 453, 281, 474] } },
+        { "id": "insured_address_line1", "label": "Mailing Address", "value": "842 Elmwood Drive", "confidence": 0.95, "type": "text", "required": true, "source": { "page": 1, "bbox": [400, 462, 532, 474] } },
+        { "id": "insured_city", "label": "City", "value": "Pasadena", "confidence": 0.94, "type": "text", "required": false, "source": { "page": 1, "bbox": [400, 453, 532, 462] } },
+        { "id": "insured_state", "label": "State", "value": "California", "confidence": 0.96, "type": "text", "required": false, "source": { "page": 1, "bbox": [400, 405, 442, 414] } },
+        { "id": "insured_zip", "label": "ZIP Code", "value": "91104", "confidence": 0.97, "type": "text", "required": true, "source": { "page": 1, "bbox": [146, 405, 171, 414] } },
+        { "id": "policy_number", "label": "Policy Number", "value": "HO-2024-7731845-CA", "confidence": 0.99, "type": "text", "required": true, "source": { "page": 1, "bbox": [146, 602, 236, 611] } }
+      ]
+    },
+    {
+      "id": "property_details",
+      "title": "Property Details",
+      "fields": [
+        { "id": "property_address_line1", "label": "Property Address", "value": "842 Elmwood Drive", "confidence": 0.96, "type": "text", "required": true, "source": { "page": 1, "bbox": [146, 435, 293, 444] } },
+        { "id": "property_city", "label": "City", "value": "Pasadena", "confidence": 0.95, "type": "text", "required": true, "source": { "page": 1, "bbox": [146, 435, 293, 444] } },
+        { "id": "property_state", "label": "State", "value": "California", "confidence": 0.96, "type": "text", "required": true, "source": { "page": 1, "bbox": [400, 405, 442, 414] } },
+        { "id": "property_zip", "label": "ZIP Code", "value": "91104", "confidence": 0.97, "type": "text", "required": true, "source": { "page": 1, "bbox": [146, 405, 171, 414] } },
+        { "id": "property_type", "label": "Property Type", "value": "HO-3 Special Form — Homeowners", "confidence": 0.93, "type": "text", "required": true, "source": { "page": 1, "bbox": [400, 590, 492, 611] } },
+        { "id": "occupancy_type", "label": "Occupancy Type", "value": "Owner-Occupied Primary Residence", "confidence": 0.91, "type": "text", "required": true, "source": { "page": 1, "bbox": [400, 375, 508, 396] } },
+        { "id": "year_built", "label": "Year Built", "value": "1987", "confidence": 0.89, "type": "text", "required": false, "source": { "page": 1, "bbox": [146, 310, 166, 319] } },
+        { "id": "construction_type", "label": "Construction Type", "value": "Wood Frame — Stucco Exterior", "confidence": 0.88, "type": "text", "required": false, "source": { "page": 1, "bbox": [307, 298, 374, 319] } }
+      ]
+    },
+    {
+      "id": "coverage_details",
+      "title": "Coverage Details",
+      "fields": [
+        { "id": "coverage_type", "label": "Coverage Form", "value": "HO-3 Special Form — Homeowners", "confidence": 0.95, "type": "text", "required": true, "source": { "page": 1, "bbox": [400, 590, 492, 611] } },
+        { "id": "dwelling_limit", "label": "Dwelling Coverage (Coverage A)", "value": "$875,000", "confidence": 0.97, "type": "text", "required": true, "source": { "page": 1, "bbox": [429, 75, 466, 84] } },
+        { "id": "other_structures_limit", "label": "Other Structures (Coverage B)", "value": "$87,500", "confidence": 0.94, "type": "text", "required": false, "source": { "page": 2, "bbox": [434, 710, 466, 719] } },
+        { "id": "personal_property_limit", "label": "Personal Property (Coverage C)", "value": "$350,000", "confidence": 0.93, "type": "text", "required": false, "source": { "page": 2, "bbox": [429, 690, 466, 699] } },
+        { "id": "loss_of_use_limit", "label": "Loss of Use (Coverage D)", "value": "$175,000", "confidence": 0.91, "type": "text", "required": false, "source": { "page": 2, "bbox": [429, 670, 466, 679] } },
+        { "id": "liability_limit", "label": "Liability (Coverage E)", "value": "$300,000", "confidence": 0.95, "type": "text", "required": true, "source": { "page": 2, "bbox": [429, 650, 466, 659] } },
+        { "id": "medical_payments_limit", "label": "Medical Payments (Coverage F)", "value": "$5,000 per person", "confidence": 0.90, "type": "text", "required": false, "source": { "page": 2, "bbox": [393, 630, 466, 639] } }
+      ]
+    },
+    {
+      "id": "deductibles_and_premium",
+      "title": "Deductibles & Premium",
+      "fields": [
+        { "id": "all_peril_deductible", "label": "All Peril Deductible", "value": "$2,500", "confidence": 0.96, "type": "text", "required": true, "source": { "page": 2, "bbox": [517, 596, 545, 605] } },
+        { "id": "wind_hail_deductible", "label": "Wind / Hail Deductible", "value": "2% of Coverage A", "confidence": 0.90, "type": "text", "required": false, "source": { "page": 2, "bbox": [492, 564, 545, 573] } },
+        { "id": "hurricane_deductible", "label": "Hurricane Deductible", "value": "Not Covered", "confidence": 0.88, "type": "text", "required": false, "source": { "page": 2, "bbox": [400, 532, 466, 541] } },
+        { "id": "annual_premium", "label": "Annual Premium", "value": "$3,142.83", "confidence": 0.97, "type": "text", "required": true, "source": { "page": 3, "bbox": [498, 642, 543, 652] } },
+        { "id": "policy_fee", "label": "Policy Fee", "value": "$35.00", "confidence": 0.92, "type": "text", "required": false, "source": { "page": 3, "bbox": [515, 664, 543, 673] } }
+      ]
+    },
+    {
+      "id": "policy_period_and_carrier",
+      "title": "Policy Period & Carrier",
+      "fields": [
+        { "id": "inception_date", "label": "Inception Date", "value": "03/15/2024", "confidence": 0.98, "type": "text", "required": true, "source": { "page": 1, "bbox": [146, 572, 220, 581] } },
+        { "id": "expiry_date", "label": "Expiry Date", "value": "03/15/2025", "confidence": 0.98, "type": "text", "required": true, "source": { "page": 1, "bbox": [220, 572, 292, 581] } },
+        { "id": "carrier_name", "label": "Carrier Name", "value": "Pinnacle Mutual Insurance Group", "confidence": 0.96, "type": "text", "required": true, "source": { "page": 1, "bbox": [67, 682, 289, 714] } },
+        { "id": "producing_agent", "label": "Producing Agent / Broker", "value": "Pacific Coast Insurance Brokers (Lic #0F28841)", "confidence": 0.93, "type": "text", "required": false, "source": { "page": 1, "bbox": [400, 526, 543, 547] } },
+        { "id": "agent_email", "label": "Agent / Broker Email", "value": "", "confidence": 0.60, "type": "text", "required": false, "source": { "page": 1, "bbox": [400, 526, 543, 547] } }
+      ]
+    }
+  ]
+}

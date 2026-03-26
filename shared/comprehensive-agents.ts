@@ -1,0 +1,332 @@
+import { z } from "zod";
+
+export const comprehensiveAgentSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.string(),
+  description: z.string(),
+  workflowTypes: z.array(z.enum(["submission", "slip"])),
+  capabilities: z.array(z.string()),
+  model: z.string(),
+  processingTime: z.string(),
+  accuracy: z.string()
+});
+
+export type ComprehensiveAgent = z.infer<typeof comprehensiveAgentSchema>;
+
+export const comprehensiveAgents: ComprehensiveAgent[] = [
+  {
+    id: "email_classifier_agent",
+    name: "Email Classifier Agent",
+    type: "classifier",
+    description: "Identifies the intent of the incoming email (e.g., quote request, negotiation)",
+    workflowTypes: ["submission", "slip"],
+    capabilities: [
+      "Email intent classification",
+      "Quote request detection",
+      "Negotiation identification",
+      "Clarification request recognition"
+    ],
+    model: "gpt-4o-mini",
+    processingTime: "30-60 seconds",
+    accuracy: "98%"
+  },
+  {
+    id: "case_lookup_agent",
+    name: "Case Lookup Agent",
+    type: "lookup",
+    description: "Checks if the email belongs to an existing case or starts a new one",
+    workflowTypes: ["submission", "slip"],
+    capabilities: [
+      "Case matching",
+      "Email thread tracking",
+      "Reference number identification",
+      "Broker correspondence linking"
+    ],
+    model: "gpt-4o-mini",
+    processingTime: "15-30 seconds",
+    accuracy: "95%"
+  },
+  {
+    id: "case_create_agent",
+    name: "Case Create Agent",
+    type: "creation",
+    description: "Creates a new case with initial metadata and memory",
+    workflowTypes: ["submission", "slip"],
+    capabilities: [
+      "Case initialization",
+      "Metadata extraction",
+      "Memory setup",
+      "Reference number generation"
+    ],
+    model: "gpt-4o-mini",
+    processingTime: "45-90 seconds",
+    accuracy: "99%"
+  },
+  {
+    id: "mrc_extraction_agent",
+    name: "Data Extraction Agent",
+    type: "extraction",
+    description: "Extracts key data from MRC slips (UMR, limits, clauses)",
+    workflowTypes: ["slip"],
+    capabilities: [
+      "UMR extraction",
+      "Coverage limits identification",
+      "Clause parsing",
+      "Slip structure analysis"
+    ],
+    model: "gpt-4o-mini",
+    processingTime: "2-4 minutes",
+    accuracy: "96%"
+  },
+  {
+    id: "form_extraction_agent",
+    name: "Form Extraction Agent",
+    type: "extraction",
+    description: "Extracts details from submission forms or market presentations",
+    workflowTypes: ["submission"],
+    capabilities: [
+      "Form field extraction",
+      "Document parsing",
+      "Data validation",
+      "Confidence scoring"
+    ],
+    model: "gpt-4o-mini",
+    processingTime: "2-4 minutes",
+    accuracy: "94%"
+  },
+  {
+    id: "clause_checker_agent",
+    name: "Clause Checker Agent",
+    type: "validation",
+    description: "Validates the presence of mandatory clauses like war, sanctions, jurisdiction",
+    workflowTypes: ["slip"],
+    capabilities: [
+      "Mandatory clause validation",
+      "War clause checking",
+      "Sanctions clause verification",
+      "Jurisdiction compliance"
+    ],
+    model: "gpt-4o-mini",
+    processingTime: "1-2 minutes",
+    accuracy: "99%"
+  },
+  {
+    id: "completeness_checker_agent",
+    name: "Completeness Checker Agent",
+    type: "validation",
+    description: "Checks if all required fields are present in the submission",
+    workflowTypes: ["submission"],
+    capabilities: [
+      "Field completeness validation",
+      "Required data checking",
+      "Missing information identification",
+      "Completion scoring"
+    ],
+    model: "gpt-4o-mini",
+    processingTime: "1-2 minutes",
+    accuracy: "97%"
+  },
+  {
+    id: "rule_evaluation_agent",
+    name: "Rule Evaluation Agent",
+    type: "evaluation",
+    description: "Evaluates business and underwriting rules for risks, broker rating, etc.",
+    workflowTypes: ["slip"],
+    capabilities: [
+      "Business rule evaluation",
+      "Risk assessment",
+      "Broker rating analysis",
+      "Underwriting guidelines compliance"
+    ],
+    model: "gpt-4o-mini",
+    processingTime: "3-5 minutes",
+    accuracy: "93%"
+  },
+  {
+    id: "risk_evaluation_agent",
+    name: "Risk Evaluation Agent",
+    type: "evaluation",
+    description: "Assesses the submission risk level based on data provided",
+    workflowTypes: ["submission"],
+    capabilities: [
+      "Risk level assessment",
+      "Data-driven analysis",
+      "Risk factor identification",
+      "Scoring methodology"
+    ],
+    model: "gpt-4o-mini",
+    processingTime: "3-5 minutes",
+    accuracy: "92%"
+  },
+  {
+    id: "human_review_agent",
+    name: "Human Review Agent",
+    type: "review",
+    description: "Allows manual underwriter intervention for approval or clarification",
+    workflowTypes: ["submission", "slip"],
+    capabilities: [
+      "Manual intervention",
+      "Approval workflows",
+      "Clarification requests",
+      "Escalation management"
+    ],
+    model: "human",
+    processingTime: "Variable",
+    accuracy: "100%"
+  },
+  {
+    id: "quote_drafting_agent",
+    name: "Quote Drafting Agent",
+    type: "drafting",
+    description: "Prepares quote or clarification response based on rules and data",
+    workflowTypes: ["submission", "slip"],
+    capabilities: [
+      "Quote generation",
+      "Clarification drafting",
+      "Response preparation",
+      "Template customization"
+    ],
+    model: "gpt-4o-mini",
+    processingTime: "2-4 minutes",
+    accuracy: "95%"
+  },
+  {
+    id: "email_send_agent",
+    name: "Email Send Agent",
+    type: "communication",
+    description: "Sends quotes, binders, or clarifications to the broker",
+    workflowTypes: ["submission", "slip"],
+    capabilities: [
+      "Email delivery",
+      "Attachment handling",
+      "Delivery tracking",
+      "Response monitoring"
+    ],
+    model: "system",
+    processingTime: "10-30 seconds",
+    accuracy: "99%"
+  },
+  {
+    id: "negotiation_detection_agent",
+    name: "Negotiation Detection Agent",
+    type: "detection",
+    description: "Detects if the broker is negotiating or changing terms",
+    workflowTypes: ["submission", "slip"],
+    capabilities: [
+      "Negotiation detection",
+      "Term change identification",
+      "Counter-offer recognition",
+      "Intent analysis"
+    ],
+    model: "gpt-4o-mini",
+    processingTime: "1-2 minutes",
+    accuracy: "91%"
+  },
+  {
+    id: "state_merge_agent",
+    name: "State Merge Agent",
+    type: "merging",
+    description: "Updates existing case memory with broker's latest changes",
+    workflowTypes: ["submission", "slip"],
+    capabilities: [
+      "State merging",
+      "Memory updates",
+      "Change tracking",
+      "Version control"
+    ],
+    model: "gpt-4o-mini",
+    processingTime: "1-3 minutes",
+    accuracy: "96%"
+  },
+  {
+    id: "binder_generator_agent",
+    name: "Binder Generator Agent",
+    type: "generation",
+    description: "Generates final binder documentation once the quote is accepted",
+    workflowTypes: ["submission", "slip"],
+    capabilities: [
+      "Binder generation",
+      "Document creation",
+      "Final documentation",
+      "Compliance checking"
+    ],
+    model: "gpt-4o-mini",
+    processingTime: "3-6 minutes",
+    accuracy: "98%"
+  },
+  {
+    id: "audit_logger_agent",
+    name: "Audit Logger Agent",
+    type: "logging",
+    description: "Logs all interactions, documents, quotes, and updates for traceability",
+    workflowTypes: ["submission", "slip"],
+    capabilities: [
+      "Activity logging",
+      "Audit trail creation",
+      "Compliance documentation",
+      "Traceability tracking"
+    ],
+    model: "system",
+    processingTime: "5-15 seconds",
+    accuracy: "100%"
+  },
+  {
+    id: "case_closure_trigger",
+    name: "Case Closure Agent",
+    type: "closure",
+    description: "Closes and archives the case after binding and audit completion",
+    workflowTypes: ["submission", "slip"],
+    capabilities: [
+      "Case closure",
+      "Archival processing",
+      "Final cleanup",
+      "Status updates"
+    ],
+    model: "system",
+    processingTime: "30-60 seconds",
+    accuracy: "100%"
+  }
+];
+
+export const workflowSequences = {
+  submission: [
+    "email_classifier_agent",
+    "case_lookup_agent",
+    "case_create_agent",
+    "form_extraction_agent",
+    "completeness_checker_agent",
+    "risk_evaluation_agent",
+    "human_review_agent",
+    "quote_drafting_agent",
+    "email_send_agent",
+    "negotiation_detection_agent",
+    "state_merge_agent",
+    "binder_generator_agent",
+    "audit_logger_agent",
+    "case_closure_trigger"
+  ],
+  slip: [
+    "mrc_extraction_agent", // Data Extraction Agent
+    "clause_checker_agent",
+    "rule_evaluation_agent",
+    "human_review_agent",
+    "quote_drafting_agent",
+    "email_send_agent",
+    // Negotiation loop: negotiation_detection_agent → state_merge_agent → quote_drafting_agent (repeats as needed)
+    "negotiation_detection_agent",
+    "state_merge_agent",
+    "binder_generator_agent",
+    "audit_logger_agent",
+    "case_closure_trigger"
+  ]
+};
+
+export function getAgentsByWorkflowType(workflowType: "submission" | "slip"): ComprehensiveAgent[] {
+  const sequence = workflowSequences[workflowType];
+  return sequence.map(agentId => comprehensiveAgents.find(agent => agent.id === agentId)!);
+}
+
+export function getAgentById(agentId: string): ComprehensiveAgent | undefined {
+  return comprehensiveAgents.find(agent => agent.id === agentId);
+}

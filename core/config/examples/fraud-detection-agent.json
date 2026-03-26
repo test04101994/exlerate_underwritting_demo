@@ -1,0 +1,140 @@
+{
+  "version": "1.0.0",
+  "description": "Example: Adding a Fraud Detection Agent to submission workflow",
+  "newAgent": {
+    "id": "fraud-detection",
+    "name": "Fraud Detection Agent", 
+    "type": "security",
+    "role": "fraud_analyst",
+    "executionOrder": 3,
+    "required": true,
+    "aiModel": {
+      "provider": "openrouter",
+      "model": "gpt-4o-mini",
+      "maxTokens": 350,
+      "temperature": 0.1
+    },
+    "prompt": {
+      "systemPrompt": "fraud_detection_prompt",
+      "contextTemplate": "fraud_context_template", 
+      "outputFormat": "fraud_assessment"
+    },
+    "validation": {
+      "requiredFields": ["fraud_score", "risk_indicators", "recommendation"],
+      "confidenceThreshold": 0.9,
+      "allowedValues": {
+        "recommendation": ["approve", "reject", "investigate", "escalate"],
+        "risk_level": ["low", "medium", "high", "critical"]
+      }
+    },
+    "approval": {
+      "requiresHumanApproval": "conditional",
+      "approvalCondition": "fraud_score > 0.7 || risk_level === 'high'",
+      "approvalType": "fraud_override",
+      "pauseWorkflow": true
+    },
+    "dependencies": ["sanctions-check"],
+    "progressTracking": {
+      "stages": ["scanning", "analyzing", "scoring", "reviewing", "completed"],
+      "estimatedDuration": 40
+    }
+  },
+  "requiredPrompts": {
+    "fraud_detection_prompt": "You are an expert fraud detection specialist with extensive experience in insurance fraud analysis. Your role is to:\n\n1. Analyze client data for inconsistencies and red flags\n2. Review transaction patterns and behavioral indicators\n3. Cross-reference against known fraud databases\n4. Calculate comprehensive fraud risk scores\n5. Provide actionable recommendations\n\nFocus on accuracy and provide detailed reasoning for all assessments. Flag any suspicious patterns or anomalies.",
+    "fraud_context_template": "Analyze fraud risk for the following case:\n\nClient Information:\n• Name: {client_name}\n• Address: {client_address}\n• Contact: {client_phone}, {client_email}\n\nPolicy Details:\n• Policy Type: {policy_type}\n• Coverage Amount: {coverage_amount}\n• Premium: {premium_amount}\n\nRisk Factors:\n• Previous Claims: {previous_claims}\n• Credit Score: {credit_score}\n• Employment Status: {employment_status}\n• Property Age: {property_age}\n\nAnalyze all available data and provide comprehensive fraud assessment with specific risk indicators and recommendations."
+  },
+  "requiredCompletionMessages": {
+    "work_started": "Fraud Detection Agent started comprehensive fraud analysis...",
+    "work_progress": [
+      "Scanning client information for inconsistencies...",
+      "Analyzing transaction patterns and behavioral indicators...",
+      "Cross-referencing with fraud databases (NICB, SIU, etc.)...",
+      "Calculating fraud risk score using ML models...",
+      "Preparing detailed fraud assessment report..."
+    ],
+    "work_completed": "Fraud Detection Agent completed successfully.\n\nFraud Assessment Results:\n• Overall Fraud Score: {fraud_score}/100\n• Risk Classification: {risk_level}\n• Key Risk Indicators: {risk_indicators}\n• Recommendation: {recommendation}\n\nDetailed Analysis:\n• Identity Verification: {identity_status}\n• Financial Consistency: {financial_consistency}\n• Behavioral Patterns: {behavioral_analysis}\n• Database Matches: {database_matches}\n\nConfidence Score: {confidence_score}/100\nStatus: {assessment_status}"
+  },
+  "requiredApprovalMessages": {
+    "fraud_override": {
+      "prompt": "🚨 Fraud Detection Alert\n\nHigh fraud risk detected (Score: {fraud_score}/100)\n\nRisk Indicators:\n{risk_indicators}\n\nRecommendation: {recommendation}\n\nPlease review the analysis and choose:\n• Approve: Override fraud concerns and continue\n• Reject: Stop workflow and escalate to fraud team\n• Investigate: Pause for manual investigation",
+      "success": "Fraud override approved. Workflow continuing with enhanced monitoring and documentation requirements.",
+      "rejection": "Fraud override rejected. Case escalated to fraud investigation team for detailed review."
+    }
+  },
+  "workflowIntegration": {
+    "insertAfter": "sanctions-check",
+    "insertBefore": "premium-calculation",
+    "updateExecutionOrder": {
+      "premium-calculation": 4,
+      "email-draft": 5,
+      "email-sender": 6,
+      "final-decision": 7
+    }
+  },
+  "dataSchema": {
+    "fraud_assessment_schema": {
+      "type": "object",
+      "required": ["fraud_score", "risk_indicators", "recommendation", "confidence_score"],
+      "properties": {
+        "fraud_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Overall fraud risk score"
+        },
+        "risk_indicators": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "List of specific fraud risk indicators found"
+        },
+        "recommendation": {
+          "type": "string",
+          "enum": ["approve", "reject", "investigate", "escalate"],
+          "description": "Recommended action based on fraud analysis"
+        },
+        "risk_level": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"],
+          "description": "Risk classification level"
+        },
+        "confidence_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Confidence in fraud assessment accuracy"
+        },
+        "identity_status": {
+          "type": "string",
+          "enum": ["verified", "unverified", "suspicious"],
+          "description": "Identity verification status"
+        },
+        "financial_consistency": {
+          "type": "string",
+          "enum": ["consistent", "inconsistent", "suspicious"],
+          "description": "Financial information consistency check"
+        },
+        "behavioral_analysis": {
+          "type": "string",
+          "description": "Analysis of behavioral patterns and anomalies"
+        },
+        "database_matches": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Matches found in fraud databases"
+        },
+        "investigation_notes": {
+          "type": "string",
+          "description": "Additional notes for investigation team"
+        }
+      }
+    }
+  },
+  "usageInstructions": {
+    "step1": "Copy the 'newAgent' object and add it to config/agents/submission-agents.json",
+    "step2": "Add the 'requiredPrompts' to config/templates/agent-prompts.json",
+    "step3": "Add the 'requiredCompletionMessages' to config/templates/completion-messages.json", 
+    "step4": "Add the 'dataSchema' to config/templates/data-schemas.json",
+    "step5": "Update workflow execution order for existing agents as shown in 'workflowIntegration'",
+    "step6": "Test the new agent in development environment before production deployment"
+  }
+}

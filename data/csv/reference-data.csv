@@ -1,0 +1,25 @@
+ticket_key,field_name,reference_value,source_system,last_updated
+HIS-88,client_name,Oceanview Properties Ltd,CRM_SYSTEM,2025-07-22T10:30:00Z
+HIS-88,property_type,Commercial Warehouse,POLICY_SYSTEM,2025-07-22T10:30:00Z
+HIS-88,property_value,£2450000,VALUATION_SYSTEM,2025-07-22T09:15:00Z
+HIS-88,location_address,45 Industrial Estate Portsmouth PO1 2AB,ADDRESS_SYSTEM,2025-07-22T10:30:00Z
+HIS-88,construction_type,Steel frame with concrete panels,SURVEY_SYSTEM,2025-07-22T11:45:00Z
+HIS-88,occupancy_type,Storage and Distribution,BUSINESS_SYSTEM,2025-07-22T10:30:00Z
+HIS-90,client_name,Maritime Logistics Ltd,CRM_SYSTEM,2025-07-22T14:20:00Z
+HIS-90,policy_type,Marine Cargo Insurance,POLICY_SYSTEM,2025-07-22T14:20:00Z
+HIS-90,coverage_amount,£750000,UNDERWRITING_SYSTEM,2025-07-22T13:45:00Z
+HIS-90,vessel_name,MV Ocean Carrier,VESSEL_REGISTRY,2025-07-22T14:20:00Z
+HIS-90,cargo_description,Electronics and Computer Equipment,CARGO_SYSTEM,2025-07-22T14:20:00Z
+HIS-90,voyage_route,Southampton to Hamburg,LOGISTICS_SYSTEM,2025-07-22T14:20:00Z
+HIS-90,departure_date,2025-08-15,SCHEDULE_SYSTEM,2025-07-22T14:20:00Z
+HIS-90,broker_name,Peters Charley,BROKER_SYSTEM,2025-07-22T14:20:00Z
+HIS-90,broker_email,james_potter1@ajg.com,CONTACT_SYSTEM,2025-07-22T14:20:00Z
+HIS-90,premium_estimate,£8250,PRICING_SYSTEM,2025-07-22T13:30:00Z
+HIS-90,risk_factors,High-value cargo international waters,RISK_SYSTEM,2025-07-22T14:20:00Z
+HIS-90,previous_claims,None in last 3 years,CLAIMS_SYSTEM,2025-07-22T14:20:00Z
+HIS-87,slip_reference,SLP-2025-001,LLOYD_SYSTEM,2025-07-22T16:10:00Z
+HIS-87,syndicate_number,2987,SYNDICATE_SYSTEM,2025-07-22T16:10:00Z
+HIS-87,lead_underwriter,Thompson Marine Underwriters,UNDERWRITER_SYSTEM,2025-07-22T16:10:00Z
+HIS-87,coverage_type,Hull and Machinery,POLICY_SYSTEM,2025-07-22T16:10:00Z
+HIS-87,insured_vessel,MV Atlantic Pioneer,VESSEL_REGISTRY,2025-07-22T16:10:00Z
+HIS-87,vessel_value,£15500000,VALUATION_SYSTEM,2025-07-22T15:45:00Z

@@ -1,0 +1,844 @@
+{
+  "version": "1.0.0",
+  "formId": "enhanced-submission-data-extraction",
+  "title": "Enhanced Data Extraction Review",
+  "subtitle": "Comprehensive review with new fields and sections - fully configurable",
+  "layout": {
+    "columns": 2,
+    "spacing": "4",
+    "containerClass": "max-w-7xl mx-auto p-6"
+  },
+  "sections": [
+    {
+      "id": "summary",
+      "title": "Extraction Summary",
+      "type": "info",
+      "columns": 3,
+      "styling": {
+        "backgroundColor": "bg-blue-50",
+        "borderColor": "border-blue-200",
+        "borderStyle": "border-l-4",
+        "padding": "p-4",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "submissionId",
+          "label": "Submission ID",
+          "type": "text",
+          "readonly": true,
+          "csvField": "submission_id",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 1
+        },
+        {
+          "id": "extractionDate",
+          "label": "Extraction Date",
+          "type": "datetime",
+          "readonly": true,
+          "value": "auto_generated",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 2
+        },
+        {
+          "id": "processingTime",
+          "label": "Processing Time (seconds)",
+          "type": "number",
+          "readonly": true,
+          "value": "auto_generated",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 3
+        }
+      ]
+    },
+    {
+      "id": "broker_info",
+      "title": "Broker & Intermediary Information",
+      "type": "form",
+      "columns": 3,
+      "styling": {
+        "backgroundColor": "bg-gray-50",
+        "borderColor": "border-gray-200",
+        "borderStyle": "border rounded-lg",
+        "padding": "p-6",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "brokerRefNumber",
+          "label": "Broker Reference Number",
+          "type": "text",
+          "csvField": "broker_ref_hu_number",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "required": true,
+          "order": 1
+        },
+        {
+          "id": "intermediaryName",
+          "label": "Intermediary Name",
+          "type": "text",
+          "csvField": "intermediary_name",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "required": true,
+          "order": 2
+        },
+        {
+          "id": "brokerContactName",
+          "label": "Broker Contact Name",
+          "type": "text",
+          "csvField": "broker_contact_name",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "required": true,
+          "order": 3
+        },
+        {
+          "id": "brokerEmail",
+          "label": "Broker Email",
+          "type": "email",
+          "csvField": "broker_email",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "required": true,
+          "order": 4
+        },
+        {
+          "id": "brokerPhone",
+          "label": "Broker Phone",
+          "type": "phone",
+          "csvField": "broker_phone",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 5
+        },
+        {
+          "id": "brokerLicense",
+          "label": "Broker License Number",
+          "type": "text",
+          "csvField": "broker_license",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 6
+        },
+        {
+          "id": "targetPremium",
+          "label": "Target Premium",
+          "type": "currency",
+          "csvField": "target_premium",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "required": true,
+          "order": 7
+        },
+        {
+          "id": "effectiveDate",
+          "label": "Quote Effective Date",
+          "type": "date",
+          "csvField": "quote_effective_date",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "required": true,
+          "order": 8
+        },
+        {
+          "id": "expiryDate",
+          "label": "Quote Expiry Date",
+          "type": "date",
+          "csvField": "quote_expiry_date",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 9
+        }
+      ]
+    },
+    {
+      "id": "policy_holder",
+      "title": "Policy Holder Information",
+      "type": "form",
+      "columns": 3,
+      "styling": {
+        "backgroundColor": "bg-white",
+        "borderColor": "border-gray-200",
+        "borderStyle": "border rounded-lg",
+        "padding": "p-6",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "contactRole",
+          "label": "Contact Role",
+          "type": "select",
+          "csvField": "contact_role",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "required": true,
+          "order": 1,
+          "options": [
+            { "label": "Main Policy Holder", "value": "main_policy_holder" },
+            { "label": "Broker", "value": "broker" },
+            { "label": "Authorized Representative", "value": "authorized_rep" },
+            { "label": "Legal Guardian", "value": "legal_guardian" }
+          ]
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "select",
+          "csvField": "title",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 2,
+          "options": [
+            { "label": "Mr", "value": "Mr" },
+            { "label": "Mrs", "value": "Mrs" },
+            { "label": "Ms", "value": "Ms" },
+            { "label": "Dr", "value": "Dr" },
+            { "label": "Prof", "value": "Prof" }
+          ]
+        },
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "csvField": "first_name",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "required": true,
+          "order": 3
+        },
+        {
+          "id": "middleName",
+          "label": "Middle Name",
+          "type": "text",
+          "csvField": "middle_name",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 4
+        },
+        {
+          "id": "surname",
+          "label": "Surname",
+          "type": "text",
+          "csvField": "surname",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "required": true,
+          "order": 5
+        },
+        {
+          "id": "preferredName",
+          "label": "Preferred Name",
+          "type": "text",
+          "csvField": "preferred_name",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "low",
+          "order": 6
+        },
+        {
+          "id": "dateOfBirth",
+          "label": "Date of Birth",
+          "type": "date",
+          "csvField": "date_of_birth",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "required": true,
+          "order": 7
+        },
+        {
+          "id": "nationality",
+          "label": "Nationality",
+          "type": "text",
+          "csvField": "nationality",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 8
+        },
+        {
+          "id": "occupation",
+          "label": "Occupation",
+          "type": "text",
+          "csvField": "occupation",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 9
+        },
+        {
+          "id": "employerName",
+          "label": "Employer Name",
+          "type": "text",
+          "csvField": "employer_name",
+          "gridPosition": "col-span-2",
+          "confidenceScore": "low",
+          "order": 10
+        },
+        {
+          "id": "annualIncome",
+          "label": "Annual Income",
+          "type": "currency",
+          "csvField": "annual_income",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 11
+        },
+        {
+          "id": "contactAddress",
+          "label": "Contact Address",
+          "type": "address",
+          "csvFields": {
+            "houseNumber": "house_number",
+            "houseName": "house_name",
+            "addressLine1": "address_line1",
+            "city": "city",
+            "postcode": "postcode"
+          },
+          "gridPosition": "col-span-3",
+          "confidenceScore": "high",
+          "required": true,
+          "order": 12
+        }
+      ]
+    },
+    {
+      "id": "property_info",
+      "title": "Property Information",
+      "type": "form",
+      "columns": 3,
+      "styling": {
+        "backgroundColor": "bg-green-50",
+        "borderColor": "border-green-200",
+        "borderStyle": "border rounded-lg",
+        "padding": "p-6",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "propertyAddress",
+          "label": "Property Address",
+          "type": "address",
+          "csvFields": {
+            "houseNumber": "property_house_number",
+            "houseName": "property_house_name",
+            "addressLine1": "property_address_line1",
+            "city": "property_city",
+            "postcode": "property_postcode"
+          },
+          "gridPosition": "col-span-3",
+          "confidenceScore": "high",
+          "required": true,
+          "order": 1
+        },
+        {
+          "id": "propertyType",
+          "label": "Property Type",
+          "type": "select",
+          "csvField": "property_type",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "required": true,
+          "order": 2,
+          "options": [
+            { "label": "House - Detached", "value": "house_detached" },
+            { "label": "House - Semi-detached", "value": "house_semi" },
+            { "label": "House - Terraced", "value": "house_terraced" },
+            { "label": "Flat/Apartment", "value": "flat" },
+            { "label": "Bungalow", "value": "bungalow" },
+            { "label": "Maisonette", "value": "maisonette" }
+          ]
+        },
+        {
+          "id": "propertyUse",
+          "label": "Property Use",
+          "type": "select",
+          "csvField": "property_use",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 3,
+          "options": [
+            { "label": "Primary Residence", "value": "primary_residence" },
+            { "label": "Secondary Home", "value": "secondary_home" },
+            { "label": "Buy-to-Let", "value": "buy_to_let" },
+            { "label": "Commercial", "value": "commercial" }
+          ]
+        },
+        {
+          "id": "occupancyStatus",
+          "label": "Occupancy Status",
+          "type": "select",
+          "csvField": "occupancy_status",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 4,
+          "options": [
+            { "label": "Owner Occupied", "value": "owner_occupied" },
+            { "label": "Tenant Occupied", "value": "tenant_occupied" },
+            { "label": "Vacant", "value": "vacant" },
+            { "label": "Under Renovation", "value": "under_renovation" }
+          ]
+        },
+        {
+          "id": "yearBuilt",
+          "label": "Year Built",
+          "type": "number",
+          "csvField": "year_built",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 5,
+          "validation": {
+            "min": 1800,
+            "max": 2025,
+            "message": "Please enter a valid year between 1800 and 2025"
+          }
+        },
+        {
+          "id": "numberOfBedrooms",
+          "label": "Number of Bedrooms",
+          "type": "number",
+          "csvField": "number_of_bedrooms",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 6,
+          "validation": {
+            "min": 0,
+            "max": 20,
+            "message": "Please enter a valid number of bedrooms"
+          }
+        },
+        {
+          "id": "numberOfBathrooms",
+          "label": "Number of Bathrooms",
+          "type": "number",
+          "csvField": "number_of_bathrooms",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 7,
+          "validation": {
+            "min": 0,
+            "max": 20,
+            "message": "Please enter a valid number of bathrooms"
+          }
+        },
+        {
+          "id": "propertySize",
+          "label": "Property Size (sq ft)",
+          "type": "number",
+          "csvField": "property_size",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 8
+        },
+        {
+          "id": "garageSpaces",
+          "label": "Garage Spaces",
+          "type": "number",
+          "csvField": "garage_spaces",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "low",
+          "order": 9
+        },
+        {
+          "id": "hasGarden",
+          "label": "Has Garden",
+          "type": "checkbox",
+          "csvField": "has_garden",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 10
+        },
+        {
+          "id": "listedBuilding",
+          "label": "Listed Building",
+          "type": "select",
+          "csvField": "listed_building",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 11,
+          "options": [
+            { "label": "Not Listed", "value": "not_listed" },
+            { "label": "Grade I", "value": "grade_1" },
+            { "label": "Grade II", "value": "grade_2" },
+            { "label": "Grade II*", "value": "grade_2_star" }
+          ]
+        },
+        {
+          "id": "roofConstruction",
+          "label": "Roof Construction",
+          "type": "select",
+          "csvField": "roof_construction",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 12,
+          "options": [
+            { "label": "Tiles", "value": "tiles" },
+            { "label": "Slate", "value": "slate" },
+            { "label": "Flat Roof", "value": "flat_roof" },
+            { "label": "Thatch", "value": "thatch" },
+            { "label": "Metal", "value": "metal" }
+          ]
+        },
+        {
+          "id": "wallConstruction",
+          "label": "Wall Construction",
+          "type": "select",
+          "csvField": "wall_construction",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 13,
+          "options": [
+            { "label": "Brick", "value": "brick" },
+            { "label": "Stone", "value": "stone" },
+            { "label": "Concrete", "value": "concrete" },
+            { "label": "Timber Frame", "value": "timber_frame" },
+            { "label": "Steel Frame", "value": "steel_frame" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "security_features",
+      "title": "Security Features",
+      "type": "form",
+      "columns": 2,
+      "styling": {
+        "backgroundColor": "bg-orange-50",
+        "borderColor": "border-orange-200",
+        "borderStyle": "border rounded-lg",
+        "padding": "p-6",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "alarmSystem",
+          "label": "Alarm System",
+          "type": "checkbox",
+          "csvField": "alarm_system",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 1
+        },
+        {
+          "id": "securityCameras",
+          "label": "Security Cameras",
+          "type": "checkbox",
+          "csvField": "security_cameras",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 2
+        },
+        {
+          "id": "securityLighting",
+          "label": "Security Lighting",
+          "type": "checkbox",
+          "csvField": "security_lighting",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "low",
+          "order": 3
+        },
+        {
+          "id": "windowLocks",
+          "label": "Window Locks",
+          "type": "checkbox",
+          "csvField": "window_locks",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "low",
+          "order": 4
+        },
+        {
+          "id": "securityGates",
+          "label": "Security Gates",
+          "type": "checkbox",
+          "csvField": "security_gates",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "low",
+          "order": 5
+        },
+        {
+          "id": "neighbourhoodWatch",
+          "label": "Neighbourhood Watch",
+          "type": "checkbox",
+          "csvField": "neighbourhood_watch",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "low",
+          "order": 6
+        }
+      ]
+    },
+    {
+      "id": "coverage_info",
+      "title": "Coverage Information",
+      "type": "form",
+      "columns": 3,
+      "styling": {
+        "backgroundColor": "bg-purple-50",
+        "borderColor": "border-purple-200",
+        "borderStyle": "border rounded-lg",
+        "padding": "p-6",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "coverType",
+          "label": "Cover Type",
+          "type": "select",
+          "csvField": "cover_type",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "required": true,
+          "order": 1,
+          "options": [
+            { "label": "Buildings Only", "value": "buildings_only" },
+            { "label": "Contents Only", "value": "contents_only" },
+            { "label": "Buildings & Contents", "value": "buildings_contents" }
+          ]
+        },
+        {
+          "id": "policyTerm",
+          "label": "Policy Term",
+          "type": "select",
+          "csvField": "policy_term",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 2,
+          "options": [
+            { "label": "12 Months", "value": "12_months" },
+            { "label": "24 Months", "value": "24_months" },
+            { "label": "36 Months", "value": "36_months" }
+          ]
+        },
+        {
+          "id": "paymentFrequency",
+          "label": "Payment Frequency",
+          "type": "select",
+          "csvField": "payment_frequency",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 3,
+          "options": [
+            { "label": "Annual", "value": "annual" },
+            { "label": "Monthly", "value": "monthly" },
+            { "label": "Quarterly", "value": "quarterly" }
+          ]
+        },
+        {
+          "id": "buildingSumsInsured",
+          "label": "Building Sums Insured",
+          "type": "currency",
+          "csvField": "building_sums_insured",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "required": true,
+          "order": 4
+        },
+        {
+          "id": "contentSumsInsured",
+          "label": "Content Sums Insured",
+          "type": "currency",
+          "csvField": "content_sums_insured",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "required": true,
+          "order": 5
+        },
+        {
+          "id": "excessAmount",
+          "label": "Excess Amount",
+          "type": "currency",
+          "csvField": "excess_amount",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 6
+        },
+        {
+          "id": "totalJewelleryValue",
+          "label": "Total Jewellery Value",
+          "type": "currency",
+          "csvField": "total_jewellery_value",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 7
+        },
+        {
+          "id": "artCollectionsValue",
+          "label": "Art Collections Value",
+          "type": "currency",
+          "csvField": "art_collections_value",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 8
+        },
+        {
+          "id": "accidentalDamage",
+          "label": "Accidental Damage Cover",
+          "type": "checkbox",
+          "csvField": "accidental_damage",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 9
+        },
+        {
+          "id": "propertyOwnership",
+          "label": "Property Ownership",
+          "type": "select",
+          "csvField": "property_ownership",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 10,
+          "options": [
+            { "label": "Freehold", "value": "freehold" },
+            { "label": "Leasehold", "value": "leasehold" },
+            { "label": "Shared Ownership", "value": "shared_ownership" }
+          ]
+        },
+        {
+          "id": "underConstruction",
+          "label": "Under Construction",
+          "type": "checkbox",
+          "csvField": "under_construction",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 11
+        },
+        {
+          "id": "holidayHome",
+          "label": "Holiday Home",
+          "type": "checkbox",
+          "csvField": "holiday_home",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 12
+        }
+      ]
+    },
+    {
+      "id": "additional_info",
+      "title": "Additional Information",
+      "type": "form",
+      "columns": 2,
+      "styling": {
+        "backgroundColor": "bg-yellow-50",
+        "borderColor": "border-yellow-200",
+        "borderStyle": "border rounded-lg",
+        "padding": "p-6",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "previousClaims",
+          "label": "Previous Claims",
+          "type": "textarea",
+          "csvField": "previous_claims",
+          "gridPosition": "col-span-2",
+          "confidenceScore": "low",
+          "order": 1
+        },
+        {
+          "id": "specialInstructions",
+          "label": "Special Instructions",
+          "type": "textarea",
+          "csvField": "special_instructions",
+          "gridPosition": "col-span-2",
+          "confidenceScore": "low",
+          "order": 2
+        },
+        {
+          "id": "referralSource",
+          "label": "How did you hear about us?",
+          "type": "select",
+          "csvField": "referral_source",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "low",
+          "order": 3,
+          "options": [
+            { "label": "Existing Client", "value": "existing_client" },
+            { "label": "Recommendation", "value": "recommendation" },
+            { "label": "Online Search", "value": "online_search" },
+            { "label": "Advertisement", "value": "advertisement" },
+            { "label": "Social Media", "value": "social_media" }
+          ]
+        },
+        {
+          "id": "marketingConsent",
+          "label": "Marketing Consent",
+          "type": "checkbox",
+          "csvField": "marketing_consent",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "low",
+          "order": 4
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "approve",
+      "label": "Approve & Continue",
+      "type": "primary",
+      "variant": "default",
+      "className": "bg-green-600 hover:bg-green-700",
+      "action": "approve_extraction"
+    },
+    {
+      "id": "reject",
+      "label": "Reject & Stop",
+      "type": "secondary",
+      "variant": "destructive",
+      "className": "bg-red-600 hover:bg-red-700",
+      "action": "reject_extraction"
+    },
+    {
+      "id": "request_info",
+      "label": "Request More Information",
+      "type": "tertiary",
+      "variant": "outline",
+      "className": "bg-blue-600 hover:bg-blue-700 text-white",
+      "action": "request_more_info"
+    }
+  ],
+  "validation": {
+    "requiredFields": [
+      "submissionId",
+      "brokerRefNumber",
+      "intermediaryName",
+      "brokerContactName",
+      "brokerEmail",
+      "targetPremium",
+      "effectiveDate",
+      "contactRole",
+      "firstName",
+      "surname",
+      "dateOfBirth",
+      "contactAddress",
+      "propertyAddress",
+      "propertyType",
+      "coverType",
+      "buildingSumsInsured",
+      "contentSumsInsured"
+    ],
+    "conditionalFields": {
+      "multiProperty": {
+        "condition": "hasMultipleProperties",
+        "additionalSections": ["property_2", "property_3"]
+      },
+      "highValueItems": {
+        "condition": "hasHighValueItems",
+        "additionalFields": ["jewellerySchedule", "artSchedule"]
+      }
+    }
+  },
+  "confidence": {
+    "thresholds": {
+      "high": 85,
+      "medium": 65,
+      "low": 45
+    },
+    "colors": {
+      "high": "bg-green-100 text-green-800",
+      "medium": "bg-yellow-100 text-yellow-800",
+      "low": "bg-red-100 text-red-800"
+    }
+  }
+}

@@ -1,0 +1,298 @@
+{
+  "version": "1.0.0",
+  "description": "Agent configuration for submission workflows",
+  "agents": [
+    {
+      "id": "data-extraction",
+      "name": "Data Extraction Agent",
+      "type": "extraction",
+      "description": "Extracts key policy information from submission documents including client details, coverage amounts, and premium calculations",
+      "role": "data_processor",
+      "executionOrder": 1,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 300,
+        "temperature": 0.1
+      },
+      "prompt": {
+        "systemPrompt": "extraction_system_prompt",
+        "contextTemplate": "submission_context_template",
+        "outputFormat": "structured_json"
+      },
+      "dataSource": {
+        "type": "csv",
+        "source": "submissions.csv",
+        "keyField": "submission_id",
+        "displayFields": [
+          "client_name", "broker_name", "policy_type", "coverage_amount", 
+          "premium_amount", "property_address", "contact_phone", "contact_email"
+        ],
+        "confidenceScores": {
+          "client_name": "high",
+          "broker_name": "high", 
+          "policy_type": "medium",
+          "coverage_amount": "high",
+          "premium_amount": "medium"
+        }
+      },
+      "validation": {
+        "requiredFields": ["client_name", "broker_name", "policy_type", "premium_amount"],
+        "confidenceThreshold": 0.7,
+        "allowedValues": {
+          "policy_type": ["home", "auto", "commercial", "life"]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": true,
+        "approvalType": "data_extraction",
+        "pauseWorkflow": true,
+        "formInterface": "DataExtractionForm"
+      },
+      "dependencies": [],
+      "progressTracking": {
+        "stages": ["initializing", "extracting", "validating", "awaiting_approval", "completed"],
+        "estimatedDuration": 30
+      }
+    },
+    {
+      "id": "sanctions-check",
+      "name": "Sanctions Check Agent",
+      "type": "compliance",
+      "description": "Screens clients against global sanctions lists and compliance databases to ensure regulatory adherence",
+      "role": "risk_assessor",
+      "executionOrder": 2,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 250,
+        "temperature": 0.0
+      },
+      "prompt": {
+        "systemPrompt": "sanctions_system_prompt",
+        "contextTemplate": "sanctions_context_template",
+        "outputFormat": "risk_assessment"
+      },
+      "validation": {
+        "requiredFields": ["sanctions_status", "risk_level", "confidence_score"],
+        "confidenceThreshold": 0.9,
+        "allowedValues": {
+          "sanctions_status": ["clear", "flagged", "requires_review"],
+          "risk_level": ["low", "medium", "high"]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": "conditional",
+        "approvalCondition": "sanctions_status === 'flagged' || risk_level === 'high'",
+        "approvalType": "sanctions_override",
+        "pauseWorkflow": true,
+        "failureRate": 0.3
+      },
+      "dependencies": ["data-extraction"],
+      "progressTracking": {
+        "stages": ["scanning", "analyzing", "cross_referencing", "completed"],
+        "estimatedDuration": 45
+      }
+    },
+    {
+      "id": "risk-profile",
+      "name": "Risk Profile Agent",
+      "type": "analytics",
+      "description": "Analyzes conversion probability, risk factors, and generates comprehensive risk assessment for the submission",
+      "role": "risk_analyst",
+      "executionOrder": 3,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 350,
+        "temperature": 0.1
+      },
+      "prompt": {
+        "systemPrompt": "risk_profile_system_prompt",
+        "contextTemplate": "risk_analysis_context_template",
+        "outputFormat": "risk_profile_assessment"
+      },
+      "validation": {
+        "requiredFields": ["conversion_probability", "risk_score", "recommendation", "key_factors"],
+        "confidenceThreshold": 0.8,
+        "numericValidation": {
+          "conversion_probability": {"min": 0.0, "max": 1.0},
+          "risk_score": {"min": 0, "max": 100}
+        },
+        "allowedValues": {
+          "recommendation": ["proceed", "proceed_with_conditions", "require_review", "decline"]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": "conditional",
+        "approvalCondition": "conversion_probability < 0.4 || risk_score > 75",
+        "approvalType": "risk_override",
+        "pauseWorkflow": true
+      },
+      "dependencies": ["sanctions-check"],
+      "progressTracking": {
+        "stages": ["analyzing_profile", "calculating_probability", "generating_recommendation", "completed"],
+        "estimatedDuration": 35
+      },
+      "analytics": {
+        "factors": [
+          "client_history", "property_type", "location_risk", "coverage_amount", 
+          "broker_relationship", "policy_complexity", "market_conditions"
+        ],
+        "weightings": {
+          "client_history": 0.25,
+          "property_type": 0.20,
+          "location_risk": 0.15,
+          "coverage_amount": 0.15,
+          "broker_relationship": 0.10,
+          "policy_complexity": 0.10,
+          "market_conditions": 0.05
+        }
+      }
+    },
+    {
+      "id": "premium-calculation",
+      "name": "Premium Calculation Agent",
+      "type": "financial",
+      "description": "Calculates accurate policy premium based on risk factors, coverage amounts, and pricing models",
+      "role": "pricing_analyst",
+      "executionOrder": 4,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 400,
+        "temperature": 0.2
+      },
+      "prompt": {
+        "systemPrompt": "premium_calculation_prompt",
+        "contextTemplate": "pricing_context_template",
+        "outputFormat": "pricing_breakdown"
+      },
+      "validation": {
+        "requiredFields": ["base_premium", "risk_adjustments", "final_premium", "pricing_factors"],
+        "confidenceThreshold": 0.85,
+        "numericValidation": {
+          "base_premium": {"min": 100, "max": 1000000},
+          "final_premium": {"min": 100, "max": 1000000}
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": false
+      },
+      "dependencies": ["risk-profile"],
+      "progressTracking": {
+        "stages": ["calculating", "adjusting", "validating", "completed"],
+        "estimatedDuration": 25
+      }
+    },
+    {
+      "id": "email-draft",
+      "name": "Email Draft Agent",
+      "type": "communication",
+      "description": "Generates professional email communication for broker with personalized quote and policy details",
+      "role": "content_writer",
+      "executionOrder": 5,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 500,
+        "temperature": 0.4
+      },
+      "prompt": {
+        "systemPrompt": "email_draft_prompt",
+        "contextTemplate": "email_context_template",
+        "outputFormat": "email_format"
+      },
+      "validation": {
+        "requiredFields": ["subject", "recipient", "body", "email_type"],
+        "confidenceThreshold": 0.8,
+        "allowedValues": {
+          "email_type": ["approval", "rejection", "quote", "follow_up"]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": true,
+        "approvalType": "email_draft",
+        "pauseWorkflow": true,
+        "actions": ["send", "edit", "discard"]
+      },
+      "dependencies": ["premium-calculation"],
+      "progressTracking": {
+        "stages": ["drafting", "formatting", "reviewing", "awaiting_approval", "completed"],
+        "estimatedDuration": 20
+      }
+    },
+    {
+      "id": "email-sender",
+      "name": "Email Sender Agent",
+      "type": "communication",
+      "description": "Sends approved email to broker and tracks delivery status with confirmation receipts",
+      "role": "delivery_manager",
+      "executionOrder": 6,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 200,
+        "temperature": 0.1
+      },
+      "prompt": {
+        "systemPrompt": "email_sender_prompt",
+        "contextTemplate": "sender_context_template",
+        "outputFormat": "delivery_confirmation"
+      },
+      "validation": {
+        "requiredFields": ["delivery_status", "message_id", "timestamp"],
+        "confidenceThreshold": 0.95
+      },
+      "approval": {
+        "requiresHumanApproval": false
+      },
+      "dependencies": ["email-draft"],
+      "progressTracking": {
+        "stages": ["preparing", "sending", "confirming", "completed"],
+        "estimatedDuration": 10
+      }
+    },
+    {
+      "id": "integration",
+      "name": "Integration Agent",
+      "type": "integration",
+      "description": "Finalizes workflow by consolidating all processing results and generating comprehensive summary report",
+      "role": "workflow_coordinator",
+      "executionOrder": 7,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 300,
+        "temperature": 0.3
+      },
+      "prompt": {
+        "systemPrompt": "final_decision_prompt",
+        "contextTemplate": "decision_context_template",
+        "outputFormat": "workflow_summary"
+      },
+      "validation": {
+        "requiredFields": ["workflow_status", "decision_summary", "next_steps"],
+        "confidenceThreshold": 0.9,
+        "allowedValues": {
+          "workflow_status": ["completed", "requires_follow_up", "escalated"]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": false
+      },
+      "dependencies": ["email-sender"],
+      "progressTracking": {
+        "stages": ["reviewing", "summarizing", "finalizing", "completed"],
+        "estimatedDuration": 15
+      }
+    }
+  ]
+}

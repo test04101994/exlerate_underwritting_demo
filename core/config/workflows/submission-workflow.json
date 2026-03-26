@@ -1,0 +1,226 @@
+{
+  "version": "1.0.0",
+  "workflowType": "submission",
+  "name": "Insurance Submission Workflow",
+  "description": "Complete workflow for processing insurance policy submissions",
+  "metadata": {
+    "estimatedDuration": 145,
+    "totalSteps": 6,
+    "approvalGates": 2,
+    "created": "2025-01-12",
+    "lastModified": "2025-01-12"
+  },
+  "configuration": {
+    "parallelExecution": false,
+    "failureHandling": "pause_and_notify",
+    "retryPolicy": {
+      "maxRetries": 3,
+      "retryDelay": 30,
+      "exponentialBackoff": true
+    },
+    "timeoutSettings": {
+      "stepTimeout": 300,
+      "workflowTimeout": 3600,
+      "approvalTimeout": 86400
+    }
+  },
+  "dataFlow": {
+    "inputSchema": "submission_input_schema",
+    "outputSchema": "submission_output_schema",
+    "intermediateData": [
+      {"step": "data-extraction", "schema": "extracted_data_schema"},
+      {"step": "sanctions-check", "schema": "sanctions_result_schema"},
+      {"step": "premium-calculation", "schema": "pricing_result_schema"},
+      {"step": "email-draft", "schema": "email_draft_schema"},
+      {"step": "email-sender", "schema": "delivery_confirmation_schema"},
+      {"step": "final-decision", "schema": "workflow_summary_schema"}
+    ]
+  },
+  "steps": [
+    {
+      "stepId": "step-1",
+      "agentId": "data-extraction",
+      "name": "Data Extraction",
+      "description": "Extract and validate policy data from submission documents",
+      "executionType": "sequential",
+      "preconditions": ["workflow_initiated"],
+      "postconditions": ["data_extracted", "human_approved"],
+      "errorHandling": {
+        "onFailure": "pause_workflow",
+        "notifyUsers": ["underwriter", "admin"],
+        "escalationLevel": "medium"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "detailed",
+        "metrics": ["extraction_accuracy", "processing_time", "confidence_score"]
+      }
+    },
+    {
+      "stepId": "step-2",
+      "agentId": "sanctions-check",
+      "name": "Sanctions Screening",
+      "description": "Screen clients against sanctions lists and compliance databases",
+      "executionType": "sequential",
+      "preconditions": ["data_extracted"],
+      "postconditions": ["sanctions_cleared"],
+      "conditionalExecution": {
+        "skipIf": "client_previously_cleared_within_30_days",
+        "escalateIf": "sanctions_flag_detected"
+      },
+      "errorHandling": {
+        "onFailure": "require_manual_review",
+        "notifyUsers": ["compliance_officer", "underwriter"],
+        "escalationLevel": "high"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "detailed",
+        "metrics": ["screening_coverage", "false_positive_rate", "processing_time"]
+      }
+    },
+    {
+      "stepId": "step-3",
+      "agentId": "risk-profile",
+      "name": "Risk Profile Analysis",
+      "description": "Analyze conversion probability and risk factors for submission",
+      "executionType": "sequential",
+      "preconditions": ["sanctions_cleared"],
+      "postconditions": ["risk_profile_completed"],
+      "conditionalExecution": {
+        "escalateIf": "conversion_probability < 0.4 || risk_score > 75"
+      },
+      "errorHandling": {
+        "onFailure": "require_manual_review",
+        "notifyUsers": ["underwriter", "risk_manager"],
+        "escalationLevel": "medium"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "detailed",
+        "metrics": ["conversion_probability", "risk_score", "analysis_confidence"]
+      }
+    },
+    {
+      "stepId": "step-4",
+      "agentId": "premium-calculation",
+      "name": "Premium Calculation",
+      "description": "Calculate policy premium based on risk factors and pricing models",
+      "executionType": "sequential",
+      "preconditions": ["risk_profile_completed"],
+      "postconditions": ["premium_calculated"],
+      "errorHandling": {
+        "onFailure": "use_fallback_pricing",
+        "notifyUsers": ["pricing_team", "underwriter"],
+        "escalationLevel": "medium"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "standard",
+        "metrics": ["pricing_accuracy", "model_confidence", "processing_time"]
+      }
+    },
+    {
+      "stepId": "step-5",
+      "agentId": "email-draft",
+      "name": "Email Draft Creation",
+      "description": "Generate professional email communication for broker",
+      "executionType": "sequential",
+      "preconditions": ["premium_calculated"],
+      "postconditions": ["email_drafted", "human_approved"],
+      "errorHandling": {
+        "onFailure": "use_template_fallback",
+        "notifyUsers": ["underwriter"],
+        "escalationLevel": "low"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "standard",
+        "metrics": ["content_quality", "personalization_score", "processing_time"]
+      }
+    },
+    {
+      "stepId": "step-6",
+      "agentId": "email-sender",
+      "name": "Email Delivery",
+      "description": "Send approved email to broker and track delivery",
+      "executionType": "sequential",
+      "preconditions": ["email_approved"],
+      "postconditions": ["email_delivered"],
+      "errorHandling": {
+        "onFailure": "retry_with_fallback_service",
+        "notifyUsers": ["underwriter", "admin"],
+        "escalationLevel": "medium"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "standard",
+        "metrics": ["delivery_success_rate", "delivery_time", "bounce_rate"]
+      }
+    },
+    {
+      "stepId": "step-7",
+      "agentId": "final-decision",
+      "name": "Workflow Completion",
+      "description": "Finalize workflow and generate summary report",
+      "executionType": "sequential",
+      "preconditions": ["email_delivered"],
+      "postconditions": ["workflow_completed"],
+      "errorHandling": {
+        "onFailure": "log_and_notify",
+        "notifyUsers": ["admin"],
+        "escalationLevel": "low"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "summary",
+        "metrics": ["workflow_completion_time", "overall_success_rate"]
+      }
+    }
+  ],
+  "approvalGates": [
+    {
+      "gateId": "data-extraction-approval",
+      "stepId": "step-1",
+      "type": "human_approval",
+      "approvers": ["underwriter", "senior_underwriter"],
+      "approvalType": "data_extraction",
+      "timeout": 86400,
+      "escalationPolicy": "escalate_to_manager_after_24h"
+    },
+    {
+      "gateId": "email-draft-approval",
+      "stepId": "step-4",
+      "type": "human_approval",
+      "approvers": ["underwriter"],
+      "approvalType": "email_draft",
+      "timeout": 3600,
+      "escalationPolicy": "auto_approve_after_1h"
+    }
+  ],
+  "notifications": {
+    "channels": ["email", "dashboard", "slack"],
+    "events": [
+      {"event": "workflow_started", "recipients": ["underwriter"]},
+      {"event": "approval_required", "recipients": ["underwriter", "supervisor"]},
+      {"event": "workflow_completed", "recipients": ["underwriter", "broker"]},
+      {"event": "workflow_failed", "recipients": ["underwriter", "admin", "manager"]}
+    ]
+  },
+  "integrations": {
+    "csvDataSource": {
+      "enabled": true,
+      "source": "submissions.csv",
+      "refreshInterval": 300
+    },
+    "documentViewer": {
+      "enabled": true,
+      "supportedFormats": ["pdf", "email", "csv"]
+    },
+    "emailService": {
+      "enabled": true,
+      "provider": "aws_ses",
+      "templates": "submission_email_templates"
+    }
+  }
+}

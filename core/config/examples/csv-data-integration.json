@@ -1,0 +1,211 @@
+{
+  "version": "1.0.0",
+  "description": "Configuration for CSV data integration with Data Extraction Agent",
+  "csvDataSources": {
+    "submissions": {
+      "file": "submissions.csv",
+      "keyField": "submission_id",
+      "selector": "UW-2025-001",
+      "fields": {
+        "client_name": {
+          "displayName": "Client Name",
+          "confidenceScore": "high",
+          "required": true,
+          "type": "string"
+        },
+        "broker_name": {
+          "displayName": "Broker Name", 
+          "confidenceScore": "high",
+          "required": true,
+          "type": "string"
+        },
+        "policy_type": {
+          "displayName": "Policy Type",
+          "confidenceScore": "medium",
+          "required": true,
+          "type": "string",
+          "allowedValues": ["home", "auto", "commercial", "life"]
+        },
+        "coverage_amount": {
+          "displayName": "Coverage Amount",
+          "confidenceScore": "high",
+          "required": true,
+          "type": "number",
+          "format": "currency"
+        },
+        "premium_amount": {
+          "displayName": "Premium Amount",
+          "confidenceScore": "medium",
+          "required": true,
+          "type": "number",
+          "format": "currency"
+        },
+        "property_address": {
+          "displayName": "Property Address",
+          "confidenceScore": "high",
+          "required": false,
+          "type": "string"
+        },
+        "contact_phone": {
+          "displayName": "Contact Phone",
+          "confidenceScore": "medium",
+          "required": false,
+          "type": "string",
+          "format": "phone"
+        },
+        "contact_email": {
+          "displayName": "Contact Email",
+          "confidenceScore": "high",
+          "required": false,
+          "type": "string",
+          "format": "email"
+        }
+      }
+    },
+    "slips": {
+      "file": "slip-data.csv",
+      "keyField": "slip_reference",
+      "selector": "SLP-2025-001",
+      "fields": {
+        "slip_reference": {
+          "displayName": "Slip Reference",
+          "confidenceScore": "high",
+          "required": true,
+          "type": "string"
+        },
+        "lloyd_syndicate": {
+          "displayName": "Lloyd's Syndicate",
+          "confidenceScore": "high",
+          "required": true,
+          "type": "string"
+        },
+        "lead_underwriter": {
+          "displayName": "Lead Underwriter",
+          "confidenceScore": "high",
+          "required": true,
+          "type": "string"
+        },
+        "capacity_percentage": {
+          "displayName": "Capacity Percentage",
+          "confidenceScore": "medium",
+          "required": true,
+          "type": "number",
+          "format": "percentage"
+        },
+        "coverage_type": {
+          "displayName": "Coverage Type",
+          "confidenceScore": "high",
+          "required": true,
+          "type": "string"
+        },
+        "policy_limits": {
+          "displayName": "Policy Limits",
+          "confidenceScore": "high",
+          "required": true,
+          "type": "number",
+          "format": "currency"
+        },
+        "deductibles": {
+          "displayName": "Deductibles",
+          "confidenceScore": "medium",
+          "required": true,
+          "type": "number",
+          "format": "currency"
+        },
+        "market_date": {
+          "displayName": "Market Date",
+          "confidenceScore": "high",
+          "required": true,
+          "type": "string",
+          "format": "date"
+        }
+      }
+    }
+  },
+  "dataExtractionBehavior": {
+    "submissions": {
+      "description": "Data Extraction Agent for submission workflows reads from submissions.csv and displays extracted values in DataExtractionForm",
+      "process": [
+        "1. Load CSV data based on submission ID selector",
+        "2. Display extracted values in form fields with confidence badges",
+        "3. Allow user to edit values before approval",
+        "4. Validate required fields and data types",
+        "5. Pass approved data to next agent (Sanctions Check)"
+      ],
+      "formInterface": "DataExtractionForm",
+      "approvalRequired": true,
+      "editableFields": true,
+      "confidenceBadges": true
+    },
+    "slips": {
+      "description": "Data Extraction Agent for slip workflows reads from slip-data.csv and displays extracted values in SlipDataExtractionForm",
+      "process": [
+        "1. Load CSV data based on slip reference selector",
+        "2. Display extracted values in form fields with confidence badges",
+        "3. Allow user to edit values before approval",
+        "4. Validate required fields and data types",
+        "5. Pass approved data to next agent (Slip Validation)"
+      ],
+      "formInterface": "SlipDataExtractionForm",
+      "approvalRequired": true,
+      "editableFields": true,
+      "confidenceBadges": true
+    }
+  },
+  "csvIntegration": {
+    "localFileSystem": {
+      "enabled": true,
+      "description": "Read CSV files from local file system via LOCAL_API_URL",
+      "endpoint": "/api/local/csv/{filename}",
+      "method": "GET",
+      "authentication": "none",
+      "errorHandling": "fallback_to_default_values"
+    },
+    "sharedDirectory": {
+      "enabled": true,
+      "description": "Read CSV files from shared/submissions.csv and shared/slip-data.csv",
+      "basePath": "./shared/",
+      "cacheTimeout": 300,
+      "autoRefresh": true
+    }
+  },
+  "agentConfiguration": {
+    "data-extraction": {
+      "actualBehavior": "The Data Extraction Agent does NOT use AI to extract data from documents. Instead, it:",
+      "steps": [
+        "1. Reads pre-extracted data from CSV files (submissions.csv or slip-data.csv)",
+        "2. Displays the CSV data in a structured form interface",
+        "3. Shows confidence scores for each field (High/Medium/Low badges)",
+        "4. Allows user to edit the extracted values if needed",
+        "5. Waits for human approval before passing data to next agent"
+      ],
+      "dataFlow": "CSV Data → Form Display → Human Review → Approval → Next Agent",
+      "noAIProcessing": true,
+      "pureDataDisplay": true,
+      "humanApprovalGate": true
+    }
+  },
+  "configurationUsage": {
+    "howItWorks": [
+      "1. Agent config defines dataSource with CSV file and display fields",
+      "2. System loads CSV data using keyField (submission_id or slip_reference)", 
+      "3. Form interface displays CSV values with confidence badges",
+      "4. User can edit values and approve to continue workflow",
+      "5. Approved data is passed to subsequent agents"
+    ],
+    "benefits": [
+      "✅ No AI processing needed for data extraction",
+      "✅ Direct CSV data integration",
+      "✅ Human review and editing capability",
+      "✅ Configurable field display and validation",
+      "✅ Confidence scoring for data quality"
+    ],
+    "customization": [
+      "• Add/remove CSV fields via displayFields array",
+      "• Adjust confidence scores per field",
+      "• Change CSV file source",
+      "• Modify form validation rules",
+      "• Update field display names and formats"
+    ]
+  }
+}

@@ -1,0 +1,251 @@
+{
+  "version": "1.0.0",
+  "workflowType": "slip",
+  "name": "Lloyd's Slip Processing Workflow",
+  "description": "Complete workflow for processing Lloyd's insurance slips",
+  "metadata": {
+    "estimatedDuration": 240,
+    "totalSteps": 8,
+    "approvalGates": 2,
+    "created": "2025-01-12",
+    "lastModified": "2025-01-12"
+  },
+  "configuration": {
+    "parallelExecution": false,
+    "failureHandling": "pause_and_escalate",
+    "retryPolicy": {
+      "maxRetries": 2,
+      "retryDelay": 45,
+      "exponentialBackoff": true
+    },
+    "timeoutSettings": {
+      "stepTimeout": 600,
+      "workflowTimeout": 7200,
+      "approvalTimeout": 172800
+    }
+  },
+  "dataFlow": {
+    "inputSchema": "slip_input_schema",
+    "outputSchema": "slip_output_schema",
+    "intermediateData": [
+      {"step": "data-extraction", "schema": "slip_extracted_data_schema"},
+      {"step": "video-review", "schema": "video_display_schema"},
+      {"step": "automated-data-validation", "schema": "automated_validation_schema"},
+      {"step": "slip-validation", "schema": "slip_validation_schema"},
+      {"step": "coverage-analysis", "schema": "coverage_analysis_schema"},
+      {"step": "risk-assessment", "schema": "risk_assessment_schema"},
+      {"step": "pricing", "schema": "pricing_model_schema"},
+      {"step": "documentation", "schema": "documentation_package_schema"}
+    ]
+  },
+  "steps": [
+    {
+      "stepId": "step-1",
+      "agentId": "data-extraction",
+      "name": "Slip Data Extraction",
+      "description": "Extract and validate slip data from Lloyd's documents",
+      "executionType": "sequential",
+      "preconditions": ["workflow_initiated"],
+      "postconditions": ["slip_data_extracted", "human_approved"],
+      "errorHandling": {
+        "onFailure": "pause_workflow",
+        "notifyUsers": ["lead_underwriter", "admin"],
+        "escalationLevel": "high"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "detailed",
+        "metrics": ["extraction_accuracy", "processing_time", "confidence_score"]
+      }
+    },
+    {
+      "stepId": "step-2",
+      "agentId": "video-review",
+      "name": "Video Review",
+      "description": "Display screen recording from validation workflow",
+      "executionType": "sequential",
+      "preconditions": ["slip_data_extracted", "human_approved"],
+      "postconditions": ["video_displayed"],
+      "errorHandling": {
+        "onFailure": "continue_without_video",
+        "notifyUsers": [],
+        "escalationLevel": "low"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "standard",
+        "metrics": ["video_retrieval_time"]
+      }
+    },
+    {
+      "stepId": "step-3",
+      "agentId": "automated-data-validation",
+      "name": "Automated Data Validation",
+      "description": "Automatically validate extracted data quality, completeness, and consistency",
+      "executionType": "sequential",
+      "preconditions": ["video_displayed"],
+      "postconditions": ["data_validated"],
+      "errorHandling": {
+        "onFailure": "flag_for_review",
+        "notifyUsers": ["data_quality_team", "lead_underwriter"],
+        "escalationLevel": "medium"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "detailed",
+        "metrics": ["validation_accuracy", "data_quality_score", "processing_time", "anomaly_count"]
+      }
+    },
+    {
+      "stepId": "step-4",
+      "agentId": "slip-validation",
+      "name": "Slip Validation",
+      "description": "Validate slip against Lloyd's regulations and standards",
+      "executionType": "sequential",
+      "preconditions": ["data_validated"],
+      "postconditions": ["slip_validated"],
+      "errorHandling": {
+        "onFailure": "escalate_to_compliance",
+        "notifyUsers": ["compliance_officer", "lead_underwriter"],
+        "escalationLevel": "high"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "detailed",
+        "metrics": ["validation_score", "compliance_rating", "processing_time"]
+      }
+    },
+    {
+      "stepId": "step-5",
+      "agentId": "coverage-analysis",
+      "name": "Coverage Analysis",
+      "description": "Analyze coverage terms, conditions, and exclusions",
+      "executionType": "sequential",
+      "preconditions": ["slip_validated"],
+      "postconditions": ["coverage_analyzed"],
+      "errorHandling": {
+        "onFailure": "require_expert_review",
+        "notifyUsers": ["coverage_specialist", "lead_underwriter"],
+        "escalationLevel": "medium"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "standard",
+        "metrics": ["coverage_completeness", "analysis_depth", "processing_time"]
+      }
+    },
+    {
+      "stepId": "step-6",
+      "agentId": "risk-assessment",
+      "name": "Risk Assessment",
+      "description": "Evaluate risk factors and determine risk profile",
+      "executionType": "sequential",
+      "preconditions": ["coverage_analyzed"],
+      "postconditions": ["risk_assessed"],
+      "conditionalExecution": {
+        "requireApprovalIf": "risk_level_high_or_critical",
+        "escalateIf": "risk_score_above_threshold"
+      },
+      "errorHandling": {
+        "onFailure": "escalate_to_risk_committee",
+        "notifyUsers": ["risk_manager", "lead_underwriter"],
+        "escalationLevel": "high"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "detailed",
+        "metrics": ["risk_accuracy", "model_confidence", "processing_time"]
+      }
+    },
+    {
+      "stepId": "step-7",
+      "agentId": "pricing",
+      "name": "Pricing Model",
+      "description": "Calculate pricing based on risk assessment and market conditions",
+      "executionType": "sequential",
+      "preconditions": ["risk_assessed"],
+      "postconditions": ["pricing_completed"],
+      "errorHandling": {
+        "onFailure": "use_alternative_pricing_model",
+        "notifyUsers": ["pricing_team", "lead_underwriter"],
+        "escalationLevel": "medium"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "standard",
+        "metrics": ["pricing_accuracy", "market_competitiveness", "processing_time"]
+      }
+    },
+    {
+      "stepId": "step-8",
+      "agentId": "documentation",
+      "name": "Documentation Package",
+      "description": "Compile comprehensive documentation package",
+      "executionType": "sequential",
+      "preconditions": ["pricing_completed"],
+      "postconditions": ["documentation_complete"],
+      "errorHandling": {
+        "onFailure": "generate_minimal_package",
+        "notifyUsers": ["documentation_team", "lead_underwriter"],
+        "escalationLevel": "low"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "standard",
+        "metrics": ["documentation_completeness", "quality_score", "processing_time"]
+      }
+    }
+  ],
+  "approvalGates": [
+    {
+      "gateId": "slip-data-extraction-approval",
+      "stepId": "step-1",
+      "type": "human_approval",
+      "approvers": ["lead_underwriter", "senior_underwriter"],
+      "approvalType": "slip_data_extraction",
+      "timeout": 172800,
+      "escalationPolicy": "escalate_to_manager_after_48h"
+    },
+    {
+      "gateId": "risk-assessment-approval",
+      "stepId": "step-6",
+      "type": "conditional_approval",
+      "condition": "risk_level === 'high' || risk_level === 'critical'",
+      "approvers": ["risk_manager", "lead_underwriter"],
+      "approvalType": "risk_override",
+      "timeout": 86400,
+      "escalationPolicy": "escalate_to_risk_committee_after_24h"
+    }
+  ],
+  "notifications": {
+    "channels": ["email", "dashboard", "slack", "teams"],
+    "events": [
+      {"event": "workflow_started", "recipients": ["lead_underwriter"]},
+      {"event": "approval_required", "recipients": ["lead_underwriter", "risk_manager"]},
+      {"event": "high_risk_detected", "recipients": ["risk_committee", "senior_management"]},
+      {"event": "workflow_completed", "recipients": ["lead_underwriter", "broker", "syndicate"]},
+      {"event": "workflow_failed", "recipients": ["lead_underwriter", "admin", "manager"]}
+    ]
+  },
+  "integrations": {
+    "csvDataSource": {
+      "enabled": true,
+      "source": "slip-data.csv",
+      "refreshInterval": 600
+    },
+    "documentViewer": {
+      "enabled": true,
+      "supportedFormats": ["pdf", "email", "csv", "eml", "msg"]
+    },
+    "lloydsPlatform": {
+      "enabled": true,
+      "apiEndpoint": "https://api.lloyds.com/v1",
+      "authentication": "oauth2"
+    },
+    "riskModels": {
+      "enabled": true,
+      "provider": "catastrophe_models",
+      "refreshInterval": 3600
+    }
+  }
+}

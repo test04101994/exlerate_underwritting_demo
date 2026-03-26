@@ -1,0 +1,59 @@
+{
+  "case_metadata": {
+    "case_id": "{{CASE_ID}}",
+    "processing_timestamp": "{{TIMESTAMP}}",
+    "s3_upload_timestamp": "{{S3_TIMESTAMP}}",
+    "platform": "EXLerate AI - Underwriting Platform",
+    "workflow_session": "{{SESSION_ID}}",
+    "jira_ticket": "{{JIRA_TICKET}}"
+  },
+  "underwriting_summary": {
+    "client_name": "Arthur J Gallagher (UK) Ltd",
+    "policy_holder": "Lee Warner Jones",
+    "policy_type": "Commercial Property Insurance",
+    "coverage_period": "12 months",
+    "target_premium": "{{PREMIUM_AMOUNT}}",
+    "application_date": "2024-12-15",
+    "submission_status": "Under Review"
+  },
+  "mismatch_summary": {
+    "agent_type": "Mismatch Summary Agent",
+    "processing_method": "AI-powered field comparison",
+    "confidence_score": 0.89,
+    "fields_analyzed": 47,
+    "mismatches_detected": 3,
+    "critical_discrepancies": 1,
+    "minor_differences": 2,
+    "actual_summary": "{{SUMMARY_PLACEHOLDER}}",
+    "session_id": "{{SESSION_ID}}",
+    "jira_ticket": "{{JIRA_TICKET}}"
+  },
+  "field_analysis": {
+    "data_extraction_quality": "High",
+    "validation_status": "Requires human review",
+    "compliance_check": "Passed",
+    "risk_factors": {
+      "sanctions_screening": "Clear",
+      "financial_validation": "Pending",
+      "documentation_completeness": "98%"
+    }
+  },
+  "recommendations": {
+    "next_actions": [
+      "Human review of critical discrepancies",
+      "Validation of premium calculations", 
+      "Final compliance verification"
+    ],
+    "priority_level": "Medium",
+    "estimated_resolution_time": "2-4 hours",
+    "assigned_underwriter": "Senior Underwriter Review Team"
+  },
+  "audit_trail": {
+    "created_by": "Mismatch Summary Agent",
+    "review_required": true,
+    "workflow_stage": "Analysis Complete",
+    "data_sources": ["JIRA", "Document extraction", "CSV validation"],
+    "processing_duration": "2.4 seconds",
+    "system_version": "v2.1.0"
+  }
+}

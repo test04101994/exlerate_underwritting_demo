@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance Workflow System</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container { 
+            max-width: 800px; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .success { 
+            color: #059669; 
+            margin-bottom: 20px; 
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .title {
+            color: #374151;
+            margin-bottom: 16px;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 32px;
+            font-size: 1.1rem;
+        }
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 24px; 
+            margin: 32px 0;
+        }
+        .card {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .card h3 {
+            color: #374151;
+            margin-bottom: 12px;
+            font-size: 1.3rem;
+        }
+        .card p {
+            color: #6b7280;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .button { 
+            width: 100%;
+            padding: 14px 20px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            text-decoration: none; 
+            display: inline-block;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            color: white;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        .primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .success { background: linear-gradient(135deg, #10b981, #059669); }
+        .warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .info { 
+            background: #f0f9ff; 
+            border: 2px solid #0ea5e9; 
+            border-radius: 12px; 
+            padding: 24px; 
+            margin-top: 32px;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .status-ok { color: #059669; }
+        .loader {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="success">🚀 Insurance Workflow System</h1>
+        <h2 class="title">Lloyd's of London Underwriting Platform</h2>
+        <p class="subtitle">Advanced AI-powered workflow orchestration with comprehensive Jira integration</p>
+        
+        <div class="grid">
+            <div class="card">
+                <h3>🔐 Authentication Portal</h3>
+                <p>Secure access to the workflow management system with role-based permissions</p>
+                <button onclick="navigateTo('/login')" class="button primary">Access Login</button>
+            </div>
+            
+            <div class="card">
+                <h3>📊 Main Dashboard</h3>
+                <p>Comprehensive case management with agent-based processing and real-time updates</p>
+                <button onclick="navigateTo('/dashboard')" class="button success">Open Dashboard</button>
+            </div>
+            
+            <div class="card">
+                <h3>🎯 Jira Integration</h3>
+                <p>Task management system with individual workflow processing for each ticket</p>
+                <button onclick="navigateTo('/jira-dashboard')" class="button warning">Jira Dashboard</button>
+            </div>
+        </div>
+        
+        <div class="info">
+            <h4 style="color: #374151; margin-bottom: 20px; font-size: 1.4rem;">System Status</h4>
+            <div class="status-grid">
+                <div class="status-item">
+                    <span id="server-status">🔄 Checking Server...</span>
+                </div>
+                <div class="status-item">
+                    <span id="api-status">🔄 Testing API...</span>
+                </div>
+                <div class="status-item">
+                    <span id="db-status">🔄 Verifying Database...</span>
+                </div>
+                <div class="status-item">
+                    <span id="auth-status">🔄 Checking Auth...</span>
+                </div>
+            </div>
+            <div style="background: white; border-radius: 8px; padding: 20px; margin-top: 20px;">
+                <p style="margin: 8px 0; font-size: 1.1rem;"><strong>Test Credentials:</strong> test@example.com / password123</p>
+                <p style="margin: 8px 0; color: #059669;"><strong>Status:</strong> <span id="overall-status">Initializing...</span></p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="loader" class="loader">Loading application...</div>
+    
+    <script>
+        // Navigation function with loading feedback
+        function navigateTo(path) {
+            const loader = document.getElementById('loader');
+            loader.style.display = 'block';
+            loader.textContent = `Loading ${path}...`;
+            
+            // Test if the path is accessible first
+            fetch(path)
+                .then(response => {
+                    if (response.ok || response.status === 401) {
+                        window.location.href = path;
+                    } else {
+                        throw new Error(`Path ${path} not accessible`);
+                    }
+                })
+                .catch(err => {
+                    loader.textContent = `Error accessing ${path}. Retrying...`;
+                    setTimeout(() => {
+                        window.location.href = path;
+                    }, 2000);
+                });
+        }
+        
+        // Comprehensive system status check
+        async function checkSystemStatus() {
+            const checks = [
+                { id: 'server-status', url: '/api/health', name: 'Server' },
+                { id: 'api-status', url: '/api/dashboard/cases', name: 'API Endpoints' },
+                { id: 'db-status', url: '/api/workflows', name: 'Database' },
+                { id: 'auth-status', url: '/api/auth/me', name: 'Authentication' }
+            ];
+            
+            let allPassed = true;
+            
+            for (const check of checks) {
+                try {
+                    const response = await fetch(check.url);
+                    const element = document.getElementById(check.id);
+                    
+                    if (response.ok || response.status === 401) {
+                        element.innerHTML = `<span class="status-ok">✅ ${check.name}</span>`;
+                    } else {
+                        element.innerHTML = `<span style="color: #dc2626;">❌ ${check.name}</span>`;
+                        allPassed = false;
+                    }
+                } catch (error) {
+                    document.getElementById(check.id).innerHTML = `<span style="color: #dc2626;">❌ ${check.name}</span>`;
+                    allPassed = false;
+                }
+            }
+            
+            const overallStatus = document.getElementById('overall-status');
+            if (allPassed) {
+                overallStatus.textContent = 'All Systems Operational';
+                overallStatus.style.color = '#059669';
+            } else {
+                overallStatus.textContent = 'Some Issues Detected';
+                overallStatus.style.color = '#dc2626';
+            }
+        }
+        
+        // Run system check on load
+        window.addEventListener('load', () => {
+            checkSystemStatus();
+            
+            // Hide loader after checks
+            setTimeout(() => {
+                document.getElementById('loader').style.display = 'none';
+            }, 3000);
+        });
+        
+        // Auto-refresh status every 30 seconds
+        setInterval(checkSystemStatus, 30000);
+    </script>
+</body>
+</html>

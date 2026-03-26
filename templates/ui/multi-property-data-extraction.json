@@ -1,0 +1,465 @@
+{
+  "version": "1.0.0",
+  "description": "Multi-Property Data Extraction Interface Configuration",
+  "interface": {
+    "title": "Multi-Property Data Extraction Completed - Human Review Required",
+    "subtitle": "Please review the extracted data for multiple properties below. You can edit any fields if needed, then approve or reject the extraction.",
+    "formType": "MultiPropertyDataExtractionForm",
+    "layout": "multi-section",
+    "submissionSelector": {
+      "enabled": true,
+      "label": "Submission ID:",
+      "defaultValue": "UW-2025-001",
+      "options": ["UW-2025-001", "UW-2025-002", "UW-2025-003", "UW-2025-004", "UW-2025-005"],
+      "refreshable": true
+    },
+    "editButton": {
+      "enabled": true,
+      "label": "Edit Data",
+      "position": "top-right",
+      "icon": "edit"
+    }
+  },
+  "sections": [
+    {
+      "id": "client-information",
+      "title": "CLIENT INFORMATION",
+      "type": "field-grid",
+      "columns": 2,
+      "styling": {
+        "sectionBackground": "bg-white",
+        "sectionBorder": "border-b border-gray-200 pb-6 mb-6"
+      },
+      "fields": [
+        {
+          "id": "client_name",
+          "csvField": "client_name",
+          "label": "Client Name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "gridPosition": "span-1",
+          "order": 1
+        },
+        {
+          "id": "broker_name",
+          "csvField": "broker_name",
+          "label": "Broker Name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "gridPosition": "span-1",
+          "order": 2
+        },
+        {
+          "id": "broker_email",
+          "csvField": "broker_email",
+          "label": "Broker Email",
+          "type": "email",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "gridPosition": "span-1",
+          "order": 3,
+          "validation": {
+            "pattern": "^[^@]+@[^@]+\\.[^@]+$",
+            "message": "Please enter a valid email address"
+          }
+        },
+        {
+          "id": "policy_type",
+          "csvField": "policy_type",
+          "label": "Policy Type",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "gridPosition": "span-1",
+          "order": 4
+        }
+      ]
+    },
+    {
+      "id": "property-1-details",
+      "title": "PROPERTY 1 DETAILS",
+      "type": "field-grid",
+      "columns": 3,
+      "styling": {
+        "sectionBackground": "bg-blue-50",
+        "sectionBorder": "border-l-4 border-blue-400 pl-4 mb-6",
+        "sectionPadding": "p-4 rounded-r-lg"
+      },
+      "fields": [
+        {
+          "id": "property1_address",
+          "csvField": "property1_address",
+          "label": "Property Address",
+          "type": "textarea",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "gridPosition": "span-3",
+          "order": 1,
+          "rows": 2
+        },
+        {
+          "id": "property1_type",
+          "csvField": "property1_type",
+          "label": "Property Type",
+          "type": "select",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "gridPosition": "span-1",
+          "order": 2,
+          "options": ["House - Detached", "House - Semi-Detached", "House - Terraced", "Apartment - Flat", "Bungalow"]
+        },
+        {
+          "id": "property1_value",
+          "csvField": "property1_value",
+          "label": "Property Value",
+          "type": "currency",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "gridPosition": "span-1",
+          "order": 3,
+          "prefix": "£",
+          "validation": {
+            "min": 50000,
+            "max": 10000000,
+            "message": "Property value must be between £50,000 and £10,000,000"
+          }
+        },
+        {
+          "id": "property1_year_built",
+          "csvField": "property1_year_built",
+          "label": "Year Built",
+          "type": "number",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "medium",
+          "gridPosition": "span-1",
+          "order": 4,
+          "validation": {
+            "min": 1800,
+            "max": 2024,
+            "message": "Year built must be between 1800 and 2024"
+          }
+        },
+        {
+          "id": "property1_bedrooms",
+          "csvField": "property1_bedrooms",
+          "label": "Bedrooms",
+          "type": "number",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "medium",
+          "gridPosition": "span-1",
+          "order": 5,
+          "validation": {
+            "min": 1,
+            "max": 10,
+            "message": "Bedrooms must be between 1 and 10"
+          }
+        },
+        {
+          "id": "property1_bathrooms",
+          "csvField": "property1_bathrooms",
+          "label": "Bathrooms",
+          "type": "number",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "medium",
+          "gridPosition": "span-1",
+          "order": 6,
+          "validation": {
+            "min": 1,
+            "max": 10,
+            "message": "Bathrooms must be between 1 and 10"
+          }
+        },
+        {
+          "id": "property1_construction_type",
+          "csvField": "property1_construction_type",
+          "label": "Construction Type",
+          "type": "select",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "medium",
+          "gridPosition": "span-1",
+          "order": 7,
+          "options": ["Brick", "Stone", "Timber Frame", "Modern Steel Frame", "Concrete"]
+        },
+        {
+          "id": "property1_roof_type",
+          "csvField": "property1_roof_type",
+          "label": "Roof Type",
+          "type": "select",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "medium",
+          "gridPosition": "span-1",
+          "order": 8,
+          "options": ["Tiles", "Slate", "Flat Roof", "Thatch", "Metal"]
+        },
+        {
+          "id": "property1_security_features",
+          "csvField": "property1_security_features",
+          "label": "Security Features",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "confidenceScore": "low",
+          "gridPosition": "span-2",
+          "order": 9
+        }
+      ]
+    },
+    {
+      "id": "property-2-details",
+      "title": "PROPERTY 2 DETAILS",
+      "type": "field-grid",
+      "columns": 3,
+      "styling": {
+        "sectionBackground": "bg-green-50",
+        "sectionBorder": "border-l-4 border-green-400 pl-4 mb-6",
+        "sectionPadding": "p-4 rounded-r-lg"
+      },
+      "fields": [
+        {
+          "id": "property2_address",
+          "csvField": "property2_address",
+          "label": "Property Address",
+          "type": "textarea",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "gridPosition": "span-3",
+          "order": 1,
+          "rows": 2
+        },
+        {
+          "id": "property2_type",
+          "csvField": "property2_type",
+          "label": "Property Type",
+          "type": "select",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "gridPosition": "span-1",
+          "order": 2,
+          "options": ["House - Detached", "House - Semi-Detached", "House - Terraced", "Apartment - Flat", "Bungalow"]
+        },
+        {
+          "id": "property2_value",
+          "csvField": "property2_value",
+          "label": "Property Value",
+          "type": "currency",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "high",
+          "gridPosition": "span-1",
+          "order": 3,
+          "prefix": "£",
+          "validation": {
+            "min": 50000,
+            "max": 10000000,
+            "message": "Property value must be between £50,000 and £10,000,000"
+          }
+        },
+        {
+          "id": "property2_year_built",
+          "csvField": "property2_year_built",
+          "label": "Year Built",
+          "type": "number",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "medium",
+          "gridPosition": "span-1",
+          "order": 4,
+          "validation": {
+            "min": 1800,
+            "max": 2024,
+            "message": "Year built must be between 1800 and 2024"
+          }
+        },
+        {
+          "id": "property2_bedrooms",
+          "csvField": "property2_bedrooms",
+          "label": "Bedrooms",
+          "type": "number",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "medium",
+          "gridPosition": "span-1",
+          "order": 5,
+          "validation": {
+            "min": 1,
+            "max": 10,
+            "message": "Bedrooms must be between 1 and 10"
+          }
+        },
+        {
+          "id": "property2_bathrooms",
+          "csvField": "property2_bathrooms",
+          "label": "Bathrooms",
+          "type": "number",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "medium",
+          "gridPosition": "span-1",
+          "order": 6,
+          "validation": {
+            "min": 1,
+            "max": 10,
+            "message": "Bathrooms must be between 1 and 10"
+          }
+        },
+        {
+          "id": "property2_construction_type",
+          "csvField": "property2_construction_type",
+          "label": "Construction Type",
+          "type": "select",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "medium",
+          "gridPosition": "span-1",
+          "order": 7,
+          "options": ["Brick", "Stone", "Timber Frame", "Modern Steel Frame", "Concrete"]
+        },
+        {
+          "id": "property2_roof_type",
+          "csvField": "property2_roof_type",
+          "label": "Roof Type",
+          "type": "select",
+          "required": true,
+          "editable": true,
+          "confidenceScore": "medium",
+          "gridPosition": "span-1",
+          "order": 8,
+          "options": ["Tiles", "Slate", "Flat Roof", "Thatch", "Metal"]
+        },
+        {
+          "id": "property2_security_features",
+          "csvField": "property2_security_features",
+          "label": "Security Features",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "confidenceScore": "low",
+          "gridPosition": "span-2",
+          "order": 9
+        }
+      ]
+    },
+    {
+      "id": "summary-information",
+      "title": "SUMMARY INFORMATION",
+      "type": "field-grid",
+      "columns": 2,
+      "styling": {
+        "sectionBackground": "bg-gray-50",
+        "sectionBorder": "border-l-4 border-gray-400 pl-4 mb-6",
+        "sectionPadding": "p-4 rounded-r-lg"
+      },
+      "fields": [
+        {
+          "id": "total_property_value",
+          "csvField": "total_property_value",
+          "label": "Total Property Value",
+          "type": "currency",
+          "required": true,
+          "editable": false,
+          "confidenceScore": "high",
+          "gridPosition": "span-1",
+          "order": 1,
+          "prefix": "£",
+          "readonly": true,
+          "calculated": true
+        },
+        {
+          "id": "property_count",
+          "label": "Number of Properties",
+          "type": "number",
+          "required": true,
+          "editable": false,
+          "confidenceScore": "high",
+          "gridPosition": "span-1",
+          "order": 2,
+          "readonly": true,
+          "calculated": true,
+          "value": 2
+        }
+      ]
+    }
+  ],
+  "actions": {
+    "primary": {
+      "label": "Approve & Continue",
+      "type": "approve",
+      "style": "primary",
+      "endpoint": "/api/workflows/{sessionId}/approve-extraction",
+      "method": "POST",
+      "confirmMessage": "Are you sure you want to approve this multi-property data extraction?",
+      "successMessage": "Multi-property data extraction approved successfully"
+    },
+    "secondary": {
+      "label": "Reject & Stop",
+      "type": "reject",
+      "style": "danger",
+      "endpoint": "/api/workflows/{sessionId}/reject-extraction",
+      "method": "POST",
+      "confirmMessage": "Are you sure you want to reject this multi-property data extraction?",
+      "successMessage": "Multi-property data extraction rejected"
+    }
+  },
+  "styling": {
+    "backgroundColor": "bg-gray-50",
+    "sectionSpacing": "space-y-6",
+    "fieldSpacing": "space-y-4",
+    "confidenceBadges": {
+      "high": {
+        "color": "bg-green-100 text-green-800",
+        "label": "High ({percentage}%)"
+      },
+      "medium": {
+        "color": "bg-yellow-100 text-yellow-800",
+        "label": "Medium ({percentage}%)"
+      },
+      "low": {
+        "color": "bg-red-100 text-red-800",
+        "label": "Low ({percentage}%)"
+      }
+    },
+    "fieldStyles": {
+      "default": "w-full px-3 py-2 border border-gray-300 rounded-md",
+      "disabled": "bg-gray-100 text-gray-600",
+      "error": "border-red-500 bg-red-50",
+      "readonly": "bg-gray-100 text-gray-700 cursor-not-allowed"
+    }
+  },
+  "validation": {
+    "validateOnChange": true,
+    "showErrorsInline": true,
+    "requiredFieldMessage": "This field is required",
+    "crossSectionValidation": {
+      "totalValueCheck": {
+        "rule": "total_property_value = property1_value + property2_value",
+        "message": "Total property value must equal sum of individual properties"
+      },
+      "addressUniqueness": {
+        "rule": "property1_address != property2_address",
+        "message": "Property addresses must be unique"
+      }
+    }
+  },
+  "dataSource": {
+    "csvFile": "multi-property-submissions.csv",
+    "keyField": "submission_id",
+    "confidenceCalculation": "weighted",
+    "refreshInterval": 300
+  }
+}

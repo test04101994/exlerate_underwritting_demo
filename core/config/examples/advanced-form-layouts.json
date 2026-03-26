@@ -1,0 +1,398 @@
+{
+  "version": "1.0.0",
+  "description": "Advanced Form Layout Configuration Examples",
+  "realWorldExample": {
+    "title": "How Your Screenshot Layout is Configured",
+    "sections": [
+      {
+        "id": "general-details",
+        "title": "GENERAL DETAILS",
+        "type": "field-grid",
+        "columns": 2,
+        "styling": {
+          "sectionHeader": "font-semibold text-gray-900 mb-4",
+          "gridLayout": "grid grid-cols-2 gap-4"
+        },
+        "fieldsToShow": [
+          {
+            "id": "broker_ref_hu_number",
+            "label": "Broker Ref HU Number",
+            "csvField": "broker_ref_number",
+            "position": "left-column",
+            "gridPosition": "span-1",
+            "order": 1,
+            "confidenceScore": "high"
+          },
+          {
+            "id": "intermediary_name",
+            "label": "Intermediary Name", 
+            "csvField": "intermediary_name",
+            "position": "right-column",
+            "gridPosition": "span-1",
+            "order": 2,
+            "confidenceScore": "high"
+          },
+          {
+            "id": "broker_contact_name",
+            "label": "Broker Contact Name",
+            "csvField": "title",
+            "position": "left-column",
+            "gridPosition": "span-1",
+            "order": 3,
+            "confidenceScore": "high"
+          },
+          {
+            "id": "broker_email",
+            "label": "Broker Email",
+            "csvField": "email_address",
+            "position": "right-column",
+            "gridPosition": "span-1",
+            "order": 4,
+            "confidenceScore": "high"
+          },
+          {
+            "id": "target_premium",
+            "label": "Target Premium",
+            "csvField": "target_premium",
+            "position": "left-column",
+            "gridPosition": "span-1",
+            "order": 5,
+            "confidenceScore": "medium"
+          },
+          {
+            "id": "quote_effective_date",
+            "label": "Quote Effective Date",
+            "csvField": "quote_effective_date",
+            "position": "right-column",
+            "gridPosition": "span-1",
+            "order": 6,
+            "confidenceScore": "high"
+          },
+          {
+            "id": "previous_insurer",
+            "label": "Previous Insurer",
+            "csvField": "previous_insurer",
+            "position": "full-width",
+            "gridPosition": "span-2",
+            "order": 7,
+            "confidenceScore": "medium"
+          }
+        ],
+        "layoutResult": {
+          "row1": ["broker_ref_hu_number (left)", "intermediary_name (right)"],
+          "row2": ["broker_contact_name (left)", "broker_email (right)"],
+          "row3": ["target_premium (left)", "quote_effective_date (right)"],
+          "row4": ["previous_insurer (full width)"]
+        }
+      },
+      {
+        "id": "policy-holders",
+        "title": "POLICY HOLDERS",
+        "type": "tabbed-section",
+        "styling": {
+          "sectionHeader": "font-semibold text-gray-900 mb-4",
+          "tabContainer": "border-b border-gray-200",
+          "tabButton": "px-4 py-2 text-sm font-medium",
+          "tabContent": "mt-4"
+        },
+        "tabs": [
+          {
+            "id": "policy-holder-1",
+            "title": "Policy Holder 1",
+            "active": true,
+            "fieldsToShow": [
+              {
+                "id": "contact_role",
+                "label": "Contact Role",
+                "csvField": "contact_role",
+                "gridPosition": "span-1",
+                "order": 1,
+                "confidenceScore": "medium"
+              },
+              {
+                "id": "title",
+                "label": "Title",
+                "csvField": "title",
+                "gridPosition": "span-1",
+                "order": 2,
+                "confidenceScore": "high"
+              },
+              {
+                "id": "first_name",
+                "label": "First Name",
+                "csvField": "first_name",
+                "gridPosition": "span-1",
+                "order": 3,
+                "confidenceScore": "high"
+              },
+              {
+                "id": "middle_name",
+                "label": "Middle Name",
+                "csvField": "middle_name",
+                "gridPosition": "span-1",
+                "order": 4,
+                "confidenceScore": "high"
+              },
+              {
+                "id": "surname",
+                "label": "Surname",
+                "csvField": "surname",
+                "gridPosition": "span-1",
+                "order": 5,
+                "confidenceScore": "high"
+              },
+              {
+                "id": "date_of_birth",
+                "label": "Date of Birth",
+                "csvField": "date_of_birth",
+                "gridPosition": "span-1",
+                "order": 6,
+                "confidenceScore": "high"
+              },
+              {
+                "id": "occupation",
+                "label": "Occupation",
+                "csvField": "occupation",
+                "gridPosition": "span-2",
+                "order": 7,
+                "confidenceScore": "medium"
+              },
+              {
+                "id": "house_number",
+                "label": "House Number",
+                "csvField": "house_number",
+                "gridPosition": "span-1",
+                "order": 8,
+                "confidenceScore": "high"
+              },
+              {
+                "id": "house_name",
+                "label": "House Name",
+                "csvField": "house_name",
+                "gridPosition": "span-1",
+                "order": 9,
+                "confidenceScore": "medium"
+              },
+              {
+                "id": "address_line_1",
+                "label": "Address Line 1",
+                "csvField": "address_line_1",
+                "gridPosition": "span-2",
+                "order": 10,
+                "confidenceScore": "high"
+              }
+            ],
+            "layoutResult": {
+              "row1": ["contact_role (left)", "title (right)"],
+              "row2": ["first_name (left)", "middle_name (right)"],
+              "row3": ["surname (left)", "date_of_birth (right)"],
+              "row4": ["occupation (full width)"],
+              "row5": ["house_number (left)", "house_name (right)"],
+              "row6": ["address_line_1 (full width)"]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "fieldVisibilityControl": {
+    "description": "How to control which fields appear in each section",
+    "methods": {
+      "includeFields": {
+        "description": "Explicitly list fields to include",
+        "example": {
+          "fieldsToShow": [
+            "broker_ref_hu_number",
+            "intermediary_name",
+            "broker_contact_name",
+            "broker_email"
+          ]
+        }
+      },
+      "excludeFields": {
+        "description": "List fields to exclude from a section",
+        "example": {
+          "fieldsToHide": [
+            "internal_notes",
+            "processing_flags",
+            "system_timestamps"
+          ]
+        }
+      },
+      "conditionalFields": {
+        "description": "Show fields based on conditions",
+        "example": {
+          "showIf": {
+            "field": "policy_type",
+            "value": "commercial",
+            "thenShow": ["business_description", "employee_count"]
+          },
+          "hideIf": {
+            "field": "new_customer",
+            "value": true,
+            "thenHide": ["previous_claims", "renewal_date"]
+          }
+        }
+      }
+    }
+  },
+  "sectionConfiguration": {
+    "description": "How sections control field layout and display",
+    "properties": {
+      "type": {
+        "description": "Determines the layout method for fields in the section",
+        "options": {
+          "field-grid": "Grid layout with configurable columns",
+          "tabbed-section": "Tabbed interface for grouped fields",
+          "table": "Table layout for structured data",
+          "accordion": "Collapsible sections",
+          "card-layout": "Card-based field grouping"
+        }
+      },
+      "columns": {
+        "description": "Number of columns in grid layout",
+        "examples": {
+          "columns": 1,
+          "result": "Single column layout, all fields full width"
+        },
+        {
+          "columns": 2,
+          "result": "Two column layout, fields can be span-1 or span-2"
+        },
+        {
+          "columns": 3,
+          "result": "Three column layout, fields can be span-1, span-2, or span-3"
+        }
+      },
+      "fields": {
+        "description": "Array of field objects that define what appears in the section",
+        "structure": {
+          "id": "unique field identifier",
+          "label": "display label for the field",
+          "csvField": "maps to column in CSV file",
+          "gridPosition": "controls width (span-1, span-2, etc.)",
+          "order": "numeric order for field positioning",
+          "confidenceScore": "high/medium/low for badge color"
+        }
+      }
+    }
+  },
+  "customLayoutExamples": {
+    "singleColumn": {
+      "title": "Single Column Layout",
+      "type": "field-grid",
+      "columns": 1,
+      "fields": [
+        {"id": "field1", "gridPosition": "span-1", "result": "Full width"},
+        {"id": "field2", "gridPosition": "span-1", "result": "Full width"},
+        {"id": "field3", "gridPosition": "span-1", "result": "Full width"}
+      ]
+    },
+    "threeColumn": {
+      "title": "Three Column Layout",
+      "type": "field-grid",
+      "columns": 3,
+      "fields": [
+        {"id": "title", "gridPosition": "span-1", "result": "Column 1"},
+        {"id": "first_name", "gridPosition": "span-1", "result": "Column 2"},
+        {"id": "surname", "gridPosition": "span-1", "result": "Column 3"},
+        {"id": "address", "gridPosition": "span-2", "result": "Columns 1-2"},
+        {"id": "postcode", "gridPosition": "span-1", "result": "Column 3"},
+        {"id": "notes", "gridPosition": "span-3", "result": "Full width"}
+      ]
+    },
+    "mixedLayout": {
+      "title": "Mixed Layout with Different Field Sizes",
+      "type": "field-grid",
+      "columns": 4,
+      "fields": [
+        {"id": "ref_number", "gridPosition": "span-1", "result": "1/4 width"},
+        {"id": "client_name", "gridPosition": "span-2", "result": "2/4 width"},
+        {"id": "date", "gridPosition": "span-1", "result": "1/4 width"},
+        {"id": "description", "gridPosition": "span-4", "result": "Full width"},
+        {"id": "premium", "gridPosition": "span-2", "result": "2/4 width"},
+        {"id": "coverage", "gridPosition": "span-2", "result": "2/4 width"}
+      ]
+    }
+  },
+  "newUseCaseExample": {
+    "title": "Creating a New Marine Insurance Form",
+    "description": "How to configure a new form layout for marine insurance",
+    "configuration": {
+      "sections": [
+        {
+          "id": "vessel-details",
+          "title": "VESSEL DETAILS",
+          "type": "field-grid",
+          "columns": 2,
+          "fieldsToShow": [
+            {
+              "id": "vessel_name",
+              "label": "Vessel Name",
+              "csvField": "vessel_name",
+              "gridPosition": "span-1",
+              "order": 1
+            },
+            {
+              "id": "vessel_type",
+              "label": "Vessel Type",
+              "csvField": "vessel_type",
+              "gridPosition": "span-1",
+              "order": 2
+            },
+            {
+              "id": "flag_state",
+              "label": "Flag State",
+              "csvField": "flag_state",
+              "gridPosition": "span-1",
+              "order": 3
+            },
+            {
+              "id": "year_built",
+              "label": "Year Built",
+              "csvField": "year_built",
+              "gridPosition": "span-1",
+              "order": 4
+            },
+            {
+              "id": "vessel_description",
+              "label": "Vessel Description",
+              "csvField": "vessel_description",
+              "gridPosition": "span-2",
+              "order": 5
+            }
+          ]
+        },
+        {
+          "id": "coverage-details",
+          "title": "COVERAGE DETAILS",
+          "type": "field-grid",
+          "columns": 3,
+          "fieldsToShow": [
+            {
+              "id": "hull_value",
+              "label": "Hull Value",
+              "csvField": "hull_value",
+              "gridPosition": "span-1",
+              "order": 1
+            },
+            {
+              "id": "machinery_value",
+              "label": "Machinery Value",
+              "csvField": "machinery_value",
+              "gridPosition": "span-1",
+              "order": 2
+            },
+            {
+              "id": "total_insured_value",
+              "label": "Total Insured Value",
+              "csvField": "total_insured_value",
+              "gridPosition": "span-1",
+              "order": 3
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

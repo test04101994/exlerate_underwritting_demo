@@ -1,0 +1,93 @@
+%PDF-1.4
+1 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+
+2 0 obj
+<<
+/Type /Pages
+/Kids [3 0 R]
+/Count 1
+>>
+endobj
+
+3 0 obj
+<<
+/Type /Page
+/Parent 2 0 R
+/MediaBox [0 0 612 792]
+/Resources <<
+/Font <<
+/F1 4 0 R
+>>
+>>
+/Contents 5 0 R
+>>
+endobj
+
+4 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+endobj
+
+5 0 obj
+<<
+/Length 290
+>>
+stream
+BT
+/F1 12 Tf
+50 750 Td
+(FINANCIAL STATEMENTS - OCEANVIEW PROPERTIES LTD) Tj
+0 -30 Td
+(Year Ending: 31 December 2024) Tj
+0 -30 Td
+(PROFIT & LOSS SUMMARY:) Tj
+0 -20 Td
+(Rental Income: £1,250,000) Tj
+0 -20 Td
+(Operating Expenses: £680,000) Tj
+0 -20 Td
+(Net Operating Income: £570,000) Tj
+0 -20 Td
+(Depreciation: £180,000) Tj
+0 -20 Td
+(Net Profit: £390,000) Tj
+0 -30 Td
+(BALANCE SHEET SUMMARY:) Tj
+0 -20 Td
+(Property Assets: £8,500,000) Tj
+0 -20 Td
+(Total Liabilities: £4,200,000) Tj
+0 -20 Td
+(Net Worth: £4,300,000) Tj
+0 -30 Td
+(Financial Rating: A (Strong)) Tj
+0 -20 Td
+(Debt Service Coverage: 2.8x) Tj
+ET
+endstream
+endobj
+
+xref
+0 6
+0000000000 65535 f 
+0000000015 00000 n 
+0000000074 00000 n 
+0000000131 00000 n 
+0000000270 00000 n 
+0000000345 00000 n 
+trailer
+<<
+/Size 6
+/Root 1 0 R
+>>
+startxref
+710
+%%EOF

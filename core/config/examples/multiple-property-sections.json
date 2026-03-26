@@ -1,0 +1,426 @@
+{
+  "version": "1.0.0",
+  "description": "Multiple Property Sections Configuration Example",
+  "csvDataStructure": {
+    "description": "How to structure CSV data for multiple property sections",
+    "approach": "Separate columns for each property with prefixes",
+    "example": {
+      "headers": [
+        "submission_id",
+        "client_name",
+        "broker_name",
+        "broker_email",
+        "property1_address",
+        "property1_type",
+        "property1_value",
+        "property1_bedrooms",
+        "property1_bathrooms",
+        "property1_year_built",
+        "property1_construction_type",
+        "property1_roof_type",
+        "property1_security_features",
+        "property2_address",
+        "property2_type",
+        "property2_value",
+        "property2_bedrooms",
+        "property2_bathrooms",
+        "property2_year_built",
+        "property2_construction_type",
+        "property2_roof_type",
+        "property2_security_features",
+        "total_property_value",
+        "policy_type"
+      ],
+      "sampleRow": {
+        "submission_id": "UW-2025-001",
+        "client_name": "Lee Warner Jones",
+        "broker_name": "Peters Charley",
+        "broker_email": "james_potter1@ajg.com",
+        "property1_address": "122 Hamilton House, Victoria Street, London SW1E 5LB",
+        "property1_type": "House - Detached",
+        "property1_value": "2230555",
+        "property1_bedrooms": "4",
+        "property1_bathrooms": "3",
+        "property1_year_built": "1995",
+        "property1_construction_type": "Brick",
+        "property1_roof_type": "Tiles",
+        "property1_security_features": "Alarm System, CCTV",
+        "property2_address": "45 Garden Square, Kensington, London W8 4QR",
+        "property2_type": "Apartment - Flat",
+        "property2_value": "1850000",
+        "property2_bedrooms": "2",
+        "property2_bathrooms": "2",
+        "property2_year_built": "2010",
+        "property2_construction_type": "Modern Steel Frame",
+        "property2_roof_type": "Flat Roof",
+        "property2_security_features": "Concierge, Secure Entry",
+        "total_property_value": "4080555",
+        "policy_type": "Multi-Property Home Insurance"
+      }
+    }
+  },
+  "interfaceConfiguration": {
+    "description": "How to configure the interface to render multiple property sections",
+    "sections": [
+      {
+        "id": "client-information",
+        "title": "CLIENT INFORMATION",
+        "type": "field-grid",
+        "columns": 2,
+        "fields": [
+          {
+            "id": "client_name",
+            "csvField": "client_name",
+            "label": "Client Name",
+            "type": "text",
+            "gridPosition": "span-1",
+            "order": 1,
+            "confidenceScore": "high"
+          },
+          {
+            "id": "broker_name",
+            "csvField": "broker_name",
+            "label": "Broker Name",
+            "type": "text",
+            "gridPosition": "span-1",
+            "order": 2,
+            "confidenceScore": "high"
+          },
+          {
+            "id": "broker_email",
+            "csvField": "broker_email",
+            "label": "Broker Email",
+            "type": "email",
+            "gridPosition": "span-1",
+            "order": 3,
+            "confidenceScore": "high"
+          },
+          {
+            "id": "policy_type",
+            "csvField": "policy_type",
+            "label": "Policy Type",
+            "type": "text",
+            "gridPosition": "span-1",
+            "order": 4,
+            "confidenceScore": "high"
+          }
+        ]
+      },
+      {
+        "id": "property-1-details",
+        "title": "PROPERTY 1 DETAILS",
+        "type": "field-grid",
+        "columns": 3,
+        "styling": {
+          "sectionBackground": "bg-blue-50",
+          "sectionBorder": "border-l-4 border-blue-400 pl-4"
+        },
+        "fields": [
+          {
+            "id": "property1_address",
+            "csvField": "property1_address",
+            "label": "Property Address",
+            "type": "textarea",
+            "gridPosition": "span-3",
+            "order": 1,
+            "confidenceScore": "high",
+            "rows": 2
+          },
+          {
+            "id": "property1_type",
+            "csvField": "property1_type",
+            "label": "Property Type",
+            "type": "select",
+            "gridPosition": "span-1",
+            "order": 2,
+            "confidenceScore": "high",
+            "options": ["House - Detached", "House - Semi-Detached", "House - Terraced", "Apartment - Flat", "Bungalow"]
+          },
+          {
+            "id": "property1_value",
+            "csvField": "property1_value",
+            "label": "Property Value",
+            "type": "currency",
+            "gridPosition": "span-1",
+            "order": 3,
+            "confidenceScore": "high",
+            "prefix": "£"
+          },
+          {
+            "id": "property1_year_built",
+            "csvField": "property1_year_built",
+            "label": "Year Built",
+            "type": "number",
+            "gridPosition": "span-1",
+            "order": 4,
+            "confidenceScore": "medium"
+          },
+          {
+            "id": "property1_bedrooms",
+            "csvField": "property1_bedrooms",
+            "label": "Bedrooms",
+            "type": "number",
+            "gridPosition": "span-1",
+            "order": 5,
+            "confidenceScore": "medium"
+          },
+          {
+            "id": "property1_bathrooms",
+            "csvField": "property1_bathrooms",
+            "label": "Bathrooms",
+            "type": "number",
+            "gridPosition": "span-1",
+            "order": 6,
+            "confidenceScore": "medium"
+          },
+          {
+            "id": "property1_construction_type",
+            "csvField": "property1_construction_type",
+            "label": "Construction Type",
+            "type": "select",
+            "gridPosition": "span-1",
+            "order": 7,
+            "confidenceScore": "medium",
+            "options": ["Brick", "Stone", "Timber Frame", "Modern Steel Frame", "Concrete"]
+          },
+          {
+            "id": "property1_roof_type",
+            "csvField": "property1_roof_type",
+            "label": "Roof Type",
+            "type": "select",
+            "gridPosition": "span-1",
+            "order": 8,
+            "confidenceScore": "medium",
+            "options": ["Tiles", "Slate", "Flat Roof", "Thatch", "Metal"]
+          },
+          {
+            "id": "property1_security_features",
+            "csvField": "property1_security_features",
+            "label": "Security Features",
+            "type": "text",
+            "gridPosition": "span-2",
+            "order": 9,
+            "confidenceScore": "low"
+          }
+        ]
+      },
+      {
+        "id": "property-2-details",
+        "title": "PROPERTY 2 DETAILS",
+        "type": "field-grid",
+        "columns": 3,
+        "styling": {
+          "sectionBackground": "bg-green-50",
+          "sectionBorder": "border-l-4 border-green-400 pl-4"
+        },
+        "fields": [
+          {
+            "id": "property2_address",
+            "csvField": "property2_address",
+            "label": "Property Address",
+            "type": "textarea",
+            "gridPosition": "span-3",
+            "order": 1,
+            "confidenceScore": "high",
+            "rows": 2
+          },
+          {
+            "id": "property2_type",
+            "csvField": "property2_type",
+            "label": "Property Type",
+            "type": "select",
+            "gridPosition": "span-1",
+            "order": 2,
+            "confidenceScore": "high",
+            "options": ["House - Detached", "House - Semi-Detached", "House - Terraced", "Apartment - Flat", "Bungalow"]
+          },
+          {
+            "id": "property2_value",
+            "csvField": "property2_value",
+            "label": "Property Value",
+            "type": "currency",
+            "gridPosition": "span-1",
+            "order": 3,
+            "confidenceScore": "high",
+            "prefix": "£"
+          },
+          {
+            "id": "property2_year_built",
+            "csvField": "property2_year_built",
+            "label": "Year Built",
+            "type": "number",
+            "gridPosition": "span-1",
+            "order": 4,
+            "confidenceScore": "medium"
+          },
+          {
+            "id": "property2_bedrooms",
+            "csvField": "property2_bedrooms",
+            "label": "Bedrooms",
+            "type": "number",
+            "gridPosition": "span-1",
+            "order": 5,
+            "confidenceScore": "medium"
+          },
+          {
+            "id": "property2_bathrooms",
+            "csvField": "property2_bathrooms",
+            "label": "Bathrooms",
+            "type": "number",
+            "gridPosition": "span-1",
+            "order": 6,
+            "confidenceScore": "medium"
+          },
+          {
+            "id": "property2_construction_type",
+            "csvField": "property2_construction_type",
+            "label": "Construction Type",
+            "type": "select",
+            "gridPosition": "span-1",
+            "order": 7,
+            "confidenceScore": "medium",
+            "options": ["Brick", "Stone", "Timber Frame", "Modern Steel Frame", "Concrete"]
+          },
+          {
+            "id": "property2_roof_type",
+            "csvField": "property2_roof_type",
+            "label": "Roof Type",
+            "type": "select",
+            "gridPosition": "span-1",
+            "order": 8,
+            "confidenceScore": "medium",
+            "options": ["Tiles", "Slate", "Flat Roof", "Thatch", "Metal"]
+          },
+          {
+            "id": "property2_security_features",
+            "csvField": "property2_security_features",
+            "label": "Security Features",
+            "type": "text",
+            "gridPosition": "span-2",
+            "order": 9,
+            "confidenceScore": "low"
+          }
+        ]
+      },
+      {
+        "id": "summary-information",
+        "title": "SUMMARY INFORMATION",
+        "type": "field-grid",
+        "columns": 2,
+        "styling": {
+          "sectionBackground": "bg-gray-50",
+          "sectionBorder": "border-l-4 border-gray-400 pl-4"
+        },
+        "fields": [
+          {
+            "id": "total_property_value",
+            "csvField": "total_property_value",
+            "label": "Total Property Value",
+            "type": "currency",
+            "gridPosition": "span-1",
+            "order": 1,
+            "confidenceScore": "high",
+            "prefix": "£",
+            "readonly": true,
+            "calculated": true,
+            "formula": "property1_value + property2_value"
+          },
+          {
+            "id": "property_count",
+            "label": "Number of Properties",
+            "type": "number",
+            "gridPosition": "span-1",
+            "order": 2,
+            "confidenceScore": "high",
+            "readonly": true,
+            "calculated": true,
+            "value": 2
+          }
+        ]
+      }
+    ]
+  },
+  "renderingLayout": {
+    "description": "How the form will render with multiple property sections",
+    "visualization": {
+      "CLIENT INFORMATION": {
+        "layout": "2 columns",
+        "fields": [
+          {"row": 1, "col": 1, "field": "Client Name"},
+          {"row": 1, "col": 2, "field": "Broker Name"},
+          {"row": 2, "col": 1, "field": "Broker Email"},
+          {"row": 2, "col": 2, "field": "Policy Type"}
+        ]
+      },
+      "PROPERTY 1 DETAILS": {
+        "layout": "3 columns",
+        "styling": "Blue background with blue left border",
+        "fields": [
+          {"row": 1, "col": "1-3", "field": "Property Address (full width)"},
+          {"row": 2, "col": 1, "field": "Property Type"},
+          {"row": 2, "col": 2, "field": "Property Value"},
+          {"row": 2, "col": 3, "field": "Year Built"},
+          {"row": 3, "col": 1, "field": "Bedrooms"},
+          {"row": 3, "col": 2, "field": "Bathrooms"},
+          {"row": 3, "col": 3, "field": "Construction Type"},
+          {"row": 4, "col": 1, "field": "Roof Type"},
+          {"row": 4, "col": "2-3", "field": "Security Features (2 columns)"}
+        ]
+      },
+      "PROPERTY 2 DETAILS": {
+        "layout": "3 columns",
+        "styling": "Green background with green left border",
+        "fields": [
+          {"row": 1, "col": "1-3", "field": "Property Address (full width)"},
+          {"row": 2, "col": 1, "field": "Property Type"},
+          {"row": 2, "col": 2, "field": "Property Value"},
+          {"row": 2, "col": 3, "field": "Year Built"},
+          {"row": 3, "col": 1, "field": "Bedrooms"},
+          {"row": 3, "col": 2, "field": "Bathrooms"},
+          {"row": 3, "col": 3, "field": "Construction Type"},
+          {"row": 4, "col": 1, "field": "Roof Type"},
+          {"row": 4, "col": "2-3", "field": "Security Features (2 columns)"}
+        ]
+      },
+      "SUMMARY INFORMATION": {
+        "layout": "2 columns",
+        "styling": "Gray background with gray left border",
+        "fields": [
+          {"row": 1, "col": 1, "field": "Total Property Value (calculated)"},
+          {"row": 1, "col": 2, "field": "Number of Properties (calculated)"}
+        ]
+      }
+    }
+  },
+  "dynamicSections": {
+    "description": "How to make property sections dynamic based on data",
+    "conditionalRendering": {
+      "showProperty2": {
+        "condition": "property2_address is not empty",
+        "action": "show PROPERTY 2 DETAILS section"
+      },
+      "showProperty3": {
+        "condition": "property3_address is not empty",
+        "action": "show PROPERTY 3 DETAILS section"
+      }
+    },
+    "addPropertyButton": {
+      "enabled": true,
+      "label": "Add Another Property",
+      "action": "duplicate_property_section",
+      "maxProperties": 5
+    }
+  },
+  "validationRules": {
+    "crossSectionValidation": {
+      "totalValueCheck": {
+        "rule": "total_property_value = property1_value + property2_value",
+        "message": "Total property value must equal sum of individual properties"
+      },
+      "addressUniqueness": {
+        "rule": "property1_address != property2_address",
+        "message": "Property addresses must be unique"
+      }
+    }
+  }
+}

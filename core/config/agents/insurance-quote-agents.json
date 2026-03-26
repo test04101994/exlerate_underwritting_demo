@@ -1,0 +1,260 @@
+{
+  "version": "1.0.0",
+  "description": "Agent configuration for property insurance quote generation workflows",
+  "agents": [
+    {
+      "id": "policy-data-extraction",
+      "name": "Policy Data Extraction Agent",
+      "type": "policy_extractor",
+      "description": "Extracts key underwriting attributes from the uploaded property insurance policy document including property address, coverages, coverage limits, insured details, and other relevant fields",
+      "role": "data_processor",
+      "executionOrder": 1,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 400,
+        "temperature": 0.1
+      },
+      "prompt": {
+        "systemPrompt": "policy_extraction_system_prompt",
+        "contextTemplate": "insurance_context_template",
+        "outputFormat": "structured_json"
+      },
+      "validation": {
+        "requiredFields": ["property_address", "coverage_type", "coverage_limit", "insured_name", "policy_number"],
+        "confidenceThreshold": 0.75,
+        "allowedValues": {
+          "coverage_type": ["building", "contents", "combined", "commercial", "liability"]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": true,
+        "approvalType": "policy_data_extraction",
+        "pauseWorkflow": true,
+        "formInterface": "DataExtractionForm"
+      },
+      "dependencies": [],
+      "progressTracking": {
+        "stages": ["initializing", "parsing_document", "extracting_fields", "validating", "awaiting_approval", "completed"],
+        "estimatedDuration": 35
+      }
+    },
+    {
+      "id": "geocoding-validation",
+      "name": "Geocoding & Address Validation Agent",
+      "type": "geocoding",
+      "description": "Validates the property address using Google Geocoder API to obtain precise latitude and longitude coordinates, validates ZIP code accuracy, and confirms the address exists in the target territory",
+      "role": "data_validator",
+      "executionOrder": 2,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 250,
+        "temperature": 0.0
+      },
+      "prompt": {
+        "systemPrompt": "geocoding_system_prompt",
+        "contextTemplate": "geocoding_context_template",
+        "outputFormat": "geocoding_result"
+      },
+      "validation": {
+        "requiredFields": ["latitude", "longitude", "validated_address", "zip_code", "geocoding_confidence"],
+        "confidenceThreshold": 0.85,
+        "numericValidation": {
+          "latitude": { "min": -90, "max": 90 },
+          "longitude": { "min": -180, "max": 180 }
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": false
+      },
+      "dependencies": ["policy-data-extraction"],
+      "progressTracking": {
+        "stages": ["parsing_address", "calling_geocoder_api", "validating_zip_code", "confirming_territory", "completed"],
+        "estimatedDuration": 20
+      }
+    },
+    {
+      "id": "property-data-enrichment",
+      "name": "Property Data Agent",
+      "type": "property_data",
+      "description": "Fetches enriched property attributes from third-party data providers (CoStar, CoreLogic) including building size, building age, roof age, construction type, occupancy details, and tenant information to supplement extracted policy data",
+      "role": "data_enricher",
+      "executionOrder": 3,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 350,
+        "temperature": 0.1
+      },
+      "prompt": {
+        "systemPrompt": "property_data_system_prompt",
+        "contextTemplate": "property_enrichment_context_template",
+        "outputFormat": "property_attributes"
+      },
+      "validation": {
+        "requiredFields": ["building_size_sqft", "year_built", "roof_age_years", "construction_type", "occupancy_type"],
+        "confidenceThreshold": 0.80
+      },
+      "approval": {
+        "requiresHumanApproval": false
+      },
+      "dependencies": ["geocoding-validation"],
+      "progressTracking": {
+        "stages": ["querying_costar", "fetching_building_data", "retrieving_occupancy_info", "consolidating_attributes", "completed"],
+        "estimatedDuration": 30
+      }
+    },
+    {
+      "id": "geospatial-risk-assessment",
+      "name": "Geospatial Risk Assessment Agent",
+      "type": "geospatial_risk",
+      "description": "Evaluates environmental and geospatial risk factors including building and roof condition, distance to fire stations and police stations, proximity to water bodies and FEMA flood zones, and other hazard indicators using satellite and GIS data",
+      "role": "risk_analyst",
+      "executionOrder": 4,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 450,
+        "temperature": 0.1
+      },
+      "prompt": {
+        "systemPrompt": "geospatial_risk_system_prompt",
+        "contextTemplate": "geospatial_context_template",
+        "outputFormat": "geospatial_risk_report"
+      },
+      "validation": {
+        "requiredFields": ["building_condition_score", "roof_condition_score", "distance_to_fire_station_km", "flood_zone_classification", "hazard_risk_score"],
+        "confidenceThreshold": 0.80,
+        "numericValidation": {
+          "building_condition_score": { "min": 0, "max": 100 },
+          "roof_condition_score": { "min": 0, "max": 100 },
+          "hazard_risk_score": { "min": 0, "max": 100 }
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": false
+      },
+      "dependencies": ["property-data-enrichment"],
+      "progressTracking": {
+        "stages": ["fetching_satellite_data", "evaluating_building_condition", "calculating_distances", "checking_flood_zones", "analyzing_hazards", "completed"],
+        "estimatedDuration": 40
+      }
+    },
+    {
+      "id": "catastrophe-risk-evaluation",
+      "name": "Catastrophe Risk Evaluation Agent",
+      "type": "cat_risk",
+      "description": "Evaluates the property's exposure to catastrophe risk zones including earthquake zones, hurricane corridors, wildfire risk areas, and other major hazard zones. Applies a premium multiplier of 1.1x for high-risk zone properties while still accepting the risk",
+      "role": "risk_analyst",
+      "executionOrder": 5,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 400,
+        "temperature": 0.1
+      },
+      "prompt": {
+        "systemPrompt": "cat_risk_system_prompt",
+        "contextTemplate": "cat_risk_context_template",
+        "outputFormat": "cat_risk_assessment"
+      },
+      "validation": {
+        "requiredFields": ["earthquake_zone", "hurricane_zone", "wildfire_risk", "cat_risk_level", "premium_multiplier"],
+        "confidenceThreshold": 0.85,
+        "allowedValues": {
+          "cat_risk_level": ["low", "moderate", "high", "extreme"],
+          "premium_multiplier": [1.0, 1.1, 1.25, 1.5]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": false
+      },
+      "dependencies": ["geospatial-risk-assessment"],
+      "progressTracking": {
+        "stages": ["loading_hazard_maps", "evaluating_earthquake_exposure", "assessing_hurricane_risk", "checking_wildfire_zones", "calculating_multiplier", "completed"],
+        "estimatedDuration": 35
+      }
+    },
+    {
+      "id": "portfolio-concentration-check",
+      "name": "Portfolio Concentration Agent",
+      "type": "portfolio_risk",
+      "description": "Evaluates portfolio concentration risk by analyzing the insurer's existing exposure in the property's geographic area (zip code, county, and metropolitan area). Applies an additional 1.1x premium multiplier if geographic concentration is high to manage aggregate exposure",
+      "role": "portfolio_analyst",
+      "executionOrder": 6,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 350,
+        "temperature": 0.1
+      },
+      "prompt": {
+        "systemPrompt": "portfolio_concentration_system_prompt",
+        "contextTemplate": "portfolio_context_template",
+        "outputFormat": "portfolio_risk_report"
+      },
+      "validation": {
+        "requiredFields": ["zip_code_exposure", "county_exposure", "concentration_risk_level", "portfolio_multiplier"],
+        "confidenceThreshold": 0.85,
+        "allowedValues": {
+          "concentration_risk_level": ["low", "moderate", "high"],
+          "portfolio_multiplier": [1.0, 1.1]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": false
+      },
+      "dependencies": ["catastrophe-risk-evaluation"],
+      "progressTracking": {
+        "stages": ["querying_portfolio_database", "calculating_zip_exposure", "assessing_county_concentration", "computing_aggregate_risk", "applying_multiplier", "completed"],
+        "estimatedDuration": 25
+      }
+    },
+    {
+      "id": "quote-generation",
+      "name": "Quote Generation Agent",
+      "type": "quote_generator",
+      "description": "Synthesizes all risk assessments, property data, and premium multipliers to generate a final insurance quote with itemized premium breakdown. Produces a downloadable, printable quote document with coverage details, premium calculations, and policy terms",
+      "role": "pricing_analyst",
+      "executionOrder": 7,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 600,
+        "temperature": 0.2
+      },
+      "prompt": {
+        "systemPrompt": "quote_generation_system_prompt",
+        "contextTemplate": "quote_generation_context_template",
+        "outputFormat": "insurance_quote"
+      },
+      "validation": {
+        "requiredFields": ["base_premium", "cat_risk_multiplier", "portfolio_multiplier", "final_premium", "coverage_summary", "quote_reference"],
+        "confidenceThreshold": 0.90,
+        "numericValidation": {
+          "base_premium": { "min": 100, "max": 10000000 },
+          "final_premium": { "min": 100, "max": 10000000 }
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": true,
+        "approvalType": "quote_review",
+        "pauseWorkflow": true,
+        "actions": ["download", "print", "save", "discard"]
+      },
+      "dependencies": ["portfolio-concentration-check"],
+      "progressTracking": {
+        "stages": ["consolidating_risk_data", "calculating_base_premium", "applying_multipliers", "generating_quote_document", "awaiting_approval", "completed"],
+        "estimatedDuration": 30
+      }
+    }
+  ]
+}

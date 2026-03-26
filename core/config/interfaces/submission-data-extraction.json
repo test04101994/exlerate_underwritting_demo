@@ -1,0 +1,443 @@
+{
+  "version": "1.0.1",
+  "formId": "submission-data-extraction",
+  "title": "Data Extraction Review",
+  "subtitle": "Review and approve extracted data from submission documents",
+  "layout": {
+    "columns": 2,
+    "spacing": "4",
+    "containerClass": "max-w-6xl mx-auto p-6"
+  },
+  "sections": [
+    {
+      "id": "summary",
+      "title": "Extraction Summary",
+      "type": "info",
+      "columns": 2,
+      "styling": {
+        "backgroundColor": "bg-blue-50",
+        "borderColor": "border-blue-200",
+        "borderStyle": "border-l-4",
+        "padding": "p-4",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "submissionId",
+          "label": "Submission ID",
+          "type": "text",
+          "readonly": true,
+          "csvField": "submission_id",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 1
+        },
+        {
+          "id": "extractionDate",
+          "label": "Extraction Date",
+          "type": "datetime",
+          "readonly": true,
+          "value": "auto_generated",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 2
+        }
+      ]
+    },
+    {
+      "id": "broker_info",
+      "title": "Broker Information",
+      "type": "form",
+      "columns": 2,
+      "styling": {
+        "backgroundColor": "bg-gray-50",
+        "borderColor": "border-gray-200",
+        "borderStyle": "border rounded-lg",
+        "padding": "p-6",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "brokerRefNumber",
+          "label": "Broker Reference Number",
+          "type": "text",
+          "csvField": "broker_ref_hu_number",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 1
+        },
+        {
+          "id": "intermediaryName",
+          "label": "Intermediary Name",
+          "type": "text",
+          "csvField": "intermediary_name",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 2
+        },
+        {
+          "id": "brokerContactName",
+          "label": "Broker Contact Name",
+          "type": "text",
+          "csvField": "broker_contact_name",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 3
+        },
+        {
+          "id": "brokerEmail",
+          "label": "Broker Email",
+          "type": "email",
+          "csvField": "broker_email",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 4
+        },
+        {
+          "id": "targetPremium",
+          "label": "Target Premium",
+          "type": "currency",
+          "csvField": "target_premium",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 5
+        },
+        {
+          "id": "effectiveDate",
+          "label": "Quote Effective Date",
+          "type": "date",
+          "csvField": "quote_effective_date",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 6
+        },
+        {
+          "id": "brokerCommission",
+          "label": "Broker Commission Rate",
+          "type": "percentage",
+          "csvField": "broker_commission",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "required": false,
+          "order": 7
+        },
+        {
+          "id": "referenceNumber",
+          "label": "Internal Reference",
+          "type": "text",
+          "value": "auto_generated",
+          "readonly": true,
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 8
+        }
+      ]
+    },
+    {
+      "id": "policy_holder",
+      "title": "Policy Holder Information",
+      "type": "form",
+      "columns": 3,
+      "styling": {
+        "backgroundColor": "bg-white",
+        "borderColor": "border-gray-200",
+        "borderStyle": "border rounded-lg",
+        "padding": "p-6",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "contactRole",
+          "label": "Contact Role",
+          "type": "text",
+          "csvField": "contact_role",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 1
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "csvField": "title",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 2
+        },
+        {
+          "id": "firstName",
+          "label": "First Name",
+          "type": "text",
+          "csvField": "first_name",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 3
+        },
+        {
+          "id": "middleName",
+          "label": "Middle Name",
+          "type": "text",
+          "csvField": "middle_name",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 4
+        },
+        {
+          "id": "surname",
+          "label": "Surname",
+          "type": "text",
+          "csvField": "surname",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 5
+        },
+        {
+          "id": "dateOfBirth",
+          "label": "Date of Birth",
+          "type": "date",
+          "csvField": "date_of_birth",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 6
+        },
+        {
+          "id": "occupation",
+          "label": "Occupation",
+          "type": "text",
+          "csvField": "occupation",
+          "gridPosition": "col-span-2",
+          "confidenceScore": "medium",
+          "order": 7
+        },
+        {
+          "id": "contactAddress",
+          "label": "Contact Address",
+          "type": "address",
+          "csvFields": {
+            "houseNumber": "house_number",
+            "houseName": "house_name",
+            "addressLine1": "address_line1",
+            "city": "city",
+            "postcode": "postcode"
+          },
+          "gridPosition": "col-span-3",
+          "confidenceScore": "high",
+          "order": 8
+        }
+      ]
+    },
+    {
+      "id": "property_info",
+      "title": "Property Information",
+      "type": "form",
+      "columns": 2,
+      "styling": {
+        "backgroundColor": "bg-green-50",
+        "borderColor": "border-green-200",
+        "borderStyle": "border rounded-lg",
+        "padding": "p-6",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "propertyAddress",
+          "label": "Property Address",
+          "type": "address",
+          "csvFields": {
+            "houseNumber": "property_house_number",
+            "houseName": "property_house_name",
+            "addressLine1": "property_address_line1",
+            "city": "property_city",
+            "postcode": "property_postcode"
+          },
+          "gridPosition": "col-span-2",
+          "confidenceScore": "high",
+          "order": 1
+        },
+        {
+          "id": "propertyType",
+          "label": "Property Type",
+          "type": "text",
+          "csvField": "property_type",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 2
+        },
+        {
+          "id": "yearBuilt",
+          "label": "Year Built",
+          "type": "number",
+          "csvField": "year_built",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 3
+        },
+        {
+          "id": "numberOfBedrooms",
+          "label": "Number of Bedrooms",
+          "type": "number",
+          "csvField": "number_of_bedrooms",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 4
+        },
+        {
+          "id": "listedBuilding",
+          "label": "Listed Building",
+          "type": "text",
+          "csvField": "listed_building",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 5
+        },
+        {
+          "id": "roofConstruction",
+          "label": "Roof Construction",
+          "type": "text",
+          "csvField": "roof_construction",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 6
+        },
+        {
+          "id": "wallConstruction",
+          "label": "Wall Construction",
+          "type": "text",
+          "csvField": "wall_construction",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 7
+        }
+      ]
+    },
+    {
+      "id": "coverage_info",
+      "title": "Coverage Information",
+      "type": "form",
+      "columns": 2,
+      "styling": {
+        "backgroundColor": "bg-purple-50",
+        "borderColor": "border-purple-200",
+        "borderStyle": "border rounded-lg",
+        "padding": "p-6",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "coverType",
+          "label": "Cover Type",
+          "type": "text",
+          "csvField": "cover_type",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 1
+        },
+        {
+          "id": "buildingSumsInsured",
+          "label": "Building Sums Insured",
+          "type": "currency",
+          "csvField": "building_sums_insured",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 2
+        },
+        {
+          "id": "contentSumsInsured",
+          "label": "Content Sums Insured",
+          "type": "currency",
+          "csvField": "content_sums_insured",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 3
+        },
+        {
+          "id": "totalJewelleryValue",
+          "label": "Total Jewellery Value",
+          "type": "currency",
+          "csvField": "total_jewellery_value",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 4
+        },
+        {
+          "id": "artCollectionsValue",
+          "label": "Art Collections Value",
+          "type": "currency",
+          "csvField": "art_collections_value",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 5
+        },
+        {
+          "id": "propertyOwnership",
+          "label": "Property Ownership",
+          "type": "text",
+          "csvField": "property_ownership",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 6
+        },
+        {
+          "id": "LimitAmount",
+          "label": "Limit",
+          "type": "text",
+          "csvField": "risk_category",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 7
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "approve",
+      "label": "Approve & Continue",
+      "type": "primary",
+      "variant": "default",
+      "className": "bg-green-600 hover:bg-green-700",
+      "action": "approve_extraction"
+    },
+    {
+      "id": "reject",
+      "label": "Reject & Stop",
+      "type": "secondary",
+      "variant": "destructive",
+      "className": "bg-red-600 hover:bg-red-700",
+      "action": "reject_extraction"
+    }
+  ],
+  "validation": {
+    "requiredFields": [
+      "submissionId",
+      "brokerRefNumber",
+      "intermediaryName",
+      "brokerContactName",
+      "brokerEmail",
+      "targetPremium",
+      "firstName",
+      "surname",
+      "propertyType",
+      "buildingSumsInsured",
+      "contentSumsInsured"
+    ],
+    "conditionalFields": {
+      "multiProperty": {
+        "condition": "hasMultipleProperties",
+        "additionalSections": ["property_2"]
+      }
+    }
+  },
+  "confidence": {
+    "thresholds": {
+      "high": 90,
+      "medium": 70,
+      "low": 50
+    },
+    "colors": {
+      "high": "bg-green-100 text-green-800",
+      "medium": "bg-yellow-100 text-yellow-800",
+      "low": "bg-red-100 text-red-800"
+    }
+  }
+}

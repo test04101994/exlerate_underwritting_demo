@@ -1,0 +1,216 @@
+{
+  "version": "1.0.0",
+  "description": "Agent Completion Messages and Work Progress Templates",
+  "workMessages": {
+    "data_extraction": {
+      "starting": "Starting data extraction from submission documents...",
+      "processing": [
+        "Scanning document structure and identifying data fields",
+        "Extracting client information and policy details",
+        "Validating extracted data against required fields",
+        "Calculating confidence scores for each data point",
+        "Preparing data for human review and approval"
+      ],
+      "completion": "Data extraction completed successfully. Found {field_count} fields with average confidence of {confidence_percentage}%. Ready for human review."
+    },
+    "sanctions_check": {
+      "starting": "Initiating sanctions screening process...",
+      "processing": [
+        "Searching client information against sanctions databases",
+        "Cross-referencing with regulatory watch lists",
+        "Analyzing risk factors and compliance requirements",
+        "Generating risk assessment report",
+        "Preparing recommendations for review"
+      ],
+      "completion": "Sanctions screening completed. Client risk level: {risk_level}. Status: {sanctions_status}. {additional_notes}"
+    },
+    "premium_calculation": {
+      "starting": "Beginning premium calculation analysis...",
+      "processing": [
+        "Analyzing risk factors and coverage requirements",
+        "Calculating base premium from actuarial tables",
+        "Applying risk adjustments and market factors",
+        "Reviewing competitor pricing and market conditions",
+        "Finalizing premium recommendation with justification"
+      ],
+      "completion": "Premium calculation completed. Recommended premium: £{premium_amount}. Base rate: £{base_premium}, Risk adjustment: {risk_adjustment}%."
+    },
+    "email_draft": {
+      "starting": "Drafting professional communication...",
+      "processing": [
+        "Gathering policy details and decision information",
+        "Structuring email content with key information",
+        "Formatting professional insurance communication",
+        "Including required next steps and contact details",
+        "Preparing email for human review and approval"
+      ],
+      "completion": "Email draft completed for {recipient_name}. Subject: '{email_subject}'. Content includes policy details, premium information, and next steps."
+    },
+    "email_sender": {
+      "starting": "Preparing email for delivery...",
+      "processing": [
+        "Validating recipient email address and format",
+        "Preparing email content and attachments",
+        "Connecting to email service provider",
+        "Sending email and tracking delivery status",
+        "Confirming successful delivery and logging"
+      ],
+      "completion": "Email sent successfully to {recipient_email}. Message ID: {message_id}. Delivery confirmed at {timestamp}."
+    },
+    "risk_profile": {
+      "starting": "Analyzing risk profile and conversion probability...",
+      "processing": [
+        "Evaluating client history and risk factors",
+        "Analyzing property type and location risk",
+        "Assessing broker relationship and market conditions",
+        "Calculating conversion probability using risk models",
+        "Generating risk score and recommendation"
+      ],
+      "completion": "Risk profile analysis completed. Conversion probability: {conversion_probability}%. Risk score: {risk_score}/100. Recommendation: {recommendation}."
+    },
+    "final_decision": {
+      "starting": "Finalizing workflow and preparing summary...",
+      "processing": [
+        "Reviewing all agent results and decisions",
+        "Analyzing workflow completion status",
+        "Preparing comprehensive summary report",
+        "Identifying next steps and follow-up actions",
+        "Documenting final recommendations"
+      ],
+      "completion": "Workflow completed successfully. Status: {workflow_status}. Final decision: {decision_summary}. Next steps: {next_steps}."
+    },
+    "slip_validation": {
+      "starting": "Validating Lloyd's slip information...",
+      "processing": [
+        "Checking slip reference format and validity",
+        "Validating syndicate participation percentages",
+        "Verifying coverage terms and conditions",
+        "Ensuring compliance with Lloyd's market standards",
+        "Preparing validation report with recommendations"
+      ],
+      "completion": "Slip validation completed. Reference: {slip_reference}. Validation status: {validation_status}. Total capacity: {total_capacity}%."
+    },
+    "coverage_analysis": {
+      "starting": "Analyzing coverage requirements and terms...",
+      "processing": [
+        "Reviewing policy limits and deductibles",
+        "Analyzing coverage scope and exclusions",
+        "Identifying potential gaps or overlaps",
+        "Comparing against industry standards",
+        "Preparing coverage adequacy assessment"
+      ],
+      "completion": "Coverage analysis completed. Policy limits: £{policy_limits}. Coverage adequacy: {coverage_rating}. Recommendations: {recommendations}."
+    },
+    "risk_assessment": {
+      "starting": "Conducting comprehensive risk assessment...",
+      "processing": [
+        "Analyzing client industry and risk profile",
+        "Reviewing loss history and claims data",
+        "Evaluating risk control measures",
+        "Assessing geographical and operational risks",
+        "Preparing detailed risk assessment report"
+      ],
+      "completion": "Risk assessment completed. Overall risk rating: {risk_rating}. Key risk factors: {risk_factors}. Mitigation recommendations provided."
+    },
+    "pricing": {
+      "starting": "Calculating pricing for complex risks...",
+      "processing": [
+        "Analyzing market conditions and competitor rates",
+        "Calculating technical pricing based on risk factors",
+        "Adjusting for capacity and market appetite",
+        "Preparing pricing recommendations",
+        "Documenting pricing rationale and assumptions"
+      ],
+      "completion": "Pricing analysis completed. Recommended rate: {pricing_rate}. Technical price: £{technical_price}. Market adjustment: {market_adjustment}%."
+    },
+    "documentation": {
+      "starting": "Preparing final slip documentation...",
+      "processing": [
+        "Compiling all slip terms and conditions",
+        "Formatting according to Lloyd's market standards",
+        "Including all syndicate participation details",
+        "Preparing signing pages and documentation",
+        "Finalizing slip for market presentation"
+      ],
+      "completion": "Documentation completed. Slip {slip_reference} ready for market. Total syndicate participation: {participation_count} syndicates, {total_capacity}% capacity."
+    }
+  },
+  "completionMessages": {
+    "data_extraction": {
+      "success": "✅ Data Extraction Agent completed successfully\n\nExtracted {field_count} fields from submission documents with {confidence_percentage}% average confidence. Key information includes:\n\n• Client: {client_name}\n• Broker: {broker_name} ({broker_email})\n• Policy Type: {policy_type}\n• Target Premium: £{target_premium}\n• Coverage Amount: £{coverage_amount}\n\nData is ready for human review and approval.",
+      "failure": "❌ Data Extraction Agent failed\n\nUnable to extract required information from submission documents. Please check document format and try again."
+    },
+    "sanctions_check": {
+      "success": "✅ Sanctions Check Agent completed successfully\n\nScreened {client_name} against sanctions databases:\n\n• Risk Level: {risk_level}\n• Sanctions Status: {sanctions_status}\n• Confidence Score: {confidence_score}%\n• Database Sources: {database_count} checked\n\n{additional_recommendations}",
+      "failure": "❌ Sanctions Check Agent failed\n\nUnable to complete sanctions screening. Please retry or escalate for manual review."
+    },
+    "premium_calculation": {
+      "success": "✅ Premium Calculation Agent completed successfully\n\nCalculated premium for {client_name}:\n\n• Base Premium: £{base_premium}\n• Risk Adjustments: {risk_adjustment}%\n• Final Premium: £{final_premium}\n• Pricing Factors: {pricing_factors}\n\nPremium calculation based on current market conditions and risk assessment.",
+      "failure": "❌ Premium Calculation Agent failed\n\nUnable to calculate premium. Please check input data and retry."
+    },
+    "email_draft": {
+      "success": "✅ Email Draft Agent completed successfully\n\nDrafted professional email for {recipient_name}:\n\n• Subject: {email_subject}\n• Recipient: {recipient_email}\n• Content: Policy details, premium £{premium_amount}, next steps\n• Attachments: {attachment_count}\n\nEmail is ready for review and sending.",
+      "failure": "❌ Email Draft Agent failed\n\nUnable to draft email. Please check recipient information and retry."
+    },
+    "email_sender": {
+      "success": "✅ Email Sender Agent completed successfully\n\nEmail sent to {recipient_email}:\n\n• Message ID: {message_id}\n• Delivery Time: {delivery_time}\n• Status: Successfully delivered\n• Content: {content_summary}\n\nBroker has been notified of policy decision.",
+      "failure": "❌ Email Sender Agent failed\n\nEmail delivery failed to {recipient_email}. Error: {error_message}"
+    },
+    "final_decision": {
+      "success": "✅ Final Decision Agent completed successfully\n\nWorkflow Summary for {client_name}:\n\n• Workflow Status: {workflow_status}\n• Final Decision: {decision_summary}\n• Processing Time: {processing_time}\n• Next Steps: {next_steps}\n\nAll agents completed successfully. Workflow finalized.",
+      "failure": "❌ Final Decision Agent failed\n\nUnable to finalize workflow. Please review agent results and retry."
+    },
+    "slip_validation": {
+      "success": "✅ Slip Validation Agent completed successfully\n\nValidated Lloyd's slip {slip_reference}:\n\n• Validation Status: {validation_status}\n• Total Capacity: {total_capacity}%\n• Syndicate Count: {syndicate_count}\n• Compliance: Lloyd's market standards met\n\nSlip structure and terms validated successfully.",
+      "failure": "❌ Slip Validation Agent failed\n\nSlip validation failed for {slip_reference}. Issues found: {validation_issues}"
+    },
+    "coverage_analysis": {
+      "success": "✅ Coverage Analysis Agent completed successfully\n\nAnalyzed coverage for {coverage_type}:\n\n• Policy Limits: £{policy_limits}\n• Deductibles: £{deductibles}\n• Coverage Rating: {coverage_rating}\n• Territory: {territory}\n\nCoverage analysis complete with recommendations provided.",
+      "failure": "❌ Coverage Analysis Agent failed\n\nUnable to complete coverage analysis. Please review coverage terms and retry."
+    },
+    "risk_assessment": {
+      "success": "✅ Risk Assessment Agent completed successfully\n\nRisk assessment for {client_name}:\n\n• Overall Risk Rating: {risk_rating}\n• Key Risk Factors: {key_risk_factors}\n• Loss History: {loss_history_summary}\n• Risk Controls: {risk_controls_rating}\n\nComprehensive risk assessment completed with mitigation recommendations.",
+      "failure": "❌ Risk Assessment Agent failed\n\nUnable to complete risk assessment. Please provide additional risk information."
+    },
+    "pricing": {
+      "success": "✅ Pricing Agent completed successfully\n\nPricing analysis for {coverage_type}:\n\n• Technical Price: £{technical_price}\n• Market Rate: £{market_rate}\n• Recommended Rate: £{recommended_rate}\n• Pricing Confidence: {pricing_confidence}%\n\nPricing recommendations based on risk assessment and market conditions.",
+      "failure": "❌ Pricing Agent failed\n\nUnable to complete pricing analysis. Please review risk data and market conditions."
+    },
+    "documentation": {
+      "success": "✅ Documentation Agent completed successfully\n\nFinal documentation for slip {slip_reference}:\n\n• Document Status: Complete\n• Syndicate Participation: {participation_summary}\n• Total Capacity: {total_capacity}%\n• Market Standards: Compliant\n\nSlip documentation ready for market presentation.",
+      "failure": "❌ Documentation Agent failed\n\nUnable to complete slip documentation. Please review slip terms and retry."
+    }
+  },
+  "messageTemplates": {
+    "agent_started": "🔄 {agent_name} has started processing...",
+    "agent_progress": "⏳ {agent_name}: {progress_message}",
+    "agent_completed": "✅ {agent_name} completed successfully",
+    "agent_failed": "❌ {agent_name} failed: {error_message}",
+    "human_approval_required": "👤 Human approval required for {agent_name}",
+    "workflow_paused": "⏸️ Workflow paused for human review",
+    "workflow_resumed": "▶️ Workflow resumed after approval",
+    "workflow_completed": "🎉 Workflow completed successfully",
+    "workflow_failed": "💥 Workflow failed: {error_message}"
+  },
+  "variableMapping": {
+    "common": {
+      "client_name": "extractedData.client_name",
+      "broker_name": "extractedData.broker_name",
+      "broker_email": "extractedData.broker_email",
+      "policy_type": "extractedData.policy_type",
+      "premium_amount": "agentResults.premium_calculation.final_premium",
+      "coverage_amount": "extractedData.coverage_amount"
+    },
+    "slip_specific": {
+      "slip_reference": "extractedData.slip_reference",
+      "lloyd_syndicate": "extractedData.lloyd_syndicate",
+      "total_capacity": "agentResults.validation.total_capacity",
+      "syndicate_count": "agentResults.validation.syndicate_count"
+    },
+    "calculated": {
+      "confidence_percentage": "Math.round(workflow.overallConfidence * 100)",
+      "field_count": "Object.keys(extractedData).length",
+      "processing_time": "workflow.completedAt - workflow.startedAt"
+    }
+  }
+}

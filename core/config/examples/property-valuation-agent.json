@@ -1,0 +1,161 @@
+{
+  "version": "1.0.0",
+  "description": "Example: Adding a Property Valuation Agent to submission workflow",
+  "newAgent": {
+    "id": "property-valuation",
+    "name": "Property Valuation Agent",
+    "type": "assessment",
+    "role": "property_assessor",
+    "executionOrder": 4,
+    "required": true,
+    "aiModel": {
+      "provider": "openrouter",
+      "model": "gpt-4o-mini",
+      "maxTokens": 400,
+      "temperature": 0.2
+    },
+    "prompt": {
+      "systemPrompt": "property_valuation_prompt",
+      "contextTemplate": "property_context_template",
+      "outputFormat": "property_assessment"
+    },
+    "validation": {
+      "requiredFields": ["estimated_value", "valuation_method", "confidence_level"],
+      "confidenceThreshold": 0.8,
+      "numericValidation": {
+        "estimated_value": {"min": 50000, "max": 50000000}
+      },
+      "allowedValues": {
+        "valuation_method": ["comparative", "cost", "income", "hybrid"],
+        "confidence_level": ["low", "medium", "high", "very_high"]
+      }
+    },
+    "approval": {
+      "requiresHumanApproval": "conditional",
+      "approvalCondition": "confidence_level === 'low' || estimated_value > 2000000",
+      "approvalType": "valuation_review",
+      "pauseWorkflow": true
+    },
+    "dependencies": ["premium-calculation"],
+    "progressTracking": {
+      "stages": ["researching", "analyzing", "calculating", "validating", "completed"],
+      "estimatedDuration": 60
+    }
+  },
+  "requiredPrompts": {
+    "property_valuation_prompt": "You are a certified property valuation expert specializing in insurance property assessments. Your responsibilities include:\n\n1. Analyzing property characteristics and market data\n2. Researching comparable properties and recent sales\n3. Applying appropriate valuation methodologies\n4. Considering location factors and market conditions\n5. Providing accurate replacement cost estimates\n\nUse industry-standard valuation methods and provide detailed justification for all assessments. Consider both market value and insurance replacement cost.",
+    "property_context_template": "Perform property valuation for insurance purposes:\n\nProperty Details:\n• Address: {property_address}\n• Type: {property_type}\n• Year Built: {year_built}\n• Square Footage: {square_footage}\n• Bedrooms: {bedrooms}\n• Bathrooms: {bathrooms}\n• Lot Size: {lot_size}\n\nConstruction Details:\n• Foundation: {foundation_type}\n• Roof: {roof_type}\n• Exterior: {exterior_material}\n• Heating: {heating_type}\n• Special Features: {special_features}\n\nMarket Information:\n• Neighborhood: {neighborhood}\n• School District: {school_district}\n• Recent Sales: {recent_sales}\n• Market Trends: {market_trends}\n\nProvide comprehensive valuation analysis with replacement cost estimate for insurance coverage."
+  },
+  "requiredCompletionMessages": {
+    "work_started": "Property Valuation Agent started comprehensive property assessment...",
+    "work_progress": [
+      "Researching property characteristics and specifications...",
+      "Analyzing comparable properties and recent sales data...",
+      "Applying valuation methodologies (comparative, cost, income)...",
+      "Calculating replacement cost estimates...",
+      "Validating assessment against market conditions..."
+    ],
+    "work_completed": "Property Valuation Agent completed successfully.\n\nProperty Valuation Results:\n• Estimated Market Value: ${estimated_value:,}\n• Replacement Cost: ${replacement_cost:,}\n• Valuation Method: {valuation_method}\n• Confidence Level: {confidence_level}\n\nValuation Breakdown:\n• Land Value: ${land_value:,}\n• Structure Value: ${structure_value:,}\n• Improvements: ${improvements_value:,}\n• Depreciation: {depreciation_percentage}%\n\nMarket Analysis:\n• Comparable Properties: {comparable_count}\n• Price per Sq Ft: ${price_per_sqft}\n• Market Trend: {market_trend}\n• Location Factor: {location_factor}\n\nConfidence Score: {confidence_score}/100\nStatus: {valuation_status}"
+  },
+  "requiredApprovalMessages": {
+    "valuation_review": {
+      "prompt": "🏠 Property Valuation Review Required\n\nProperty: {property_address}\nEstimated Value: ${estimated_value:,}\nConfidence Level: {confidence_level}\n\nValuation Details:\n• Method: {valuation_method}\n• Replacement Cost: ${replacement_cost:,}\n• Market Factors: {market_factors}\n\nReview required due to: {review_reason}\n\nPlease review the valuation and choose:\n• Approve: Accept valuation and continue\n• Reject: Request professional appraisal\n• Modify: Adjust coverage amount",
+      "success": "Property valuation approved. Policy coverage adjusted to match assessed value.",
+      "rejection": "Property valuation rejected. Professional appraisal requested before proceeding."
+    }
+  },
+  "workflowIntegration": {
+    "insertAfter": "premium-calculation",
+    "insertBefore": "email-draft",
+    "updateExecutionOrder": {
+      "email-draft": 5,
+      "email-sender": 6,
+      "final-decision": 7
+    }
+  },
+  "dataSchema": {
+    "property_assessment_schema": {
+      "type": "object",
+      "required": ["estimated_value", "replacement_cost", "valuation_method", "confidence_level"],
+      "properties": {
+        "estimated_value": {
+          "type": "number",
+          "minimum": 50000,
+          "maximum": 50000000,
+          "description": "Estimated market value of property"
+        },
+        "replacement_cost": {
+          "type": "number",
+          "minimum": 50000,
+          "maximum": 50000000,
+          "description": "Cost to replace property for insurance"
+        },
+        "valuation_method": {
+          "type": "string",
+          "enum": ["comparative", "cost", "income", "hybrid"],
+          "description": "Primary valuation method used"
+        },
+        "confidence_level": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "very_high"],
+          "description": "Confidence in valuation accuracy"
+        },
+        "land_value": {
+          "type": "number",
+          "description": "Assessed value of land only"
+        },
+        "structure_value": {
+          "type": "number",
+          "description": "Assessed value of structure only"
+        },
+        "improvements_value": {
+          "type": "number",
+          "description": "Value of improvements and upgrades"
+        },
+        "depreciation_percentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Depreciation factor applied"
+        },
+        "comparable_count": {
+          "type": "number",
+          "description": "Number of comparable properties analyzed"
+        },
+        "price_per_sqft": {
+          "type": "number",
+          "description": "Price per square foot"
+        },
+        "market_trend": {
+          "type": "string",
+          "enum": ["declining", "stable", "rising", "volatile"],
+          "description": "Current market trend"
+        },
+        "location_factor": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 2.0,
+          "description": "Location adjustment factor"
+        },
+        "market_factors": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Key market factors affecting valuation"
+        },
+        "review_reason": {
+          "type": "string",
+          "description": "Reason why human review is required"
+        }
+      }
+    }
+  },
+  "usageInstructions": {
+    "step1": "Copy the 'newAgent' object and add it to config/agents/submission-agents.json",
+    "step2": "Add the 'requiredPrompts' to config/templates/agent-prompts.json",
+    "step3": "Add the 'requiredCompletionMessages' to config/templates/completion-messages.json",
+    "step4": "Add the 'dataSchema' to config/templates/data-schemas.json",
+    "step5": "Update workflow execution order for existing agents as shown in 'workflowIntegration'",
+    "step6": "Configure external property data sources if available (MLS, Zillow API, etc.)",
+    "step7": "Test the new agent with various property types and values"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "form_title": "Data Extraction Review",
+  "form_subtitle": "Review and approve extracted data from Lloyd's slip documents",
+  "confidence_threshold": { "high": 0.90, "medium": 0.75, "low": 0.0 },
+  "sections": [
+    {
+      "id": "basic_slip_information",
+      "title": "Basic Slip Information",
+      "fields": [
+        { "id": "slip_reference", "label": "Slip Reference", "value": "", "confidence": 0.97, "type": "text", "required": true, "source": { "page": 1, "bbox": [72, 700, 320, 716] } },
+        { "id": "token", "label": "Token", "value": "", "confidence": 0.95, "type": "text", "required": false, "source": { "page": 1, "bbox": [340, 700, 480, 716] } },
+        { "id": "lloyd_syndicate", "label": "Lloyd's Syndicate", "value": "", "confidence": 0.96, "type": "text", "required": true, "source": { "page": 1, "bbox": [72, 670, 320, 686] } },
+        { "id": "lead_underwriter", "label": "Lead Underwriter", "value": "", "confidence": 0.94, "type": "text", "required": true, "source": { "page": 1, "bbox": [72, 640, 320, 656] } },
+        { "id": "underwriter_email", "label": "Underwriter Email", "value": "", "confidence": 0.92, "type": "text", "required": false, "source": { "page": 1, "bbox": [72, 610, 400, 626] } },
+        { "id": "risk_category", "label": "Risk Category", "value": "", "confidence": 0.93, "type": "text", "required": true, "source": { "page": 1, "bbox": [72, 580, 280, 596] } }
+      ]
+    },
+    {
+      "id": "policy_details",
+      "title": "Policy Details",
+      "fields": [
+        { "id": "policy_inception_date", "label": "Policy Inception Date", "value": "", "confidence": 0.97, "type": "text", "required": true, "source": { "page": 1, "bbox": [72, 520, 260, 536] } },
+        { "id": "policy_expiry_date", "label": "Policy Expiry Date", "value": "", "confidence": 0.96, "type": "text", "required": true, "source": { "page": 1, "bbox": [280, 520, 440, 536] } },
+        { "id": "coverage_territory", "label": "Coverage Territory", "value": "", "confidence": 0.82, "type": "text", "required": false, "source": { "page": 1, "bbox": [72, 490, 380, 506] } },
+        { "id": "currency", "label": "Currency", "value": "", "confidence": 0.98, "type": "text", "required": true, "source": { "page": 1, "bbox": [72, 460, 200, 476] } },
+        { "id": "policy_limits", "label": "Policy Limits", "value": "", "confidence": 0.95, "type": "text", "required": true, "source": { "page": 1, "bbox": [72, 430, 320, 446] } },
+        { "id": "deductible", "label": "Deductible", "value": "", "confidence": 0.94, "type": "text", "required": false, "source": { "page": 1, "bbox": [72, 400, 280, 416] } }
+      ]
+    },
+    {
+      "id": "financial_information",
+      "title": "Financial Information",
+      "fields": [
+        { "id": "premium_amount", "label": "Premium Amount", "value": "", "confidence": 0.96, "type": "text", "required": true, "source": { "page": 2, "bbox": [72, 700, 280, 716] } },
+        { "id": "brokerage_rate", "label": "Brokerage Rate", "value": "", "confidence": 0.94, "type": "text", "required": false, "source": { "page": 2, "bbox": [300, 700, 440, 716] } },
+        { "id": "total_sum_insured", "label": "Total Sum Insured", "value": "", "confidence": 0.95, "type": "text", "required": true, "source": { "page": 2, "bbox": [72, 670, 320, 686] } }
+      ]
+    },
+    {
+      "id": "business_information",
+      "title": "Business Information",
+      "fields": [
+        { "id": "years_trading", "label": "Years Trading", "value": "", "confidence": 0.90, "type": "text", "required": false, "source": { "page": 2, "bbox": [72, 610, 220, 626] } },
+        { "id": "annual_turnover", "label": "Annual Turnover", "value": "", "confidence": 0.88, "type": "text", "required": false, "source": { "page": 2, "bbox": [240, 610, 400, 626] } },
+        { "id": "number_of_employees", "label": "Number of Employees", "value": "", "confidence": 0.87, "type": "text", "required": false, "source": { "page": 2, "bbox": [72, 580, 260, 596] } },
+        { "id": "financial_rating", "label": "Financial Rating", "value": "", "confidence": 0.82, "type": "text", "required": false, "source": { "page": 2, "bbox": [280, 580, 440, 596] } },
+        { "id": "previous_claims", "label": "Previous Claims", "value": "", "confidence": 0.78, "type": "textarea", "required": false, "source": { "page": 2, "bbox": [72, 530, 480, 570] } }
+      ]
+    },
+    {
+      "id": "risk_security",
+      "title": "Risk & Security",
+      "fields": [
+        { "id": "risk_improvements", "label": "Risk Improvements", "value": "", "confidence": 0.76, "type": "textarea", "required": false, "source": { "page": 2, "bbox": [72, 460, 480, 520] } },
+        { "id": "security_measures", "label": "Security Measures", "value": "", "confidence": 0.77, "type": "textarea", "required": false, "source": { "page": 2, "bbox": [72, 390, 480, 450] } },
+        { "id": "compliance_certifications", "label": "Compliance Certifications", "value": "", "confidence": 0.91, "type": "text", "required": false, "source": { "page": 2, "bbox": [72, 360, 320, 376] } },
+        { "id": "reinsurance_arrangements", "label": "Reinsurance Arrangements", "value": "", "confidence": 0.84, "type": "text", "required": false, "source": { "page": 2, "bbox": [72, 330, 380, 346] } }
+      ]
+    },
+    {
+      "id": "policy_terms",
+      "title": "Policy Terms",
+      "fields": [
+        { "id": "exclusions", "label": "Exclusions", "value": "", "confidence": 0.92, "type": "textarea", "required": false, "source": { "page": 3, "bbox": [72, 680, 480, 740] } },
+        { "id": "warranties", "label": "Warranties", "value": "", "confidence": 0.90, "type": "textarea", "required": false, "source": { "page": 3, "bbox": [72, 610, 480, 670] } },
+        { "id": "conditions", "label": "Conditions", "value": "", "confidence": 0.89, "type": "textarea", "required": false, "source": { "page": 3, "bbox": [72, 540, 480, 600] } }
+      ]
+    }
+  ]
+}

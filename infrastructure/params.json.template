@@ -1,0 +1,38 @@
+[
+  {
+    "ParameterKey": "DBPassword",
+    "ParameterValue": "CHANGE_ME_min_8_chars"
+  },
+  {
+    "ParameterKey": "SessionSecret",
+    "ParameterValue": "CHANGE_ME_random_secret"
+  },
+  {
+    "ParameterKey": "OpenRouterAPIKey",
+    "ParameterValue": ""
+  },
+  {
+    "ParameterKey": "JiraBaseURL",
+    "ParameterValue": ""
+  },
+  {
+    "ParameterKey": "JiraEmail",
+    "ParameterValue": ""
+  },
+  {
+    "ParameterKey": "JiraAPIToken",
+    "ParameterValue": ""
+  },
+  {
+    "ParameterKey": "JiraDefaultProject",
+    "ParameterValue": "HIS"
+  },
+  {
+    "ParameterKey": "SESFromEmail",
+    "ParameterValue": "noreply@example.com"
+  },
+  {
+    "ParameterKey": "SESDefaultRecipient",
+    "ParameterValue": ""
+  }
+]

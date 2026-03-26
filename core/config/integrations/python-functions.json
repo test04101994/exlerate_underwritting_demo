@@ -1,0 +1,333 @@
+{
+  "version": "1.0.0",
+  "description": "Python Function Integration Configuration for Workflow Agents",
+  "pythonBridge": {
+    "enabled": true,
+    "pythonPath": "python3",
+    "moduleBasePath": "./python_bridge",
+    "defaultTimeout": 30000,
+    "retryAttempts": 3,
+    "errorHandling": "fallback_to_node"
+  },
+  "emailIntegration": {
+    "provider": "aws_ses",
+    "moduleFile": "aws_ses_service.py",
+    "className": "AWSSESService",
+    "methods": {
+      "send_email": {
+        "description": "Send email via AWS SES",
+        "parameters": {
+          "to_email": "string",
+          "subject": "string", 
+          "body": "string",
+          "from_email": "string|optional",
+          "is_html": "boolean|optional"
+        },
+        "returns": "dict",
+        "timeout": 15000
+      },
+      "send_broker_notification": {
+        "description": "Send broker notification email with policy details",
+        "parameters": {
+          "broker_email": "string",
+          "broker_name": "string",
+          "client_name": "string",
+          "policy_details": "dict"
+        },
+        "returns": "dict",
+        "timeout": 15000
+      },
+      "send_rejection_notification": {
+        "description": "Send rejection notification email",
+        "parameters": {
+          "broker_email": "string",
+          "broker_name": "string", 
+          "client_name": "string",
+          "rejection_reason": "string"
+        },
+        "returns": "dict",
+        "timeout": 15000
+      }
+    }
+  },
+  "aiIntegration": {
+    "provider": "openrouter",
+    "moduleFile": "openrouter_client.py",
+    "className": "OpenRouterClient",
+    "methods": {
+      "execute_agent": {
+        "description": "Execute an agent with OpenRouter AI model",
+        "parameters": {
+          "agent_name": "string",
+          "context": "dict"
+        },
+        "returns": "dict",
+        "timeout": 45000
+      },
+      "get_agent_system_prompt": {
+        "description": "Get system prompt for specific agent",
+        "parameters": {
+          "agent_name": "string"
+        },
+        "returns": "string",
+        "timeout": 5000
+      }
+    }
+  },
+  "workflowIntegration": {
+    "submissionWorkflow": {
+      "agents": [
+        {
+          "name": "Data Extraction Agent",
+          "pythonFunction": null,
+          "description": "Reads from CSV files, no Python function needed",
+          "dataSource": "csv",
+          "csvFile": "submissions.csv"
+        },
+        {
+          "name": "Sanctions Check Agent",
+          "pythonFunction": "openrouter_client.execute_agent",
+          "parameters": {
+            "agent_name": "sanctions_check",
+            "context": {
+              "client_name": "{client_name}",
+              "address": "{address}",
+              "date_of_birth": "{date_of_birth}",
+              "occupation": "{occupation}"
+            }
+          },
+          "promptTemplate": "sanctions_system_prompt",
+          "contextTemplate": "sanctions_context_template"
+        },
+        {
+          "name": "Premium Calculation Agent",
+          "pythonFunction": "openrouter_client.execute_agent",
+          "parameters": {
+            "agent_name": "premium_calculation",
+            "context": {
+              "policy_type": "{policy_type}",
+              "coverage_amount": "{coverage_amount}",
+              "risk_factors": "{risk_factors}",
+              "client_profile": "{client_profile}"
+            }
+          },
+          "promptTemplate": "premium_calculation_prompt",
+          "contextTemplate": "pricing_context_template"
+        },
+        {
+          "name": "Email Draft Agent",
+          "pythonFunction": "openrouter_client.execute_agent",
+          "parameters": {
+            "agent_name": "email_draft",
+            "context": {
+              "recipient_name": "{broker_name}",
+              "recipient_email": "{broker_email}",
+              "client_name": "{client_name}",
+              "policy_type": "{policy_type}",
+              "premium_amount": "{premium_amount}",
+              "decision": "{decision}"
+            }
+          },
+          "promptTemplate": "email_draft_prompt",
+          "contextTemplate": "email_context_template",
+          "outputFormat": "email_format"
+        },
+        {
+          "name": "Email Sender Agent",
+          "pythonFunction": "aws_ses_service.send_broker_notification",
+          "parameters": {
+            "broker_email": "{broker_email}",
+            "broker_name": "{broker_name}",
+            "client_name": "{client_name}",
+            "policy_details": {
+              "policy_type": "{policy_type}",
+              "premium_amount": "{premium_amount}",
+              "coverage_amount": "{coverage_amount}",
+              "decision": "{decision}",
+              "next_steps": "{next_steps}"
+            }
+          },
+          "fallbackFunction": "aws_ses_service.send_email",
+          "fallbackParameters": {
+            "to_email": "{broker_email}",
+            "subject": "Insurance Policy Update - {client_name}",
+            "body": "{email_content}",
+            "is_html": false
+          }
+        },
+        {
+          "name": "Final Decision Agent",
+          "pythonFunction": "openrouter_client.execute_agent",
+          "parameters": {
+            "agent_name": "final_decision",
+            "context": {
+              "submission_id": "{submission_id}",
+              "client_name": "{client_name}",
+              "agent_results": "{agent_results}",
+              "approvals": "{approvals}",
+              "decisions": "{decisions}"
+            }
+          },
+          "promptTemplate": "final_decision_prompt",
+          "contextTemplate": "decision_context_template"
+        }
+      ]
+    },
+    "slipWorkflow": {
+      "agents": [
+        {
+          "name": "Data Extraction Agent",
+          "pythonFunction": null,
+          "description": "Reads from CSV files, no Python function needed",
+          "dataSource": "csv",
+          "csvFile": "slip-data.csv"
+        },
+        {
+          "name": "Slip Validation Agent",
+          "pythonFunction": "openrouter_client.execute_agent",
+          "parameters": {
+            "agent_name": "slip_validation",
+            "context": {
+              "slip_reference": "{slip_reference}",
+              "syndicate_participation": "{syndicate_participation}",
+              "total_capacity": "{total_capacity}",
+              "coverage_terms": "{coverage_terms}"
+            }
+          },
+          "promptTemplate": "slip_validation_prompt",
+          "contextTemplate": "validation_context_template"
+        },
+        {
+          "name": "Coverage Analysis Agent",
+          "pythonFunction": "openrouter_client.execute_agent",
+          "parameters": {
+            "agent_name": "coverage_analysis",
+            "context": {
+              "policy_limits": "{policy_limits}",
+              "deductibles": "{deductibles}",
+              "coverage_type": "{coverage_type}",
+              "territory": "{territory}",
+              "risk_description": "{risk_description}"
+            }
+          },
+          "promptTemplate": "coverage_analysis_prompt",
+          "contextTemplate": "coverage_context_template"
+        },
+        {
+          "name": "Risk Assessment Agent",
+          "pythonFunction": "openrouter_client.execute_agent",
+          "parameters": {
+            "agent_name": "risk_assessment",
+            "context": {
+              "risk_type": "{risk_type}",
+              "client_industry": "{client_industry}",
+              "loss_history": "{loss_history}",
+              "risk_controls": "{risk_controls}",
+              "location": "{location}"
+            }
+          },
+          "promptTemplate": "risk_assessment_prompt",
+          "contextTemplate": "risk_context_template"
+        },
+        {
+          "name": "Pricing Agent",
+          "pythonFunction": "openrouter_client.execute_agent",
+          "parameters": {
+            "agent_name": "pricing",
+            "context": {
+              "coverage_type": "{coverage_type}",
+              "policy_limits": "{policy_limits}",
+              "risk_assessment": "{risk_assessment}",
+              "market_conditions": "{market_conditions}"
+            }
+          },
+          "promptTemplate": "pricing_prompt",
+          "contextTemplate": "pricing_context_template"
+        },
+        {
+          "name": "Documentation Agent",
+          "pythonFunction": "openrouter_client.execute_agent",
+          "parameters": {
+            "agent_name": "documentation",
+            "context": {
+              "slip_reference": "{slip_reference}",
+              "syndicate_details": "{syndicate_details}",
+              "final_terms": "{final_terms}",
+              "approvals": "{approvals}"
+            }
+          },
+          "promptTemplate": "documentation_prompt",
+          "contextTemplate": "documentation_context_template"
+        }
+      ]
+    }
+  },
+  "parameterMapping": {
+    "submission_to_python": {
+      "client_name": "extractedData.client_name",
+      "broker_name": "extractedData.broker_name",
+      "broker_email": "extractedData.broker_email",
+      "policy_type": "extractedData.policy_type",
+      "coverage_amount": "extractedData.coverage_amount",
+      "premium_amount": "extractedData.premium_amount",
+      "address": "extractedData.address_line_1",
+      "date_of_birth": "extractedData.date_of_birth",
+      "occupation": "extractedData.occupation"
+    },
+    "slip_to_python": {
+      "slip_reference": "extractedData.slip_reference",
+      "lloyd_syndicate": "extractedData.lloyd_syndicate",
+      "lead_underwriter": "extractedData.lead_underwriter",
+      "capacity_percentage": "extractedData.capacity_percentage",
+      "coverage_type": "extractedData.coverage_type",
+      "policy_limits": "extractedData.policy_limits",
+      "deductibles": "extractedData.deductibles",
+      "territory": "extractedData.territory"
+    }
+  },
+  "errorHandling": {
+    "pythonUnavailable": {
+      "action": "fallback_to_node",
+      "message": "Python bridge unavailable, using Node.js simulation"
+    },
+    "functionError": {
+      "action": "retry_with_fallback",
+      "maxRetries": 3,
+      "fallbackMessage": "Function execution failed, using fallback response"
+    },
+    "timeoutError": {
+      "action": "terminate_with_error",
+      "message": "Function execution timed out"
+    }
+  },
+  "executionFlow": {
+    "description": "How agents determine which Python functions to call",
+    "process": [
+      "1. Agent receives execution request with context data",
+      "2. System looks up agent configuration in workflowIntegration",
+      "3. If pythonFunction is specified, prepare Python function call",
+      "4. Map context data to Python function parameters using parameterMapping",
+      "5. Execute Python function with mapped parameters",
+      "6. Process response and return to workflow orchestrator",
+      "7. If Python function fails, use fallback or Node.js simulation"
+    ],
+    "examples": {
+      "email_sender_agent": {
+        "step1": "Email Sender Agent receives request",
+        "step2": "System finds pythonFunction: 'aws_ses_service.send_broker_notification'",
+        "step3": "Maps broker_email, broker_name, client_name from context",
+        "step4": "Calls Python function: send_broker_notification(broker_email, broker_name, client_name, policy_details)",
+        "step5": "Python function sends email via AWS SES",
+        "step6": "Returns delivery confirmation to workflow"
+      },
+      "sanctions_check_agent": {
+        "step1": "Sanctions Check Agent receives request",
+        "step2": "System finds pythonFunction: 'openrouter_client.execute_agent'",
+        "step3": "Maps client data from extractedData",
+        "step4": "Calls Python function: execute_agent('sanctions_check', context)",
+        "step5": "Python function calls OpenRouter AI for sanctions screening",
+        "step6": "Returns risk assessment to workflow"
+      }
+    }
+  }
+}

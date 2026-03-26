@@ -1,0 +1,386 @@
+{
+  "version": "1.0.1",
+  "formId": "slip-data-extraction",
+  "title": "Lloyd's Slip Data Extraction Review",
+  "subtitle": "Review and approve extracted data from Lloyd's slip documents",
+  "layout": {
+    "columns": 2,
+    "spacing": "4",
+    "containerClass": "max-w-6xl mx-auto p-6"
+  },
+  "sections": [
+    {
+      "id": "slip_header",
+      "title": "Slip Header Information",
+      "type": "form",
+      "columns": 2,
+      "styling": {
+        "backgroundColor": "bg-blue-50",
+        "borderColor": "border-blue-200",
+        "borderStyle": "border-l-4",
+        "padding": "p-4",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "slipId",
+          "label": "Slip ID",
+          "type": "text",
+          "readonly": true,
+          "csvField": "slip_id",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 1
+        },
+        {
+          "id": "slipReference",
+          "label": "Slip Reference",
+          "type": "text",
+          "csvField": "slip_reference",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 2
+        },
+        {
+          "id": "lloydSyndicate",
+          "label": "Lloyd's Syndicate",
+          "type": "text",
+          "csvField": "lloyd_syndicate",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 3
+        },
+        {
+          "id": "leadUnderwriter",
+          "label": "Lead Underwriter",
+          "type": "text",
+          "csvField": "lead_underwriter",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 4
+        },
+        {
+          "id": "underwriterEmail",
+          "label": "Underwriter Email",
+          "type": "email",
+          "csvField": "underwriter_email",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 5
+        },
+        {
+          "id": "riskCategory",
+          "label": "Risk Category",
+          "type": "text",
+          "csvField": "risk_category",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 6
+        },
+        {
+          "id": "LimitAmount",
+          "label": "Limit",
+          "type": "text",
+          "csvField": "risk_category",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 7
+        }
+      ]
+    },
+    {
+      "id": "policy_terms",
+      "title": "Policy Terms",
+      "type": "form",
+      "columns": 3,
+      "styling": {
+        "backgroundColor": "bg-green-50",
+        "borderColor": "border-green-200",
+        "borderStyle": "border rounded-lg",
+        "padding": "p-6",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "policyInceptionDate",
+          "label": "Policy Inception Date",
+          "type": "date",
+          "csvField": "policy_inception_date",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 1
+        },
+        {
+          "id": "policyExpiryDate",
+          "label": "Policy Expiry Date",
+          "type": "date",
+          "csvField": "policy_expiry_date",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 2
+        },
+        {
+          "id": "coverageTerritory",
+          "label": "Coverage Territory",
+          "type": "text",
+          "csvField": "coverage_territory",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 3
+        },
+        {
+          "id": "currency",
+          "label": "Currency",
+          "type": "text",
+          "csvField": "currency",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 4
+        },
+        {
+          "id": "policyLimits",
+          "label": "Policy Limits",
+          "type": "currency",
+          "csvField": "policy_limits",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 5
+        },
+        {
+          "id": "deductible",
+          "label": "Deductible",
+          "type": "currency",
+          "csvField": "deductible",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 6
+        }
+      ]
+    },
+    {
+      "id": "financial_info",
+      "title": "Financial Information",
+      "type": "form",
+      "columns": 2,
+      "styling": {
+        "backgroundColor": "bg-yellow-50",
+        "borderColor": "border-yellow-200",
+        "borderStyle": "border rounded-lg",
+        "padding": "p-6",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "premiumAmount",
+          "label": "Premium Amount",
+          "type": "currency",
+          "csvField": "premium_amount",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 1
+        },
+        {
+          "id": "brokerageRate",
+          "label": "Brokerage Rate",
+          "type": "percentage",
+          "csvField": "brokerage_rate",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 2
+        },
+        {
+          "id": "totalSumInsured",
+          "label": "Total Sum Insured",
+          "type": "currency",
+          "csvField": "total_sum_insured",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 3
+        },
+        {
+          "id": "financialRating",
+          "label": "Financial Rating",
+          "type": "text",
+          "csvField": "financial_rating",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 4
+        }
+      ]
+    },
+    {
+      "id": "risk_details",
+      "title": "Risk Details",
+      "type": "form",
+      "columns": 2,
+      "styling": {
+        "backgroundColor": "bg-red-50",
+        "borderColor": "border-red-200",
+        "borderStyle": "border rounded-lg",
+        "padding": "p-6",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "riskLocation",
+          "label": "Risk Location",
+          "type": "text",
+          "csvField": "risk_location",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 1
+        },
+        {
+          "id": "businessDescription",
+          "label": "Business Description",
+          "type": "textarea",
+          "csvField": "business_description",
+          "gridPosition": "col-span-2",
+          "confidenceScore": "medium",
+          "order": 2
+        },
+        {
+          "id": "yearsTrading",
+          "label": "Years Trading",
+          "type": "number",
+          "csvField": "years_trading",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 3
+        },
+        {
+          "id": "annualTurnover",
+          "label": "Annual Turnover",
+          "type": "currency",
+          "csvField": "annual_turnover",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 4
+        },
+        {
+          "id": "numberOfEmployees",
+          "label": "Number of Employees",
+          "type": "number",
+          "csvField": "number_of_employees",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 5
+        },
+        {
+          "id": "previousClaims",
+          "label": "Previous Claims",
+          "type": "text",
+          "csvField": "previous_claims",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "low",
+          "order": 6
+        }
+      ]
+    },
+    {
+      "id": "compliance_info",
+      "title": "Compliance & Security",
+      "type": "form",
+      "columns": 2,
+      "styling": {
+        "backgroundColor": "bg-purple-50",
+        "borderColor": "border-purple-200",
+        "borderStyle": "border rounded-lg",
+        "padding": "p-6",
+        "marginBottom": "mb-6"
+      },
+      "fields": [
+        {
+          "id": "securityMeasures",
+          "label": "Security Measures",
+          "type": "textarea",
+          "csvField": "security_measures",
+          "gridPosition": "col-span-2",
+          "confidenceScore": "low",
+          "order": 1
+        },
+        {
+          "id": "complianceCertifications",
+          "label": "Compliance Certifications",
+          "type": "text",
+          "csvField": "compliance_certifications",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 2
+        },
+        {
+          "id": "reinsuranceArrangements",
+          "label": "Reinsurance Arrangements",
+          "type": "text",
+          "csvField": "reinsurance_arrangements",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "medium",
+          "order": 3
+        },
+        {
+          "id": "exclusions",
+          "label": "Exclusions",
+          "type": "textarea",
+          "csvField": "exclusions",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 4
+        },
+        {
+          "id": "warranties",
+          "label": "Warranties",
+          "type": "textarea",
+          "csvField": "warranties",
+          "gridPosition": "col-span-1",
+          "confidenceScore": "high",
+          "order": 5
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "approve",
+      "label": "Approve & Continue",
+      "type": "primary",
+      "variant": "default",
+      "className": "bg-green-600 hover:bg-green-700",
+      "action": "approve_extraction"
+    },
+    {
+      "id": "reject",
+      "label": "Reject & Stop",
+      "type": "secondary",
+      "variant": "destructive",
+      "className": "bg-red-600 hover:bg-red-700",
+      "action": "reject_extraction"
+    }
+  ],
+  "validation": {
+    "requiredFields": [
+      "slipId",
+      "slipReference",
+      "lloydSyndicate",
+      "leadUnderwriter",
+      "underwriterEmail",
+      "riskCategory",
+      "policyInceptionDate",
+      "policyExpiryDate",
+      "premiumAmount",
+      "policyLimits",
+      "totalSumInsured"
+    ]
+  },
+  "confidence": {
+    "thresholds": {
+      "high": 90,
+      "medium": 70,
+      "low": 50
+    },
+    "colors": {
+      "high": "bg-green-100 text-green-800",
+      "medium": "bg-yellow-100 text-yellow-800",
+      "low": "bg-red-100 text-red-800"
+    }
+  }
+}

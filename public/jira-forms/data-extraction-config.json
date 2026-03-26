@@ -1,0 +1,127 @@
+{
+  "form_title": "Data Extraction Review",
+  "form_subtitle": "Review and approve extracted data from Jira submission documents",
+  "confidence_threshold": { "high": 0.95, "medium": 0.85, "low": 0.0 },
+  "sections": [
+    {
+      "id": "policy_holders", "title": "Assured Details",
+      "fields": [
+        { "id": "contact_role", "label": "Name", "value": "ABC Private Limited", "confidence": 0.99, "type": "text", "required": true, "source": { "page": 1, "bbox": [72, 680, 320, 696] } },
+        { "id": "title", "label": "Main", "value": "Y", "confidence": 0.95, "required": true, "source": { "page": 1, "bbox": [340, 680, 420, 696] } }
+      ]
+    },
+    {
+      "id": "re_assured_details", "title": "Re-Assured Details",
+      "fields": [
+        { "id": "re_assured_name", "label": "Name", "value": "John Doe", "confidence": 0.99, "type": "text", "required": true, "source": { "page": 1, "bbox": [72, 630, 320, 646] } },
+        { "id": "re_assured_main", "label": "Main", "value": "Y", "confidence": 0.95, "required": true, "source": { "page": 1, "bbox": [340, 630, 420, 646] } }
+      ]
+    },
+    {
+      "id": "period_details", "title": "Period Details",
+      "fields": [
+        { "id": "inception_date", "label": "Inception Date", "value": "30/11/2024", "confidence": 0.99, "type": "text", "required": true, "source": { "page": 1, "bbox": [72, 570, 220, 586] } },
+        { "id": "expiry_date", "label": "Expiry Date", "value": "29/11/2025", "confidence": 0.95, "required": true, "source": { "page": 1, "bbox": [240, 570, 390, 586] } },
+        { "id": "settlement_due_date", "label": "Settlement Due Date", "value": "30/03/2025", "confidence": 0.95, "required": true, "source": { "page": 1, "bbox": [72, 540, 280, 556] } }
+      ]
+    },
+    {
+      "id": "limit_details", "title": "Limit Details",
+      "fields": [
+        { "id": "limit_amount", "label": "Amount", "value": "10,000,000.00", "confidence": 0.99, "type": "text", "required": true, "source": { "page": 2, "bbox": [72, 700, 260, 716] } },
+        { "id": "limit_currency", "label": "Currency", "value": "USD", "confidence": 0.95, "required": true, "source": { "page": 2, "bbox": [280, 700, 380, 716] } },
+        { "id": "limit_basis", "label": "Basis", "value": "PER OCC", "confidence": 0.95, "required": true, "source": { "page": 2, "bbox": [72, 670, 200, 686] } }
+      ]
+    },
+    {
+      "id": "deductible_details", "title": "Deductible Details",
+      "fields": [
+        { "id": "deductible_amount", "label": "Amount", "value": "10,000.00", "confidence": 0.99, "type": "text", "required": true, "source": { "page": 2, "bbox": [72, 620, 220, 636] } },
+        { "id": "deductible_currency", "label": "Currency", "value": "USD", "confidence": 0.95, "required": true, "source": { "page": 2, "bbox": [240, 620, 340, 636] } },
+        { "id": "deductible_basis", "label": "Basis", "value": "PER OCC", "confidence": 0.95, "required": true, "source": { "page": 2, "bbox": [72, 590, 200, 606] } }
+      ]
+    },
+    {
+      "id": "policy_holderFFs", "title": "Total Insured Value Details",
+      "fields": [
+        { "id": "tiv_amount_1", "label": "Amount", "value": "284,860,219.00", "confidence": 0.99, "type": "text", "required": true, "source": { "page": 2, "bbox": [72, 540, 280, 556] } },
+        { "id": "tiv_currency_1", "label": "Currency", "value": "USD", "confidence": 0.95, "required": true, "source": { "page": 2, "bbox": [300, 540, 400, 556] } }
+      ]
+    },
+    {
+      "id": "policy_holdersFFF", "title": "Total Insured Value Details",
+      "fields": [
+        { "id": "tiv_amount_2", "label": "Amount", "value": "1,045,000.00", "confidence": 0.99, "type": "text", "required": true, "source": { "page": 2, "bbox": [72, 500, 260, 516] } },
+        { "id": "tiv_currency_2", "label": "Currency", "value": "USD", "confidence": 0.95, "required": true, "source": { "page": 2, "bbox": [280, 500, 380, 516] } }
+      ]
+    },
+    {
+      "id": "clause_details", "title": "CLAUSE DETAILS",
+      "fields": [
+        { "id": "clause_1", "label": "Communicable Disease Endorsement (LMA 5393)*", "value": "Found", "confidence": 0.95, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 3, "bbox": [72, 720, 400, 736] } },
+        { "id": "clause_2", "label": "Property D&F Cyber Clause (LMA 5401)/(LMA5400)/(NMA2915)/(NMA2914)*", "value": "Found", "confidence": 0.92, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 3, "bbox": [72, 690, 450, 706] } },
+        { "id": "clause_3", "label": "Sanctions Limitation Clause (LMA 3100A)/(LMA 3100)*", "value": "Found", "confidence": 0.88, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 3, "bbox": [72, 660, 380, 676] } },
+        { "id": "clause_4", "label": "Seepage & Pollution Exclusion Clause (NMA 2415/2560)", "value": "Found", "confidence": 0.9, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 3, "bbox": [72, 630, 390, 646] } },
+        { "id": "clause_5", "label": "Terrorism Exclusion Endorsement (NMA 2919/2920(I)/2921(R))", "value": "Found", "confidence": 0.94, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 3, "bbox": [72, 600, 420, 616] } },
+        { "id": "clause_6", "label": "War & Civil War Exclusion Clause (NMA 464)", "value": "Not Found", "confidence": 0.85, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 3, "bbox": [72, 570, 360, 586] } },
+        { "id": "clause_7", "label": "Asbestos Endorsement (LMA 5019)", "value": "Found", "confidence": 0.89, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 3, "bbox": [72, 540, 310, 556] } },
+        { "id": "clause_8", "label": "Microorganism Exclusion (Absolute) (LMA 5018)", "value": "Found", "confidence": 0.91, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 3, "bbox": [72, 510, 370, 526] } },
+        { "id": "clause_9", "label": "Biological or Chemical Materials Exclusion (NMA 2962)", "value": "Found", "confidence": 0.93, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 3, "bbox": [72, 480, 390, 496] } },
+        { "id": "clause_10", "label": "Excluding Transmission & Distribution Lines", "value": "Found", "confidence": 0.87, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 4, "bbox": [72, 720, 370, 736] } },
+        { "id": "clause_11", "label": "Excluding Ex Gratia & Without Prejudice Payments", "value": "Found", "confidence": 0.9, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 4, "bbox": [72, 690, 400, 706] } },
+        { "id": "clause_12", "label": "Fraudulent Claims Clause (LMA 5062)", "value": "Found", "confidence": 0.88, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 4, "bbox": [72, 660, 330, 676] } },
+        { "id": "clause_13", "label": "Claims Co-operation Clause (NMA 2737)", "value": "Found", "confidence": 0.92, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 4, "bbox": [72, 630, 345, 646] } },
+        { "id": "clause_14", "label": "Claims Control Clause (NMA 2738)", "value": "Not Found", "confidence": 0.85, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 4, "bbox": [72, 600, 330, 616] } },
+        { "id": "clause_15", "label": "Application Of Sublimits Endorsement (LMA 5130)", "value": "Not Found", "confidence": 0.83, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 4, "bbox": [72, 570, 380, 586] } },
+        { "id": "clause_16", "label": "Cancellation Clause 60 days", "value": "Found", "confidence": 0.91, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 4, "bbox": [72, 540, 300, 556] } },
+        { "id": "clause_17", "label": "Radioactive Contamination & Explosive Nuclear Assemblies Exclusion Clause (NMA 1622)", "value": "Found", "confidence": 0.89, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 4, "bbox": [72, 510, 450, 526] } },
+        { "id": "clause_18", "label": "Average Clause (NMA 348)", "value": "Found", "confidence": 0.93, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 4, "bbox": [72, 480, 280, 496] } },
+        { "id": "clause_19", "label": "Australian Terrorism Insurance Act 2003 Notice (NMA 2984)", "value": "Not Found", "confidence": 0.84, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 4, "bbox": [72, 450, 420, 466] } },
+        { "id": "clause_20", "label": "PPC1 or 5 (TOR) 4/86", "value": "Not Found", "confidence": 0.82, "type": "select", "options": ["Found", "Not Found"], "required": true, "source": { "page": 4, "bbox": [72, 420, 250, 436] } }
+      ]
+    },
+    {
+      "id": "deduction_details", "title": "Deduction Details",
+      "multiple_instances": [
+        { "instance_id": 1, "fields": [
+          { "id": "deduction_type_1", "label": "Type", "value": "Brokerage", "confidence": 0.95, "type": "text", "required": true, "source": { "page": 5, "bbox": [72, 700, 200, 716] } },
+          { "id": "deduction_percentage_1", "label": "Percentage", "value": "20%", "confidence": 0.92, "type": "text", "required": true, "source": { "page": 5, "bbox": [220, 700, 300, 716] } }
+        ]},
+        { "instance_id": 2, "fields": [
+          { "id": "deduction_type_2", "label": "Type", "value": "Commission", "confidence": 0.88, "type": "text", "required": true, "source": { "page": 5, "bbox": [72, 660, 200, 676] } },
+          { "id": "deduction_percentage_2", "label": "Percentage", "value": "15%", "confidence": 0.9, "type": "text", "required": true, "source": { "page": 5, "bbox": [220, 660, 300, 676] } }
+        ]},
+        { "instance_id": 3, "fields": [
+          { "id": "deduction_type_3", "label": "Type", "value": "Administrative Fee", "confidence": 0.84, "type": "text", "required": true, "source": { "page": 5, "bbox": [72, 620, 240, 636] } },
+          { "id": "deduction_percentage_3", "label": "Percentage", "value": "5%", "confidence": 0.86, "type": "text", "required": true, "source": { "page": 5, "bbox": [260, 620, 300, 636] } }
+        ]}
+      ]
+    },
+    {
+      "id": "Risk Code Details", "title": "Risk Code Details",
+      "multiple_instances": [
+        { "instance_id": 1, "fields": [
+          { "id": "riskcode1", "label": "Risk Code", "value": "P3", "confidence": 0.95, "type": "text", "required": true, "source": { "page": 5, "bbox": [72, 570, 160, 586] } },
+          { "id": "riskcode1_percentage_1", "label": "Percentage", "value": "100%", "confidence": 0.92, "type": "text", "required": true, "source": { "page": 5, "bbox": [180, 570, 260, 586] } }
+        ]}
+      ]
+    },
+    {
+      "id": "Leader Details", "title": "Leader Details",
+      "multiple_instances": [
+        { "instance_id": 1, "fields": [
+          { "id": "leader_overall", "label": "Overall Leader", "value": "ABC Syndicate", "confidence": 0.95, "type": "text", "required": true, "source": { "page": 5, "bbox": [72, 520, 260, 536] } }
+        ]}
+      ]
+    },
+    {
+      "id": "Policy Line Details", "title": "Policy Line Details",
+      "multiple_instances": [
+        { "instance_id": 1, "fields": [
+          { "id": "Polreference", "label": "Policy Reference", "value": " ", "confidence": 0.95, "type": "text", "required": true, "source": { "page": 5, "bbox": [72, 470, 260, 486] } },
+          { "id": "written_line_ref", "label": "Percentage", "value": " ", "confidence": 0.92, "type": "text", "required": true, "source": { "page": 5, "bbox": [280, 470, 360, 486] } }
+        ]}
+      ]
+    }
+  ]
+}

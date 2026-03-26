@@ -1,0 +1,79 @@
+%PDF-1.4
+1 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+
+2 0 obj
+<<
+/Type /Pages
+/Kids [3 0 R]
+/Count 1
+>>
+endobj
+
+3 0 obj
+<<
+/Type /Page
+/Parent 2 0 R
+/MediaBox [0 0 612 792]
+/Resources <<
+/Font <<
+/F1 4 0 R
+>>
+>>
+/Contents 5 0 R
+>>
+endobj
+
+4 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica
+>>
+endobj
+
+5 0 obj
+<<
+/Length 200
+>>
+stream
+BT
+/F1 12 Tf
+50 750 Td
+(MARINE CARGO INSURANCE APPLICATION) Tj
+0 -30 Td
+(Client: Maritime Logistics Ltd) Tj
+0 -20 Td
+(Policy Type: Marine Cargo Insurance) Tj
+0 -20 Td
+(Coverage Amount: £750,000) Tj
+0 -20 Td
+(Vessel: MV Ocean Carrier) Tj
+0 -20 Td
+(Route: Southampton to Hamburg) Tj
+0 -20 Td
+(Cargo: Electronics and Computer Equipment) Tj
+ET
+endstream
+endobj
+
+xref
+0 6
+0000000000 65535 f 
+0000000015 00000 n 
+0000000074 00000 n 
+0000000131 00000 n 
+0000000270 00000 n 
+0000000345 00000 n 
+trailer
+<<
+/Size 6
+/Root 1 0 R
+>>
+startxref
+600
+%%EOF

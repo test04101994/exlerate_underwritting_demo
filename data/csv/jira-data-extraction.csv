@@ -1,0 +1,29 @@
+ticket_key,extracted_field,field_value,confidence_score,source_document
+HIS-90,client_name,Maritime Logistics Ltd,0.95,email_attachment.pdf
+HIS-90,policy_type,Marine Cargo Insurance,0.92,application_form.pdf
+HIS-90,coverage_amount,£750000,0.88,financial_statements.pdf
+HIS-90,vessel_name,MV Ocean Carrier,0.94,bill_of_lading.pdf
+HIS-90,cargo_description,Electronics and Computer Equipment,0.91,cargo_manifest.pdf
+HIS-90,voyage_route,Southampton to Hamburg,0.89,voyage_schedule.pdf
+HIS-90,departure_date,2025-08-15,0.93,shipping_documents.pdf
+HIS-90,broker_name,Peters Charley,0.96,broker_correspondence.pdf
+HIS-90,broker_email,james_potter1@ajg.com,0.97,contact_details.pdf
+HIS-90,premium_estimate,£8250,0.85,quote_request.pdf
+HIS-90,risk_factors,"High-value cargo, international waters",0.78,risk_assessment.pdf
+HIS-90,previous_claims,None in last 3 years,0.92,claims_history.pdf
+HIS-88,client_name,Oceanview Properties Ltd,0.94,property_application.pdf
+HIS-88,property_type,Commercial Warehouse,0.91,building_survey.pdf
+HIS-88,property_value,£2450000,0.89,valuation_report.pdf
+HIS-88,location_address,"45 Industrial Estate, Portsmouth PO1 2AB",0.93,property_details.pdf
+HIS-88,construction_type,Steel frame with concrete panels,0.87,structural_report.pdf
+HIS-88,occupancy_type,Storage and Distribution,0.92,business_operations.pdf
+HIS-88,fire_protection,Sprinkler system and 24/7 monitoring,0.88,safety_certificate.pdf
+HIS-88,security_measures,CCTV and security guards,0.85,security_assessment.pdf
+HIS-87,slip_reference,SLP-2025-001,0.96,lloyd_slip.pdf
+HIS-87,syndicate_number,2987,0.94,syndicate_details.pdf
+HIS-87,lead_underwriter,Thompson Marine Underwriters,0.92,underwriter_info.pdf
+HIS-87,coverage_type,Hull and Machinery,0.93,policy_schedule.pdf
+HIS-87,insured_vessel,MV Atlantic Pioneer,0.95,vessel_documentation.pdf
+HIS-87,vessel_value,£15500000,0.91,marine_survey.pdf
+HIS-87,policy_period,12 months from 01/09/2025,0.89,policy_terms.pdf
+HIS-87,deductible_amount,£50000,0.87,terms_conditions.pdf

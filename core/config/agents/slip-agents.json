@@ -1,0 +1,347 @@
+{
+  "version": "1.0.0",
+  "description": "Agent configuration for Lloyd's slip workflows",
+  "agents": [
+    {
+      "id": "data-extraction",
+      "name": "Data Extraction Agent",
+      "type": "extraction",
+      "role": "data_processor",
+      "executionOrder": 1,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 350,
+        "temperature": 0.1
+      },
+      "prompt": {
+        "systemPrompt": "slip_extraction_prompt",
+        "contextTemplate": "slip_context_template",
+        "outputFormat": "structured_json"
+      },
+      "dataSource": {
+        "type": "csv",
+        "source": "slip-data.csv",
+        "keyField": "slip_reference",
+        "displayFields": [
+          "slip_reference", "lloyd_syndicate", "lead_underwriter", "capacity_percentage",
+          "coverage_type", "policy_limits", "deductibles", "market_date"
+        ],
+        "confidenceScores": {
+          "slip_reference": "high",
+          "lloyd_syndicate": "high",
+          "lead_underwriter": "high",
+          "capacity_percentage": "medium",
+          "coverage_type": "high"
+        }
+      },
+      "validation": {
+        "requiredFields": ["slip_reference", "lloyd_syndicate", "lead_underwriter", "capacity_percentage"],
+        "confidenceThreshold": 0.8,
+        "allowedValues": {
+          "slip_type": ["marine", "aviation", "energy", "property", "casualty"]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": true,
+        "approvalType": "slip_data_extraction",
+        "pauseWorkflow": true,
+        "formInterface": "SlipDataExtractionForm"
+      },
+      "dependencies": [],
+      "progressTracking": {
+        "stages": ["initializing", "extracting", "validating", "awaiting_approval", "completed"],
+        "estimatedDuration": 35
+      }
+    },
+    {
+      "id": "data-transformation",
+      "name": "Data Transformation Agent",
+      "type": "field_comparison",
+      "role": "data_transformer",
+      "executionOrder": 2,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 400,
+        "temperature": 0.1
+      },
+      "prompt": {
+        "systemPrompt": "data_transformation_prompt",
+        "contextTemplate": "transformation_context_template",
+        "outputFormat": "structured_data"
+      },
+      "validation": {
+        "requiredFields": ["transformed_data", "transformation_status", "data_quality_score"],
+        "confidenceThreshold": 0.85,
+        "allowedValues": {
+          "transformation_status": ["success", "partial", "failed"],
+          "data_quality_level": ["excellent", "good", "acceptable", "poor"]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": false
+      },
+      "dependencies": ["data-extraction"],
+      "progressTracking": {
+        "stages": ["initializing", "transforming", "validating", "normalizing", "completed"],
+        "estimatedDuration": 30,
+        "realTimeUpdates": true
+      }
+    },
+    {
+      "id": "automated-data-validation",
+      "name": "Automated Data Validation Agent",
+      "type": "data_validation",
+      "role": "data_quality_checker",
+      "executionOrder": 4,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 400,
+        "temperature": 0.0
+      },
+      "prompt": {
+        "systemPrompt": "automated_validation_prompt",
+        "contextTemplate": "data_quality_context_template",
+        "outputFormat": "validation_report_with_details"
+      },
+      "validation": {
+        "requiredFields": ["validation_status", "data_quality_score", "field_validations", "anomaly_detection"],
+        "confidenceThreshold": 0.9,
+        "checks": {
+          "completeness": ["all_required_fields_present", "no_null_values"],
+          "consistency": ["cross_field_validation", "format_validation"],
+          "accuracy": ["value_range_checks", "pattern_matching"],
+          "anomaly_detection": ["outlier_detection", "duplicate_detection"]
+        },
+        "allowedValues": {
+          "validation_status": ["passed", "failed", "warnings", "requires_review"],
+          "data_quality_level": ["excellent", "good", "acceptable", "poor"]
+        }
+      },
+      "dataValidationRules": {
+        "slip_reference": {
+          "pattern": "^[A-Z]{3}-[0-9]{4}-[0-9]{3}$",
+          "required": true,
+          "errorMessage": "Slip reference must follow format: XXX-YYYY-NNN"
+        },
+        "capacity_percentage": {
+          "type": "numeric",
+          "min": 0,
+          "max": 100,
+          "required": true,
+          "errorMessage": "Capacity percentage must be between 0 and 100"
+        },
+        "policy_limits": {
+          "type": "numeric",
+          "min": 0,
+          "required": true,
+          "errorMessage": "Policy limits must be a positive number"
+        },
+        "market_date": {
+          "type": "date",
+          "format": "YYYY-MM-DD",
+          "required": true,
+          "errorMessage": "Market date must be a valid date"
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": false,
+        "autoCorrection": true,
+        "reportGeneration": true
+      },
+      "outputFormat": {
+        "chatInterface": true,
+        "detailedReport": true,
+        "visualValidationSummary": true,
+        "fieldByFieldAnalysis": true
+      },
+      "dependencies": ["data-transformation"],
+      "progressTracking": {
+        "stages": ["initializing", "validating_fields", "checking_consistency", "detecting_anomalies", "generating_report", "completed"],
+        "estimatedDuration": 25,
+        "realTimeUpdates": true
+      }
+    },
+    {
+      "id": "slip-validation",
+      "name": "Slip Validation Agent",
+      "type": "validation",
+      "role": "compliance_checker",
+      "executionOrder": 5,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 300,
+        "temperature": 0.0
+      },
+      "prompt": {
+        "systemPrompt": "slip_validation_prompt",
+        "contextTemplate": "validation_context_template",
+        "outputFormat": "validation_report"
+      },
+      "validation": {
+        "requiredFields": ["validation_status", "compliance_score", "regulatory_notes"],
+        "confidenceThreshold": 0.9,
+        "allowedValues": {
+          "validation_status": ["valid", "invalid", "requires_clarification"],
+          "compliance_level": ["compliant", "non_compliant", "partial"]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": false
+      },
+      "dependencies": ["automated-data-validation"],
+      "progressTracking": {
+        "stages": ["validating", "cross_checking", "reporting", "completed"],
+        "estimatedDuration": 30
+      }
+    },
+    {
+      "id": "coverage-analysis",
+      "name": "Coverage Analysis Agent",
+      "type": "analysis",
+      "role": "coverage_analyst",
+      "executionOrder": 6,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 450,
+        "temperature": 0.2
+      },
+      "prompt": {
+        "systemPrompt": "coverage_analysis_prompt",
+        "contextTemplate": "coverage_context_template",
+        "outputFormat": "coverage_breakdown"
+      },
+      "validation": {
+        "requiredFields": ["coverage_summary", "terms_analysis", "exclusions", "coverage_adequacy"],
+        "confidenceThreshold": 0.85,
+        "allowedValues": {
+          "coverage_adequacy": ["adequate", "inadequate", "excessive", "standard"]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": false
+      },
+      "dependencies": ["slip-validation"],
+      "progressTracking": {
+        "stages": ["analyzing", "comparing", "evaluating", "completed"],
+        "estimatedDuration": 40
+      }
+    },
+    {
+      "id": "risk-assessment",
+      "name": "Risk Assessment Agent",
+      "type": "risk",
+      "role": "risk_analyst",
+      "executionOrder": 7,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 400,
+        "temperature": 0.1
+      },
+      "prompt": {
+        "systemPrompt": "risk_assessment_prompt",
+        "contextTemplate": "risk_context_template",
+        "outputFormat": "risk_profile"
+      },
+      "validation": {
+        "requiredFields": ["risk_level", "risk_factors", "mitigation_strategies", "recommendation"],
+        "confidenceThreshold": 0.9,
+        "allowedValues": {
+          "risk_level": ["low", "medium", "high", "critical"],
+          "recommendation": ["accept", "reject", "modify", "escalate"]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": "conditional",
+        "approvalCondition": "risk_level === 'high' || risk_level === 'critical'",
+        "approvalType": "risk_override",
+        "pauseWorkflow": true
+      },
+      "dependencies": ["coverage-analysis"],
+      "progressTracking": {
+        "stages": ["assessing", "modeling", "calculating", "completed"],
+        "estimatedDuration": 45
+      }
+    },
+    {
+      "id": "pricing",
+      "name": "Pricing Agent",
+      "type": "financial",
+      "role": "pricing_specialist",
+      "executionOrder": 8,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 350,
+        "temperature": 0.2
+      },
+      "prompt": {
+        "systemPrompt": "slip_pricing_prompt",
+        "contextTemplate": "pricing_context_template",
+        "outputFormat": "pricing_model"
+      },
+      "validation": {
+        "requiredFields": ["base_rate", "risk_adjustment", "final_rate", "pricing_rationale"],
+        "confidenceThreshold": 0.85,
+        "numericValidation": {
+          "base_rate": {"min": 0.01, "max": 50.0},
+          "final_rate": {"min": 0.01, "max": 50.0}
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": false
+      },
+      "dependencies": ["risk-assessment"],
+      "progressTracking": {
+        "stages": ["modeling", "calculating", "adjusting", "completed"],
+        "estimatedDuration": 35
+      }
+    },
+    {
+      "id": "documentation",
+      "name": "Documentation Agent",
+      "type": "documentation",
+      "role": "document_manager",
+      "executionOrder": 9,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 300,
+        "temperature": 0.3
+      },
+      "prompt": {
+        "systemPrompt": "documentation_prompt",
+        "contextTemplate": "documentation_context_template",
+        "outputFormat": "document_package"
+      },
+      "validation": {
+        "requiredFields": ["document_summary", "required_documents", "completion_status"],
+        "confidenceThreshold": 0.9,
+        "allowedValues": {
+          "completion_status": ["complete", "incomplete", "pending_review"]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": false
+      },
+      "dependencies": ["pricing"],
+      "progressTracking": {
+        "stages": ["compiling", "formatting", "reviewing", "completed"],
+        "estimatedDuration": 25
+      }
+    }
+  ]
+}

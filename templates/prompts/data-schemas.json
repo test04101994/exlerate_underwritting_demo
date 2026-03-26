@@ -1,0 +1,195 @@
+{
+  "version": "1.0.0",
+  "description": "Data schemas for workflow inputs, outputs, and intermediate data",
+  "inputSchemas": {
+    "submission_input_schema": {
+      "type": "object",
+      "required": ["workflow_type", "client_name", "broker_name"],
+      "properties": {
+        "workflow_type": {"type": "string", "enum": ["submission"]},
+        "client_name": {"type": "string", "minLength": 1},
+        "broker_name": {"type": "string", "minLength": 1},
+        "policy_type": {"type": "string", "enum": ["home", "auto", "commercial", "life"]},
+        "submission_date": {"type": "string", "format": "date-time"},
+        "documents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "document_type": {"type": "string"},
+              "document_name": {"type": "string"},
+              "document_path": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "slip_input_schema": {
+      "type": "object",
+      "required": ["workflow_type", "slip_reference", "lloyd_syndicate"],
+      "properties": {
+        "workflow_type": {"type": "string", "enum": ["slip"]},
+        "slip_reference": {"type": "string", "pattern": "^SLP-[0-9]{4}-[0-9]{3}$"},
+        "lloyd_syndicate": {"type": "string", "minLength": 1},
+        "capacity_percentage": {"type": "number", "minimum": 0, "maximum": 100},
+        "market_date": {"type": "string", "format": "date"},
+        "slip_documents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "document_type": {"type": "string"},
+              "document_name": {"type": "string"},
+              "document_path": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  },
+  "outputSchemas": {
+    "submission_output_schema": {
+      "type": "object",
+      "required": ["workflow_status", "final_premium", "email_sent"],
+      "properties": {
+        "workflow_status": {"type": "string", "enum": ["completed", "failed", "requires_follow_up"]},
+        "final_premium": {"type": "number", "minimum": 0},
+        "email_sent": {"type": "boolean"},
+        "processing_time": {"type": "number"},
+        "confidence_score": {"type": "number", "minimum": 0, "maximum": 100},
+        "next_steps": {"type": "array", "items": {"type": "string"}},
+        "workflow_summary": {"type": "string"}
+      }
+    },
+    "slip_output_schema": {
+      "type": "object",
+      "required": ["workflow_status", "final_rate", "documentation_complete"],
+      "properties": {
+        "workflow_status": {"type": "string", "enum": ["completed", "failed", "requires_review"]},
+        "final_rate": {"type": "number", "minimum": 0},
+        "documentation_complete": {"type": "boolean"},
+        "processing_time": {"type": "number"},
+        "risk_level": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
+        "compliance_score": {"type": "number", "minimum": 0, "maximum": 100},
+        "workflow_summary": {"type": "string"}
+      }
+    }
+  },
+  "intermediateSchemas": {
+    "extracted_data_schema": {
+      "type": "object",
+      "required": ["client_name", "broker_name", "confidence_score"],
+      "properties": {
+        "client_name": {"type": "string"},
+        "broker_name": {"type": "string"},
+        "broker_email": {"type": "string", "format": "email"},
+        "policy_type": {"type": "string"},
+        "coverage_amount": {"type": "number"},
+        "premium_target": {"type": "number"},
+        "risk_factors": {"type": "array", "items": {"type": "string"}},
+        "confidence_score": {"type": "number", "minimum": 0, "maximum": 100},
+        "extraction_notes": {"type": "string"}
+      }
+    },
+    "slip_extracted_data_schema": {
+      "type": "object",
+      "required": ["slip_reference", "lloyd_syndicate", "confidence_score"],
+      "properties": {
+        "slip_reference": {"type": "string"},
+        "lloyd_syndicate": {"type": "string"},
+        "lead_underwriter": {"type": "string"},
+        "capacity_percentage": {"type": "number"},
+        "coverage_type": {"type": "string"},
+        "policy_limits": {"type": "number"},
+        "deductibles": {"type": "number"},
+        "confidence_score": {"type": "number", "minimum": 0, "maximum": 100},
+        "extraction_notes": {"type": "string"}
+      }
+    },
+    "sanctions_result_schema": {
+      "type": "object",
+      "required": ["sanctions_status", "risk_level", "confidence_score"],
+      "properties": {
+        "sanctions_status": {"type": "string", "enum": ["clear", "flagged", "requires_review"]},
+        "risk_level": {"type": "string", "enum": ["low", "medium", "high"]},
+        "confidence_score": {"type": "number", "minimum": 0, "maximum": 100},
+        "screening_details": {"type": "string"},
+        "databases_checked": {"type": "array", "items": {"type": "string"}},
+        "additional_parties_status": {"type": "string"}
+      }
+    },
+    "pricing_result_schema": {
+      "type": "object",
+      "required": ["base_premium", "final_premium", "confidence_score"],
+      "properties": {
+        "base_premium": {"type": "number", "minimum": 0},
+        "risk_adjustments": {"type": "number"},
+        "final_premium": {"type": "number", "minimum": 0},
+        "pricing_factors": {"type": "array", "items": {"type": "string"}},
+        "market_position": {"type": "string"},
+        "confidence_score": {"type": "number", "minimum": 0, "maximum": 100}
+      }
+    },
+    "email_draft_schema": {
+      "type": "object",
+      "required": ["subject", "recipient", "body", "email_type"],
+      "properties": {
+        "subject": {"type": "string"},
+        "recipient": {"type": "string", "format": "email"},
+        "body": {"type": "string"},
+        "email_type": {"type": "string", "enum": ["approval", "rejection", "quote", "follow_up"]},
+        "cc_recipients": {"type": "array", "items": {"type": "string"}},
+        "attachments": {"type": "array", "items": {"type": "string"}},
+        "priority": {"type": "string", "enum": ["low", "normal", "high"]}
+      }
+    },
+    "delivery_confirmation_schema": {
+      "type": "object",
+      "required": ["delivery_status", "message_id", "timestamp"],
+      "properties": {
+        "delivery_status": {"type": "string", "enum": ["delivered", "failed", "bounced", "pending"]},
+        "message_id": {"type": "string"},
+        "timestamp": {"type": "string", "format": "date-time"},
+        "delivery_time": {"type": "number"},
+        "bounce_status": {"type": "string"},
+        "delivery_score": {"type": "number", "minimum": 0, "maximum": 100}
+      }
+    },
+    "workflow_summary_schema": {
+      "type": "object",
+      "required": ["workflow_status", "processing_time", "key_decisions"],
+      "properties": {
+        "workflow_status": {"type": "string", "enum": ["completed", "requires_follow_up", "escalated"]},
+        "processing_time": {"type": "number"},
+        "key_decisions": {"type": "array", "items": {"type": "string"}},
+        "next_steps": {"type": "array", "items": {"type": "string"}},
+        "success_rate": {"type": "number", "minimum": 0, "maximum": 100},
+        "workflow_score": {"type": "number", "minimum": 0, "maximum": 100}
+      }
+    }
+  },
+  "validationRules": {
+    "confidence_thresholds": {
+      "data_extraction": 0.7,
+      "sanctions_check": 0.9,
+      "premium_calculation": 0.85,
+      "email_draft": 0.8,
+      "risk_assessment": 0.9,
+      "slip_validation": 0.9,
+      "coverage_analysis": 0.85,
+      "pricing": 0.85,
+      "documentation": 0.9
+    },
+    "numeric_ranges": {
+      "premium_amounts": {"min": 100, "max": 1000000},
+      "coverage_amounts": {"min": 1000, "max": 100000000},
+      "capacity_percentage": {"min": 0, "max": 100},
+      "confidence_scores": {"min": 0, "max": 100}
+    },
+    "required_formats": {
+      "slip_reference": "^SLP-[0-9]{4}-[0-9]{3}$",
+      "email_addresses": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+      "date_formats": ["YYYY-MM-DD", "MM/DD/YYYY", "DD/MM/YYYY"]
+    }
+  }
+}
