@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # Backend Application
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: insurance-backend
+    environment:
+      - NODE_ENV=production
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+      - AWS_REGION=${AWS_REGION}
+      - SES_FROM_EMAIL=${SES_FROM_EMAIL}
+      - SES_DEFAULT_RECIPIENT=${SES_DEFAULT_RECIPIENT}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./assets:/app/assets
+      - ./data:/app/data
+      - ./core:/app/core
+    networks:
+      - insurance-network
+
+  # Frontend Application
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: insurance-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - insurance-network
+
+  # AgentCore Python Service (WebSocket on 8080)
+  agentcore:
+    build:
+      context: ../agentcore
+      dockerfile: Dockerfile
+    container_name: insurance-agentcore
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - EXPRESS_URL=http://backend:3001
+    ports:
+      - "8080:8080"
+    networks:
+      - insurance-network
+
+  # Nginx Load Balancer
+  nginx:
+    image: nginx:alpine
+    container_name: insurance-nginx
+    ports:
+      - "443:443"
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - insurance-network
+
+networks:
+  insurance-network:
+    driver: bridge

@@ -1,0 +1,1639 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: EXLerate AI - Full Stack (ECS Fargate + ALB + CloudFront + S3). Omit ExistingVpcId/Existing*Subnet* to create VPC; omit ExistingCodeBuildBucketName to create the CodeBuild source bucket. Stack deletion removes resources created by this stack (not imported VPC/buckets).
+
+# ============================================================
+# Parameters
+# ============================================================
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: production
+    AllowedValues: [production, staging]
+
+  # Networking
+  VpcCIDR:
+    Type: String
+    Default: '10.0.0.0/16'
+  PublicSubnet1CIDR:
+    Type: String
+    Default: '10.0.1.0/24'
+  PublicSubnet2CIDR:
+    Type: String
+    Default: '10.0.2.0/24'
+  PrivateSubnet1CIDR:
+    Type: String
+    Default: '10.0.3.0/24'
+  PrivateSubnet2CIDR:
+    Type: String
+    Default: '10.0.4.0/24'
+
+  # Optional: use an existing VPC + subnets (same region/AZ layout as below). Leave all empty to create a new VPC.
+  ExistingVpcId:
+    Type: String
+    Default: ''
+    Description: VPC ID to use. Leave empty to create a new VPC (default).
+  ExistingPublicSubnet1Id:
+    Type: String
+    Default: ''
+    Description: Public subnet in AZ a (for ALB / NAT when using existing VPC).
+  ExistingPublicSubnet2Id:
+    Type: String
+    Default: ''
+    Description: Public subnet in AZ b (for ALB).
+  ExistingPrivateSubnet1Id:
+    Type: String
+    Default: ''
+    Description: Private subnet in AZ a (ECS).
+  ExistingPrivateSubnet2Id:
+    Type: String
+    Default: ''
+    Description: Private subnet in AZ b (ECS).
+
+  # Optional: existing S3 bucket for CodeBuild source uploads. Leave empty to create a bucket in this stack.
+  ExistingCodeBuildBucketName:
+    Type: String
+    Default: ''
+    Description: Existing bucket name for CodeBuild source. Leave empty to create exlerate-cb-* in this stack.
+
+  # Container Images
+  BackendImage:
+    Type: String
+    Description: Full ECR image URI for backend (account.dkr.ecr.region.amazonaws.com/repo:tag)
+  FrontendImage:
+    Type: String
+    Description: Full ECR image URI for frontend
+  AgentCoreImage:
+    Type: String
+    Description: Full ECR image URI for agentcore (WebSocket server)
+
+  # Application Secrets
+  SessionSecret:
+    Type: String
+    NoEcho: true
+  # OpenRouterAPIKey removed - not used
+  JiraBaseURL:
+    Type: String
+    Default: ''
+  JiraEmail:
+    Type: String
+    Default: ''
+  JiraAPIToken:
+    Type: String
+    NoEcho: true
+    Default: ''
+  JiraDefaultProject:
+    Type: String
+    Default: HIS
+  SESFromEmail:
+    Type: String
+    Default: ''
+  SESDefaultRecipient:
+    Type: String
+    Default: ''
+
+  # S3 Buckets (pre-existing)
+  DocumentsBucketName:
+    Type: String
+    Default: ''
+    Description: Existing S3 bucket for documents. Leave empty to use agentcore-docs-{AccountId}.
+  JiraCasesBucketName:
+    Type: String
+    Default: ''
+    Description: Existing S3 bucket for Jira cases. Leave empty to use jira-cases-{AccountId}-prod.
+
+# ============================================================
+# Conditions & rules
+# ============================================================
+Conditions:
+  CreateVpc: !Equals [!Ref ExistingVpcId, '']
+  CreateCodeBuildBucket: !Equals [!Ref ExistingCodeBuildBucketName, '']
+  UseExistingCodeBuildBucket: !Not [!Condition CreateCodeBuildBucket]
+  HasDocumentsBucket: !Not [!Equals [!Ref DocumentsBucketName, '']]
+  HasJiraCasesBucket: !Not [!Equals [!Ref JiraCasesBucketName, '']]
+
+Rules:
+  RequireSubnetsWhenVpcIdSet:
+    RuleCondition: !Not [!Equals [!Ref ExistingVpcId, '']]
+    Assertions:
+      - Assert: !Not [!Equals [!Ref ExistingPublicSubnet1Id, '']]
+        AssertDescription: ExistingPublicSubnet1Id is required when ExistingVpcId is set.
+      - Assert: !Not [!Equals [!Ref ExistingPublicSubnet2Id, '']]
+        AssertDescription: ExistingPublicSubnet2Id is required when ExistingVpcId is set.
+      # Private subnets no longer required — ECS tasks run in public subnets
+
+# ============================================================
+# Resources
+# ============================================================
+Resources:
+
+  # ----------------------------------------------------------
+  # VPC & Networking
+  # ----------------------------------------------------------
+  VPC:
+    Type: AWS::EC2::VPC
+    Condition: CreateVpc
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-exlerate-vpc'
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Condition: CreateVpc
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-igw'
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Condition: CreateVpc
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Condition: CreateVpc
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PublicSubnet1CIDR
+      AvailabilityZone: !Select [0, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-public-1'
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Condition: CreateVpc
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PublicSubnet2CIDR
+      AvailabilityZone: !Select [1, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-public-2'
+
+  # NOTE: Private subnets + NAT Gateway removed for cost optimization.
+  # ECS tasks run in public subnets with AssignPublicIp: ENABLED.
+  # Security groups restrict inbound to ALB only.
+
+  # Public Route Table
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Condition: CreateVpc
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-public-rt'
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    Condition: CreateVpc
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: CreateVpc
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: CreateVpc
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
+  # ----------------------------------------------------------
+  # Security Groups
+  # ----------------------------------------------------------
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ALB Security Group
+      VpcId: !If [CreateVpc, !Ref VPC, !Ref ExistingVpcId]
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: '0.0.0.0/0'
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-alb-sg'
+
+  BackendSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Backend ECS tasks
+      VpcId: !If [CreateVpc, !Ref VPC, !Ref ExistingVpcId]
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3001
+          ToPort: 3001
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-backend-sg'
+
+  FrontendSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Frontend ECS tasks
+      VpcId: !If [CreateVpc, !Ref VPC, !Ref ExistingVpcId]
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-frontend-sg'
+
+  AgentCoreSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: AgentCore ECS tasks (WebSocket on 8080)
+      VpcId: !If [CreateVpc, !Ref VPC, !Ref ExistingVpcId]
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-agentcore-sg'
+
+  # ----------------------------------------------------------
+  # ECR Repositories
+  # ----------------------------------------------------------
+  BackendRepository:
+    Type: AWS::ECR::Repository
+    DeletionPolicy: Delete
+    Properties:
+      RepositoryName: exlerate-ai/backend
+      EmptyOnDelete: true
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [{
+              "rulePriority": 1,
+              "description": "Keep last 10 images",
+              "selection": {
+                "tagStatus": "any",
+                "countType": "imageCountMoreThan",
+                "countNumber": 10
+              },
+              "action": { "type": "expire" }
+            }]
+          }
+
+  FrontendRepository:
+    Type: AWS::ECR::Repository
+    DeletionPolicy: Delete
+    Properties:
+      RepositoryName: exlerate-ai/frontend
+      EmptyOnDelete: true
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [{
+              "rulePriority": 1,
+              "description": "Keep last 10 images",
+              "selection": {
+                "tagStatus": "any",
+                "countType": "imageCountMoreThan",
+                "countNumber": 10
+              },
+              "action": { "type": "expire" }
+            }]
+          }
+
+  AgentCoreRepository:
+    Type: AWS::ECR::Repository
+    DeletionPolicy: Delete
+    Properties:
+      RepositoryName: exlerate-ai/agentcore
+      EmptyOnDelete: true
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [{
+              "rulePriority": 1,
+              "description": "Keep last 10 images",
+              "selection": {
+                "tagStatus": "any",
+                "countType": "imageCountMoreThan",
+                "countNumber": 10
+              },
+              "action": { "type": "expire" }
+            }]
+          }
+
+  # ----------------------------------------------------------
+  # IAM Roles
+  # ----------------------------------------------------------
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${EnvironmentName}-ecs-execution-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: CloudWatchLogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
+  ECSTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${EnvironmentName}-ecs-task-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SESAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: '*'
+        - PolicyName: S3Access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:ListBucket
+                Resource: '*'
+
+  # ----------------------------------------------------------
+  # CodeBuild - Build Docker images in AWS (no local Docker needed)
+  # ----------------------------------------------------------
+  CodeBuildSourceBucket:
+    Type: AWS::S3::Bucket
+    Condition: CreateCodeBuildBucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Sub '${EnvironmentName}-exlerate-cb-${AWS::AccountId}-${AWS::Region}'
+      LifecycleConfiguration:
+        Rules:
+          - Id: CleanupOldArtifacts
+            Status: Enabled
+            ExpirationInDays: 7
+
+  # Lambda to empty S3 bucket before stack deletion
+  EmptyBucketLambdaRole:
+    Type: AWS::IAM::Role
+    Condition: CreateCodeBuildBucket
+    Properties:
+      RoleName: !Sub '${EnvironmentName}-empty-bucket-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: S3DeletePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:DeleteObject
+                  - s3:DeleteObjectVersion
+                  - s3:ListBucketVersions
+                Resource:
+                  - !GetAtt CodeBuildSourceBucket.Arn
+                  - !Sub '${CodeBuildSourceBucket.Arn}/*'
+
+  EmptyBucketLambda:
+    Type: AWS::Lambda::Function
+    Condition: CreateCodeBuildBucket
+    Properties:
+      FunctionName: !Sub '${EnvironmentName}-empty-bucket'
+      Runtime: python3.12
+      Handler: index.handler
+      Timeout: 120
+      Role: !GetAtt EmptyBucketLambdaRole.Arn
+      Code:
+        ZipFile: |
+          import boto3, json, urllib3
+          def send_response(event, context, status, data={}):
+            body = json.dumps({'Status': status, 'Reason': 'See CloudWatch', 'PhysicalResourceId': context.log_stream_name, 'StackId': event['StackId'], 'RequestId': event['RequestId'], 'LogicalResourceId': event['LogicalResourceId'], 'Data': data})
+            urllib3.PoolManager().request('PUT', event['ResponseURL'], body=body, headers={'Content-Type': ''})
+          def handler(event, context):
+            try:
+              if event['RequestType'] == 'Delete':
+                bucket = event['ResourceProperties']['BucketName']
+                s3 = boto3.resource('s3')
+                b = s3.Bucket(bucket)
+                b.object_versions.delete()
+                b.objects.all().delete()
+              send_response(event, context, 'SUCCESS')
+            except Exception as e:
+              print(e)
+              send_response(event, context, 'SUCCESS')
+
+  EmptyBucketOnDelete:
+    Type: Custom::EmptyBucket
+    Condition: CreateCodeBuildBucket
+    Properties:
+      ServiceToken: !GetAtt EmptyBucketLambda.Arn
+      BucketName: !Ref CodeBuildSourceBucket
+
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${EnvironmentName}-codebuild-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CodeBuildPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:PutImage
+                  - ecr:InitiateLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:CompleteLayerUpload
+                Resource:
+                  - !GetAtt BackendRepository.Arn
+                  - !GetAtt FrontendRepository.Arn
+                  - !GetAtt AgentCoreRepository.Arn
+
+  CodeBuildRoleS3CreatedBucketPolicy:
+    Type: AWS::IAM::Policy
+    Condition: CreateCodeBuildBucket
+    Properties:
+      PolicyName: !Sub '${EnvironmentName}-codebuild-s3-created-bucket'
+      Roles:
+        - !Ref CodeBuildRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:GetObjectVersion
+              - s3:PutObject
+            Resource: !Sub '${CodeBuildSourceBucket.Arn}/*'
+
+  CodeBuildRoleS3ExistingBucketPolicy:
+    Type: AWS::IAM::Policy
+    Condition: UseExistingCodeBuildBucket
+    Properties:
+      PolicyName: !Sub '${EnvironmentName}-codebuild-s3-existing-bucket'
+      Roles:
+        - !Ref CodeBuildRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:GetObjectVersion
+              - s3:PutObject
+            Resource: !Sub 'arn:aws:s3:::${ExistingCodeBuildBucketName}/*'
+
+  BackendBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub '${EnvironmentName}-exlerate-backend-build'
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: ECR_REPO_URI
+            Value: !GetAtt BackendRepository.RepositoryUri
+          - Name: AWS_ACCOUNT_ID
+            Value: !Ref 'AWS::AccountId'
+      Source:
+        Type: S3
+        Location: !If
+          - CreateCodeBuildBucket
+          - !Join ['', [!Ref CodeBuildSourceBucket, '/source.zip']]
+          - !Join ['', [!Ref ExistingCodeBuildBucketName, '/source.zip']]
+        BuildSpec: infrastructure/buildspec-backend.yml
+      TimeoutInMinutes: 30
+
+  FrontendBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub '${EnvironmentName}-exlerate-frontend-build'
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: ECR_REPO_URI
+            Value: !GetAtt FrontendRepository.RepositoryUri
+          - Name: AWS_ACCOUNT_ID
+            Value: !Ref 'AWS::AccountId'
+      Source:
+        Type: S3
+        Location: !If
+          - CreateCodeBuildBucket
+          - !Join ['', [!Ref CodeBuildSourceBucket, '/source.zip']]
+          - !Join ['', [!Ref ExistingCodeBuildBucketName, '/source.zip']]
+        BuildSpec: infrastructure/buildspec-frontend.yml
+      TimeoutInMinutes: 30
+
+  AgentCoreBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub '${EnvironmentName}-exlerate-agentcore-build'
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: ECR_REPO_URI
+            Value: !GetAtt AgentCoreRepository.RepositoryUri
+          - Name: AWS_ACCOUNT_ID
+            Value: !Ref 'AWS::AccountId'
+      Source:
+        Type: S3
+        Location: !If
+          - CreateCodeBuildBucket
+          - !Join ['', [!Ref CodeBuildSourceBucket, '/source.zip']]
+          - !Join ['', [!Ref ExistingCodeBuildBucketName, '/source.zip']]
+        BuildSpec: infrastructure/buildspec-agentcore.yml
+      TimeoutInMinutes: 30
+
+  # ----------------------------------------------------------
+  # ECS Cluster & Logs
+  # ----------------------------------------------------------
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    DeletionPolicy: Delete
+    Properties:
+      ClusterName: !Sub '${EnvironmentName}-exlerate-cluster'
+      ClusterSettings:
+        - Name: containerInsights
+          Value: disabled
+
+  BackendLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    Properties:
+      LogGroupName: !Sub '/ecs/${EnvironmentName}/exlerate-backend'
+      RetentionInDays: 30
+
+  FrontendLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    Properties:
+      LogGroupName: !Sub '/ecs/${EnvironmentName}/exlerate-frontend'
+      RetentionInDays: 30
+
+  AgentCoreLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    Properties:
+      LogGroupName: !Sub '/ecs/${EnvironmentName}/exlerate-agentcore'
+      RetentionInDays: 30
+
+  # ----------------------------------------------------------
+  # Application Load Balancer
+  # ----------------------------------------------------------
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DeletionPolicy: Delete
+    Properties:
+      Name: !Sub '${EnvironmentName}-exlerate-alb'
+      Type: application
+      Scheme: internet-facing
+      Subnets:
+        - !If [CreateVpc, !Ref PublicSubnet1, !Ref ExistingPublicSubnet1Id]
+        - !If [CreateVpc, !Ref PublicSubnet2, !Ref ExistingPublicSubnet2Id]
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: '300'
+
+  ALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref FrontendTargetGroup
+
+  BackendTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 3001
+      Protocol: HTTP
+      VpcId: !If [CreateVpc, !Ref VPC, !Ref ExistingVpcId]
+      TargetType: ip
+      HealthCheckPath: /health
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+      Matcher:
+        HttpCode: '200'
+      TargetGroupAttributes:
+        - Key: stickiness.enabled
+          Value: 'true'
+        - Key: stickiness.type
+          Value: lb_cookie
+        - Key: stickiness.lb_cookie.duration_seconds
+          Value: '86400'
+        - Key: deregistration_delay.timeout_seconds
+          Value: '30'
+
+  FrontendTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 80
+      Protocol: HTTP
+      VpcId: !If [CreateVpc, !Ref VPC, !Ref ExistingVpcId]
+      TargetType: ip
+      HealthCheckPath: /
+      HealthCheckIntervalSeconds: 30
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: '30'
+
+  # ALB Listener Rules - route /api and /socket.io to backend
+  APIListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref ALBListener
+      Priority: 1
+      Conditions:
+        - Field: path-pattern
+          Values: ['/api/*']
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref BackendTargetGroup
+
+  SocketIOListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref ALBListener
+      Priority: 2
+      Conditions:
+        - Field: path-pattern
+          Values: ['/socket.io/*']
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref BackendTargetGroup
+
+  HealthListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref ALBListener
+      Priority: 3
+      Conditions:
+        - Field: path-pattern
+          Values: ['/health']
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref BackendTargetGroup
+
+  JiraDocumentsListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref ALBListener
+      Priority: 4
+      Conditions:
+        - Field: path-pattern
+          Values: ['/jira-documents/*']
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref BackendTargetGroup
+
+  # ── AgentCore Target Group & Listener Rules ──
+  AgentCoreTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 8080
+      Protocol: HTTP
+      VpcId: !If [CreateVpc, !Ref VPC, !Ref ExistingVpcId]
+      TargetType: ip
+      HealthCheckPath: /agents
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+      Matcher:
+        HttpCode: '200'
+      TargetGroupAttributes:
+        - Key: stickiness.enabled
+          Value: 'true'
+        - Key: stickiness.type
+          Value: lb_cookie
+        - Key: stickiness.lb_cookie.duration_seconds
+          Value: '86400'
+        - Key: deregistration_delay.timeout_seconds
+          Value: '30'
+
+  AgentCoreWSListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref ALBListener
+      Priority: 5
+      Conditions:
+        - Field: path-pattern
+          Values: ['/ws']
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref AgentCoreTargetGroup
+
+  AgentCoreAgentsListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref ALBListener
+      Priority: 6
+      Conditions:
+        - Field: path-pattern
+          Values: ['/agents']
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref AgentCoreTargetGroup
+
+  AgentCoreWebhookListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref ALBListener
+      Priority: 7
+      Conditions:
+        - Field: path-pattern
+          Values: ['/webhook/*']
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref AgentCoreTargetGroup
+
+  # ----------------------------------------------------------
+  # ECS Task Definitions
+  # ----------------------------------------------------------
+  BackendTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub '${EnvironmentName}-exlerate-backend'
+      RequiresCompatibilities: [FARGATE]
+      Cpu: '1024'
+      Memory: '2048'
+      NetworkMode: awsvpc
+      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt ECSTaskRole.Arn
+      ContainerDefinitions:
+        - Name: backend
+          Image: !Ref BackendImage
+          Essential: true
+          PortMappings:
+            - ContainerPort: 3001
+              Protocol: tcp
+          Environment:
+            - Name: NODE_ENV
+              Value: production
+            - Name: PORT
+              Value: '3000'
+            - Name: SESSION_SECRET
+              Value: !Ref SessionSecret
+            - Name: AWS_REGION
+              Value: !Ref 'AWS::Region'
+            - Name: SES_FROM_EMAIL
+              Value: !Ref SESFromEmail
+            - Name: SES_DEFAULT_RECIPIENT
+              Value: !Ref SESDefaultRecipient
+            # OpenRouter removed
+            - Name: JIRA_BASE_URL
+              Value: !Ref JiraBaseURL
+            - Name: JIRA_EMAIL
+              Value: !Ref JiraEmail
+            - Name: JIRA_API_TOKEN
+              Value: !Ref JiraAPIToken
+            - Name: JIRA_DEFAULT_PROJECT
+              Value: !Ref JiraDefaultProject
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref BackendLogGroup
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: backend
+          HealthCheck:
+            Command: ['CMD-SHELL', 'curl -f http://localhost:3001/health || exit 1']
+            Interval: 30
+            Timeout: 5
+            Retries: 3
+            StartPeriod: 60
+
+  FrontendTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub '${EnvironmentName}-exlerate-frontend'
+      RequiresCompatibilities: [FARGATE]
+      Cpu: '256'
+      Memory: '512'
+      NetworkMode: awsvpc
+      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      ContainerDefinitions:
+        - Name: frontend
+          Image: !Ref FrontendImage
+          Essential: true
+          PortMappings:
+            - ContainerPort: 80
+              Protocol: tcp
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref FrontendLogGroup
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: frontend
+
+  AgentCoreTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub '${EnvironmentName}-exlerate-agentcore'
+      RequiresCompatibilities: [FARGATE]
+      Cpu: '1024'
+      Memory: '2048'
+      NetworkMode: awsvpc
+      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt AgentCoreBedrockRole.Arn
+      ContainerDefinitions:
+        - Name: agentcore
+          Image: !Ref AgentCoreImage
+          Essential: true
+          PortMappings:
+            - ContainerPort: 8080
+              Protocol: tcp
+          Environment:
+            - Name: AWS_REGION
+              Value: !Ref 'AWS::Region'
+            - Name: EXPRESS_URL
+              Value: !Sub 'http://${ApplicationLoadBalancer.DNSName}'
+            - Name: SSM_PREFIX
+              Value: !Sub '/agentcore/${EnvironmentName}'
+            - Name: JIRA_BASE_URL
+              Value: !Ref JiraBaseURL
+            - Name: JIRA_EMAIL
+              Value: !Ref JiraEmail
+            - Name: JIRA_API_TOKEN
+              Value: !Ref JiraAPIToken
+            - Name: JIRA_DEFAULT_PROJECT
+              Value: !Ref JiraDefaultProject
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref AgentCoreLogGroup
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: agentcore
+          HealthCheck:
+            Command: ['CMD-SHELL', 'python -c "import urllib.request; urllib.request.urlopen(\"http://localhost:8080/agents\")" || exit 1']
+            Interval: 30
+            Timeout: 10
+            Retries: 3
+            StartPeriod: 60
+
+  # ----------------------------------------------------------
+  # ECS Services
+  # ----------------------------------------------------------
+  BackendService:
+    Type: AWS::ECS::Service
+    DependsOn:
+      - APIListenerRule
+      - SocketIOListenerRule
+    Properties:
+      ServiceName: !Sub '${EnvironmentName}-backend'
+      Cluster: !Ref ECSCluster
+      TaskDefinition: !Ref BackendTaskDefinition
+      LaunchType: FARGATE
+      DesiredCount: 1
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          Subnets:
+            - !If [CreateVpc, !Ref PublicSubnet1, !Ref ExistingPublicSubnet1Id]
+            - !If [CreateVpc, !Ref PublicSubnet2, !Ref ExistingPublicSubnet2Id]
+          SecurityGroups:
+            - !Ref BackendSecurityGroup
+          AssignPublicIp: ENABLED
+      LoadBalancers:
+        - TargetGroupArn: !Ref BackendTargetGroup
+          ContainerName: backend
+          ContainerPort: 3001
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 50
+        MaximumPercent: 200
+
+  FrontendService:
+    Type: AWS::ECS::Service
+    DependsOn:
+      - ALBListener
+    Properties:
+      ServiceName: !Sub '${EnvironmentName}-frontend'
+      Cluster: !Ref ECSCluster
+      TaskDefinition: !Ref FrontendTaskDefinition
+      LaunchType: FARGATE
+      DesiredCount: 0
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          Subnets:
+            - !If [CreateVpc, !Ref PublicSubnet1, !Ref ExistingPublicSubnet1Id]
+            - !If [CreateVpc, !Ref PublicSubnet2, !Ref ExistingPublicSubnet2Id]
+          SecurityGroups:
+            - !Ref FrontendSecurityGroup
+          AssignPublicIp: ENABLED
+      LoadBalancers:
+        - TargetGroupArn: !Ref FrontendTargetGroup
+          ContainerName: frontend
+          ContainerPort: 80
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 50
+        MaximumPercent: 200
+
+  AgentCoreService:
+    Type: AWS::ECS::Service
+    DependsOn:
+      - AgentCoreWSListenerRule
+      - AgentCoreAgentsListenerRule
+    Properties:
+      ServiceName: !Sub '${EnvironmentName}-agentcore'
+      Cluster: !Ref ECSCluster
+      TaskDefinition: !Ref AgentCoreTaskDefinition
+      LaunchType: FARGATE
+      DesiredCount: 0
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          Subnets:
+            - !If [CreateVpc, !Ref PublicSubnet1, !Ref ExistingPublicSubnet1Id]
+            - !If [CreateVpc, !Ref PublicSubnet2, !Ref ExistingPublicSubnet2Id]
+          SecurityGroups:
+            - !Ref AgentCoreSecurityGroup
+          AssignPublicIp: ENABLED
+      LoadBalancers:
+        - TargetGroupArn: !Ref AgentCoreTargetGroup
+          ContainerName: agentcore
+          ContainerPort: 8080
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 50
+        MaximumPercent: 200
+
+  # ----------------------------------------------------------
+  # Auto Scaling — Scale to 0 after 1 hour of no traffic
+  # ----------------------------------------------------------
+
+  # ── Backend Auto Scaling ──
+  # All services scale to 0 after 1 hour of no traffic.
+  # CloudFront caches frontend; first request after cold start takes ~30-60s.
+  BackendScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 2
+      MinCapacity: 0
+      ResourceId: !Sub 'service/${ECSCluster}/${BackendService.Name}'
+      RoleARN: !Sub 'arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService'
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+
+  BackendScaleUpPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: !Sub '${EnvironmentName}-backend-scale-up'
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref BackendScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ExactCapacity
+        Cooldown: 60
+        StepAdjustments:
+          - MetricIntervalLowerBound: 0
+            ScalingAdjustment: 1
+
+  BackendScaleDownPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: !Sub '${EnvironmentName}-backend-scale-down'
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref BackendScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ExactCapacity
+        Cooldown: 300
+        StepAdjustments:
+          - MetricIntervalUpperBound: 0
+            ScalingAdjustment: 0
+
+  # Scale UP when ALB gets any request (>0 requests in 1 min)
+  BackendScaleUpAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${EnvironmentName}-backend-requests-high'
+      Namespace: AWS/ApplicationELB
+      MetricName: RequestCount
+      Dimensions:
+        - Name: TargetGroup
+          Value: !GetAtt BackendTargetGroup.TargetGroupFullName
+        - Name: LoadBalancer
+          Value: !GetAtt ApplicationLoadBalancer.LoadBalancerFullName
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref BackendScaleUpPolicy
+
+  # Scale DOWN to 0 when no requests for 1 hour (60 x 1-min periods)
+  BackendScaleDownAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${EnvironmentName}-backend-requests-zero'
+      Namespace: AWS/ApplicationELB
+      MetricName: RequestCount
+      Dimensions:
+        - Name: TargetGroup
+          Value: !GetAtt BackendTargetGroup.TargetGroupFullName
+        - Name: LoadBalancer
+          Value: !GetAtt ApplicationLoadBalancer.LoadBalancerFullName
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 60
+      Threshold: 1
+      ComparisonOperator: LessThanThreshold
+      AlarmActions:
+        - !Ref BackendScaleDownPolicy
+
+  # ── Frontend Auto Scaling ──
+  FrontendScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 2
+      MinCapacity: 0
+      ResourceId: !Sub 'service/${ECSCluster}/${FrontendService.Name}'
+      RoleARN: !Sub 'arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService'
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+
+  FrontendScaleUpPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: !Sub '${EnvironmentName}-frontend-scale-up'
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref FrontendScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ExactCapacity
+        Cooldown: 60
+        StepAdjustments:
+          - MetricIntervalLowerBound: 0
+            ScalingAdjustment: 1
+
+  FrontendScaleDownPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: !Sub '${EnvironmentName}-frontend-scale-down'
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref FrontendScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ExactCapacity
+        Cooldown: 300
+        StepAdjustments:
+          - MetricIntervalUpperBound: 0
+            ScalingAdjustment: 0
+
+  FrontendScaleUpAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${EnvironmentName}-frontend-requests-high'
+      Namespace: AWS/ApplicationELB
+      MetricName: RequestCount
+      Dimensions:
+        - Name: TargetGroup
+          Value: !GetAtt FrontendTargetGroup.TargetGroupFullName
+        - Name: LoadBalancer
+          Value: !GetAtt ApplicationLoadBalancer.LoadBalancerFullName
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref FrontendScaleUpPolicy
+
+  FrontendScaleDownAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${EnvironmentName}-frontend-requests-zero'
+      Namespace: AWS/ApplicationELB
+      MetricName: RequestCount
+      Dimensions:
+        - Name: TargetGroup
+          Value: !GetAtt FrontendTargetGroup.TargetGroupFullName
+        - Name: LoadBalancer
+          Value: !GetAtt ApplicationLoadBalancer.LoadBalancerFullName
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 60
+      Threshold: 1
+      ComparisonOperator: LessThanThreshold
+      AlarmActions:
+        - !Ref FrontendScaleDownPolicy
+
+  # ── AgentCore Auto Scaling ──
+  AgentCoreScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 2
+      MinCapacity: 0
+      ResourceId: !Sub 'service/${ECSCluster}/${AgentCoreService.Name}'
+      RoleARN: !Sub 'arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService'
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+
+  AgentCoreScaleUpPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: !Sub '${EnvironmentName}-agentcore-scale-up'
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref AgentCoreScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ExactCapacity
+        Cooldown: 60
+        StepAdjustments:
+          - MetricIntervalLowerBound: 0
+            ScalingAdjustment: 1
+
+  AgentCoreScaleDownPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: !Sub '${EnvironmentName}-agentcore-scale-down'
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref AgentCoreScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ExactCapacity
+        Cooldown: 300
+        StepAdjustments:
+          - MetricIntervalUpperBound: 0
+            ScalingAdjustment: 0
+
+  AgentCoreScaleUpAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${EnvironmentName}-agentcore-requests-high'
+      Namespace: AWS/ApplicationELB
+      MetricName: RequestCount
+      Dimensions:
+        - Name: TargetGroup
+          Value: !GetAtt AgentCoreTargetGroup.TargetGroupFullName
+        - Name: LoadBalancer
+          Value: !GetAtt ApplicationLoadBalancer.LoadBalancerFullName
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref AgentCoreScaleUpPolicy
+
+  AgentCoreScaleDownAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${EnvironmentName}-agentcore-requests-zero'
+      Namespace: AWS/ApplicationELB
+      MetricName: RequestCount
+      Dimensions:
+        - Name: TargetGroup
+          Value: !GetAtt AgentCoreTargetGroup.TargetGroupFullName
+        - Name: LoadBalancer
+          Value: !GetAtt ApplicationLoadBalancer.LoadBalancerFullName
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 60
+      Threshold: 1
+      ComparisonOperator: LessThanThreshold
+      AlarmActions:
+        - !Ref AgentCoreScaleDownPolicy
+
+  # ----------------------------------------------------------
+  # CloudFront Distribution
+  # ----------------------------------------------------------
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    DeletionPolicy: Delete
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        HttpVersion: http2and3
+        Comment: !Sub '${EnvironmentName} EXLerate AI'
+        Origins:
+          - Id: ALBOrigin
+            DomainName: !GetAtt ApplicationLoadBalancer.DNSName
+            CustomOriginConfig:
+              HTTPPort: 80
+              OriginProtocolPolicy: http-only
+              OriginReadTimeout: 60
+              OriginKeepaliveTimeout: 60
+        DefaultCacheBehavior:
+          TargetOriginId: ALBOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+          CachedMethods: [GET, HEAD]
+          Compress: true
+          ForwardedValues:
+            QueryString: true
+            Headers:
+              - Host
+              - Origin
+              - Authorization
+              - Accept
+            Cookies:
+              Forward: all
+          DefaultTTL: 0
+          MinTTL: 0
+          MaxTTL: 0
+        CacheBehaviors:
+          # API - no caching, forward everything
+          - PathPattern: '/api/*'
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+            ForwardedValues:
+              QueryString: true
+              Headers: ['*']
+              Cookies:
+                Forward: all
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+          # Socket.IO - no caching, forward everything
+          - PathPattern: '/socket.io/*'
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+            ForwardedValues:
+              QueryString: true
+              Headers: ['*']
+              Cookies:
+                Forward: all
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+          # AgentCore WebSocket - no caching, forward everything
+          - PathPattern: '/ws'
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+            ForwardedValues:
+              QueryString: true
+              Headers: ['*']
+              Cookies:
+                Forward: all
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+          # AgentCore agents endpoint - no caching
+          - PathPattern: '/agents'
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS]
+            ForwardedValues:
+              QueryString: true
+              Headers: ['*']
+              Cookies:
+                Forward: all
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+          # AgentCore webhooks - no caching
+          - PathPattern: '/webhook/*'
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+            ForwardedValues:
+              QueryString: true
+              Headers: ['*']
+              Cookies:
+                Forward: all
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+          # Static assets - cache aggressively
+          - PathPattern: '/assets/*'
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD]
+            ForwardedValues:
+              QueryString: false
+              Cookies:
+                Forward: none
+            DefaultTTL: 86400
+            MinTTL: 86400
+            MaxTTL: 31536000
+            Compress: true
+
+  # ============================================================
+  # S3 Buckets — Document Uploads & Vectors
+  # ============================================================
+
+  # S3 Buckets are created externally (setup-resources.sh or manually)
+  # Referenced via parameters — no creation here to avoid conflicts
+
+  # ============================================================
+  # S3 Vectors — PDF Embeddings (via S3 Vectors API)
+  # ============================================================
+  # NOTE: S3 Vectors buckets and indexes are created via AWS CLI / SDK,
+  # not CloudFormation (no CFN resource type yet). Use this custom resource
+  # or run manually:
+  #
+  #   aws s3vectors create-vector-bucket --vector-bucket-name my-pdf-vectors --region us-east-1
+  #   aws s3vectors create-index --vector-bucket-name my-pdf-vectors \
+  #     --index-name pdf-chunks --dimension 1024 --distance-metric cosine \
+  #     --data-type float32 --region us-east-1
+
+  # ============================================================
+  # SSM Parameters — Created by scripts/setup-resources.sh
+  # ============================================================
+  # S3 Vectors and AgentCore Memory don't have CFN support.
+  # Run `./scripts/setup-resources.sh --env {EnvironmentName}` BEFORE
+  # deploying the stack. It creates the resources AND stores their
+  # IDs in SSM Parameter Store under /agentcore/{env}/*.
+  #
+  # The ECS Task Definition below reads these SSM params as env vars
+  # so nothing is hardcoded.
+  # ============================================================
+
+  # ============================================================
+  # IAM Role — Bedrock Access for AgentCore
+  # ============================================================
+
+  AgentCoreBedrockRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'AgentCoreBedrockRole-${EnvironmentName}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ecs-tasks.amazonaws.com
+                - bedrock.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AgentCorePermissions
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: BedrockAccess
+                Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                  - bedrock:InvokeModelWithResponseStream
+                Resource: 'arn:aws:bedrock:*::foundation-model/*'
+              - Sid: BedrockAgentCoreMemory
+                Effect: Allow
+                Action:
+                  - bedrock-agentcore:*
+                Resource: '*'
+              - Sid: S3VectorsAccess
+                Effect: Allow
+                Action:
+                  - s3vectors:*
+                Resource: '*'
+              - Sid: SSMParameterAccess
+                Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                  - ssm:GetParametersByPath
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/agentcore/*'
+              - Sid: S3Access
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:ListBucket
+                  - s3:DeleteObject
+                Resource: '*'
+      Tags:
+        - Key: Project
+          Value: AgentCore
+
+# ============================================================
+# Outputs
+# ============================================================
+Outputs:
+  # ── New Resource Outputs ──
+  DocumentsBucketNameOutput:
+    Description: S3 bucket for document uploads, extractions, chat history
+    Value: !If
+      - HasDocumentsBucket
+      - !Ref DocumentsBucketName
+      - !Sub 'agentcore-docs-${AWS::AccountId}'
+
+  JiraCasesBucketNameOutput:
+    Description: S3 bucket for Jira dashboard cases
+    Value: !If
+      - HasJiraCasesBucket
+      - !Ref JiraCasesBucketName
+      - !Sub 'jira-cases-${AWS::AccountId}-prod'
+
+  AgentCoreBedrockRoleArn:
+    Description: IAM Role ARN for AgentCore (Bedrock + S3 Vectors + Memory)
+    Value: !GetAtt AgentCoreBedrockRole.Arn
+
+  RequiredBucketPolicies:
+    Description: >
+      IAM policy statements to apply to your IAM user/role for S3 bucket access.
+      Apply these manually to the IAM entity running the application.
+    Value: !Sub |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Sid": "DocumentsBucketAccess",
+            "Effect": "Allow",
+            "Action": [
+              "s3:GetObject",
+              "s3:PutObject",
+              "s3:DeleteObject",
+              "s3:ListBucket",
+              "s3:GetBucketLocation"
+            ],
+            "Resource": [
+              "arn:aws:s3:::agentcore-docs-${AWS::AccountId}",
+              "arn:aws:s3:::agentcore-docs-${AWS::AccountId}/*"
+            ]
+          },
+          {
+            "Sid": "JiraCasesBucketAccess",
+            "Effect": "Allow",
+            "Action": [
+              "s3:GetObject",
+              "s3:ListBucket"
+            ],
+            "Resource": [
+              "arn:aws:s3:::jira-cases-${AWS::AccountId}-prod",
+              "arn:aws:s3:::jira-cases-${AWS::AccountId}-prod/*"
+            ]
+          },
+          {
+            "Sid": "BedrockModelAccess",
+            "Effect": "Allow",
+            "Action": [
+              "bedrock:InvokeModel",
+              "bedrock:InvokeModelWithResponseStream"
+            ],
+            "Resource": "arn:aws:bedrock:*::foundation-model/*"
+          },
+          {
+            "Sid": "S3VectorsAccess",
+            "Effect": "Allow",
+            "Action": ["s3vectors:*"],
+            "Resource": "*"
+          },
+          {
+            "Sid": "AgentCoreMemoryAccess",
+            "Effect": "Allow",
+            "Action": ["bedrock-agentcore:*"],
+            "Resource": "*"
+          }
+        ]
+      }
+
+  SSMParameterPrefix:
+    Description: SSM Parameter Store prefix for resource IDs
+    Value: !Sub '/agentcore/${EnvironmentName}'
+
+  DeploymentSteps:
+    Description: Steps to deploy (in order)
+    Value: !Sub |
+      BEFORE stack deploy:
+        1. Run: ./scripts/setup-resources.sh --env ${EnvironmentName} --region ${AWS::Region}
+           (Creates S3 Vectors, AgentCore Memory, stores IDs in SSM)
+
+      AFTER stack deploy:
+        2. Apply IAM policy from RequiredBucketPolicies output to your IAM user/role
+        3. Load env vars: eval $(./scripts/load-ssm-env.sh --env ${EnvironmentName})
+        4. Start services:
+           cd agentcore && python main.py &
+           npm run dev
+  VpcId:
+    Value: !If [CreateVpc, !Ref VPC, !Ref ExistingVpcId]
+
+  ALBDnsName:
+    Description: Application Load Balancer URL
+    Value: !Sub 'http://${ApplicationLoadBalancer.DNSName}'
+
+  CloudFrontDomainName:
+    Description: CloudFront Distribution URL
+    Value: !Sub 'https://${CloudFrontDistribution.DomainName}'
+
+  CloudFrontDistributionId:
+    Description: CloudFront Distribution ID (for cache invalidation)
+    Value: !Ref CloudFrontDistribution
+
+  BackendECRRepository:
+    Description: Backend ECR Repository URI
+    Value: !GetAtt BackendRepository.RepositoryUri
+
+  FrontendECRRepository:
+    Description: Frontend ECR Repository URI
+    Value: !GetAtt FrontendRepository.RepositoryUri
+
+  ECSClusterName:
+    Description: ECS Cluster Name
+    Value: !Ref ECSCluster
+
+  CodeBuildSourceBucketName:
+    Description: S3 bucket for uploading source code for CodeBuild (created by stack or ExistingCodeBuildBucketName)
+    Value: !If [CreateCodeBuildBucket, !Ref CodeBuildSourceBucket, !Ref ExistingCodeBuildBucketName]
+
+  BackendBuildProjectName:
+    Description: CodeBuild project for backend
+    Value: !Ref BackendBuildProject
+
+  FrontendBuildProjectName:
+    Description: CodeBuild project for frontend
+    Value: !Ref FrontendBuildProject
+
+  AgentCoreECRRepository:
+    Description: AgentCore ECR Repository URI
+    Value: !GetAtt AgentCoreRepository.RepositoryUri
+
+  AgentCoreBuildProjectName:
+    Description: CodeBuild project for agentcore
+    Value: !Ref AgentCoreBuildProject

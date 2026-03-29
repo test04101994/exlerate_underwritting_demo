@@ -1,0 +1,30 @@
+[
+  {
+    "ParameterKey": "SessionSecret",
+    "ParameterValue": "xK9m2Qp7vL4wR8nT3jF6hB0sY5dA1eC"
+  },
+  {
+    "ParameterKey": "JiraBaseURL",
+    "ParameterValue": "https://parasghai11.atlassian.net"
+  },
+  {
+    "ParameterKey": "JiraEmail",
+    "ParameterValue": "parasghai11@gmail.com"
+  },
+  {
+    "ParameterKey": "JiraAPIToken",
+    "ParameterValue": "ATATT3xFfGF0eYRlMFHITnPDiYDjiKNTG1WGz9YOqR9xerwB-hRo3_zXqavK173Lg9DXplzIxFor7MDgoCySsitB-Fwq0HU0aNnHT2hwGdOLAyLZ2byxJYdfRHAWnxawYc0LlqI7WM-8kMPEL4YfcKxDqNGpWkN8PKy7CYHuukp0c3cDJ1mZCA0=84E8C5D4"
+  },
+  {
+    "ParameterKey": "JiraDefaultProject",
+    "ParameterValue": "ACC"
+  },
+  {
+    "ParameterKey": "SESFromEmail",
+    "ParameterValue": "noreply@exlservice.com"
+  },
+  {
+    "ParameterKey": "SESDefaultRecipient",
+    "ParameterValue": ""
+  }
+]

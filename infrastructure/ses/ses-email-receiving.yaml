@@ -1,0 +1,323 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  SES Email Setup for underwriting-app.com
+  Handles inbound email: SES → S3 → Lambda → GUID folders + DynamoDB logging.
+
+Parameters:
+  DomainName:
+    Type: String
+    Default: underwriting-app.com
+    Description: The domain to verify and receive email for
+
+  EmailBucketName:
+    Type: String
+    Default: underwriting-app-emails
+    Description: S3 bucket name to store incoming emails
+
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues:
+      - production
+      - staging
+    Description: Environment tag
+
+  EmailProcessorS3Key:
+    Type: String
+    Default: lambda/email-processor.zip
+    Description: S3 key for the email processor Lambda zip package in the email bucket
+
+Resources:
+
+  # ---------------------------------------------------------------------------
+  # 1. SES Domain Identity — verifies ownership of the domain
+  # ---------------------------------------------------------------------------
+  SESDomainIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Ref DomainName
+      MailFromAttributes:
+        MailFromDomain: !Sub 'mail.${DomainName}'
+        BehaviorOnMxFailure: USE_DEFAULT_VALUE
+
+  # ---------------------------------------------------------------------------
+  # 2. S3 Bucket — stores incoming emails + processed GUID folders
+  # ---------------------------------------------------------------------------
+  EmailStorageBucket:
+    Type: AWS::S3::Bucket
+    DependsOn: LambdaInvokePermission
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Ref EmailBucketName
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: 's3:ObjectCreated:*'
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: incoming/
+            Function: !GetAtt EmailProcessorLambda.Arn
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireOldEmails
+            Status: Enabled
+            Prefix: incoming/
+            ExpirationInDays: 7
+          - Id: ExpireProcessedEmails
+            Status: Enabled
+            Prefix: emails/
+            ExpirationInDays: 365
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Purpose
+          Value: SES-Email-Receiving
+
+  # ---------------------------------------------------------------------------
+  # 3. S3 Bucket Policy — allows SES to write objects
+  # ---------------------------------------------------------------------------
+  EmailStorageBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref EmailStorageBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowSESPutObject
+            Effect: Allow
+            Principal:
+              Service: ses.amazonaws.com
+            Action: s3:PutObject
+            Resource: !Sub 'arn:aws:s3:::${EmailBucketName}/*'
+            Condition:
+              StringEquals:
+                'AWS:SourceAccount': !Ref 'AWS::AccountId'
+
+  # ---------------------------------------------------------------------------
+  # 4. SES Receipt Rule Set
+  # ---------------------------------------------------------------------------
+  SESReceiptRuleSet:
+    Type: AWS::SES::ReceiptRuleSet
+    Properties:
+      RuleSetName: underwriting-app-ruleset
+
+  # ---------------------------------------------------------------------------
+  # 5. SES Receipt Rule — deliver to S3
+  # ---------------------------------------------------------------------------
+  SESReceiptRule:
+    Type: AWS::SES::ReceiptRule
+    DependsOn:
+      - EmailStorageBucketPolicy
+    Properties:
+      RuleSetName: !Ref SESReceiptRuleSet
+      Rule:
+        Name: store-emails-in-s3
+        Enabled: true
+        ScanEnabled: true
+        Recipients:
+          - !Ref DomainName
+        Actions:
+          - S3Action:
+              BucketName: !Ref EmailStorageBucket
+              ObjectKeyPrefix: incoming/
+
+  # ---------------------------------------------------------------------------
+  # 6. SES Configuration Set — for outbound email tracking
+  # ---------------------------------------------------------------------------
+  SESConfigurationSet:
+    Type: AWS::SES::ConfigurationSet
+    Properties:
+      Name: underwriting-app-config
+
+  # ---------------------------------------------------------------------------
+  # 7. DynamoDB Table — email metadata log
+  # ---------------------------------------------------------------------------
+  EmailLogsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: email-logs
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: email_id
+          AttributeType: S
+        - AttributeName: received_at
+          AttributeType: S
+        - AttributeName: status
+          AttributeType: S
+      KeySchema:
+        - AttributeName: email_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: status-received-index
+          KeySchema:
+            - AttributeName: status
+              KeyType: HASH
+            - AttributeName: received_at
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ---------------------------------------------------------------------------
+  # 7b. DynamoDB Table — individual document records
+  # ---------------------------------------------------------------------------
+  EmailDocumentsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: email-documents-v2
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: document_id
+          AttributeType: S
+        - AttributeName: email_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: document_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: email-id-index
+          KeySchema:
+            - AttributeName: email_id
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ---------------------------------------------------------------------------
+  # 8. Lambda IAM Role — S3 read/write, DynamoDB put, CloudWatch logs
+  # ---------------------------------------------------------------------------
+  EmailProcessorRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${Environment}-email-processor-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: EmailProcessorPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: S3ReadWrite
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource: !Sub 'arn:aws:s3:::${EmailBucketName}/*'
+              - Sid: S3Download
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: !Sub 'arn:aws:s3:::${EmailBucketName}/*'
+              - Sid: DynamoPut
+                Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                Resource:
+                  - !GetAtt EmailLogsTable.Arn
+                  - !GetAtt EmailDocumentsTable.Arn
+                  - !Sub '${EmailDocumentsTable.Arn}/index/*'
+              - Sid: BedrockInvoke
+                Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource: 'arn:aws:bedrock:*::foundation-model/*'
+
+  # ---------------------------------------------------------------------------
+  # 9. Lambda Function — parses email, creates GUID/sub-GUID folders
+  # ---------------------------------------------------------------------------
+  EmailProcessorLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${Environment}-email-processor-v3'
+      PackageType: Zip
+      Runtime: python3.12
+      Handler: handler.handler
+      Code:
+        S3Bucket: !Ref EmailBucketName
+        S3Key: !Ref EmailProcessorS3Key
+      Timeout: 600
+      MemorySize: 512
+      Role: !GetAtt EmailProcessorRole.Arn
+      Environment:
+        Variables:
+          EMAIL_BUCKET: !Ref EmailBucketName
+          DYNAMODB_TABLE: !Ref EmailLogsTable
+          DOCUMENTS_TABLE: !Ref EmailDocumentsTable
+
+  # ---------------------------------------------------------------------------
+  # 10. Lambda Permission — allow S3 to invoke Lambda
+  # ---------------------------------------------------------------------------
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref EmailProcessorLambda
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub 'arn:aws:s3:::${EmailBucketName}'
+      SourceAccount: !Ref 'AWS::AccountId'
+
+Outputs:
+  DomainVerificationDKIM:
+    Description: DKIM setup is automatic with AWS::SES::EmailIdentity. Check SES console for CNAME records.
+    Value: !Sub 'Check SES console for ${DomainName} DKIM CNAME records'
+
+  MXRecord:
+    Description: MX record to add to your DNS
+    Value: !Sub '10 inbound-smtp.${AWS::Region}.amazonaws.com'
+
+  S3BucketName:
+    Description: S3 bucket where emails are stored
+    Value: !Ref EmailStorageBucket
+
+  S3BucketArn:
+    Description: ARN of the email storage bucket
+    Value: !GetAtt EmailStorageBucket.Arn
+
+  ReceiptRuleSetName:
+    Description: Name of the active SES receipt rule set
+    Value: !Ref SESReceiptRuleSet
+
+  EmailPrefix:
+    Description: S3 key prefix for incoming emails
+    Value: incoming/
+
+  ProcessedEmailPrefix:
+    Description: S3 key prefix for processed emails (GUID folders)
+    Value: emails/
+
+  DynamoDBTableName:
+    Description: DynamoDB table for email metadata logs
+    Value: !Ref EmailLogsTable
+
+  EmailDocumentsTableName:
+    Description: DynamoDB table for individual document records
+    Value: !Ref EmailDocumentsTable
+
+  LambdaFunctionName:
+    Description: Lambda function that processes incoming emails
+    Value: !Ref EmailProcessorLambda

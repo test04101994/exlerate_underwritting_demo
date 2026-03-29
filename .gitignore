@@ -1,0 +1,12 @@
+node_modules
+.venv
+dist
+.DS_Store
+server/public
+vite.config.ts.*
+*.tar.gz
+.env
+.local
+attached_assets
+*.txt
+*.json.test
