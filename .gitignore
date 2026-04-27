@@ -8,4 +8,6 @@ vite.config.ts.*
 .local
 attached_assets
 *.txt
-*.json.test
+*.json.testconfig/credentials.json
+infrastructure/params.json
+*.mov
