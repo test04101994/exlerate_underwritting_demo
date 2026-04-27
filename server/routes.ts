@@ -4734,7 +4734,7 @@ Status: All required information received. Workflow resuming automatically...`,
           general_liability_limit: '$3,000,000',
           deductible_per_occurrence: '$25,000'
         },
-        answer: `**Limits per location for policy B123456/16:**\n• Property limit: **$650,000 each location** (RJ Horz FED #1 and Booster FED #1)\n• General Liability limit: **$3,000,000** (policy aggregate)\n• Deductible: **$25,000** per occurrence`
+        answer: `Based on the policy details provided **Property Limit per Location: $650,000**. Locations Covered are **RJ Horz FED #1** and **Booster FED #1**. Therefore, each individual location has a property insurance limit of **$650,000 per occurrence**, subject to applicable sub-limits, endorsements, and deductibles outlined in the policy.`
       });
     }
 
@@ -4748,7 +4748,7 @@ Status: All required information received. Workflow resuming automatically...`,
           policy_aggregate_limit: '$3,000,000',
           per_occurrence: 'subject to policy aggregate'
         },
-        answer: `**Business Liability (GL) on policy B123456/16:**\n• General Liability limit: **$3,000,000** (policy aggregate)\n• Available if a third-party claim arises from the loss`
+        answer: `The Business Liability (i.e., **General Liability**) amount under the policy is **$3,000,000**. This is explicitly stated in the policy details as the **General Liability Limit**, which represents the maximum amount payable for covered third-party bodily injury and property damage claims during the policy period.`
       });
     }
 
@@ -4763,7 +4763,7 @@ Status: All required information received. Workflow resuming automatically...`,
           basis: 'Senter Associates final report (13 Oct 2016)',
           subrogation: 'no basis identified'
         },
-        answer: `**Recommended settlement for claim ABC12356:**\n• Gross claim amount: **$2,156,592.91** (across both locations)\n• Recommended **net settlement: $1,592,499.74**, subject to liability\n• Basis: Senter Associates LLC final investigation report, 13 Oct 2016\n• Subrogation: no basis identified`
+        answer: `The investigation report recommends a net settlement amount of **$1,592,499.74** for both locations combined, subject to liability, as full and final settlement consideration.`
       });
     }
 
