@@ -4,7 +4,7 @@ import path from 'path';
 export interface DocumentInfo {
   id: string;
   name: string;
-  type: 'email' | 'pdf' | 'image' | 'doc' | 'docx' | 'other';
+  type: 'email' | 'pdf' | 'image' | 'doc' | 'docx' | 'spreadsheet' | 'other';
   path: string;
   size?: number;
   lastModified?: Date;
@@ -13,6 +13,7 @@ export interface DocumentInfo {
 export class DocumentService {
   private readonly documentsPath = path.join(process.cwd(), 'assets/documents/documents');
   private readonly submissionDefaultsPath = path.join(process.cwd(), 'assets/documents/documents/_submission_defaults');
+  private readonly claimDefaultsPath = path.join(process.cwd(), 'assets/documents/documents/_claim_defaults');
 
   constructor() {
     // Ensure documents directory exists
@@ -26,10 +27,16 @@ export class DocumentService {
    */
   async getDocumentsForCase(caseId: string, workflowType?: string): Promise<DocumentInfo[]> {
     const casePath = path.join(this.documentsPath, caseId);
-    
-    // For submission workflows, always use the shared defaults folder
+
+    // For submission workflows, always use the shared submission defaults folder.
+    // For claim workflows, always use the shared claim defaults folder.
     const isSubmissionWorkflow = workflowType === 'submission' || caseId.startsWith('SUB-') || caseId.startsWith('UW-');
-    const finalPath = isSubmissionWorkflow ? this.submissionDefaultsPath : casePath;
+    const isClaimWorkflow = workflowType === 'claim' || caseId.startsWith('CLM-');
+    const finalPath = isSubmissionWorkflow
+      ? this.submissionDefaultsPath
+      : isClaimWorkflow
+        ? this.claimDefaultsPath
+        : casePath;
     
     if (!fs.existsSync(finalPath)) {
       return [];
@@ -68,11 +75,14 @@ export class DocumentService {
    */
   async getDocumentContent(caseId: string, fileName: string): Promise<string | null> {
     let filePath = path.join(this.documentsPath, caseId, fileName);
-    
-    // For submission workflows, always serve from the shared defaults folder
+
+    // Route to the matching shared defaults folder for submission/claim cases
     const isSubmissionWorkflow = caseId.startsWith('SUB-') || caseId.startsWith('UW-');
+    const isClaimWorkflow = caseId.startsWith('CLM-');
     if (isSubmissionWorkflow) {
       filePath = path.join(this.submissionDefaultsPath, fileName);
+    } else if (isClaimWorkflow) {
+      filePath = path.join(this.claimDefaultsPath, fileName);
     }
     
     if (!fs.existsSync(filePath)) {
@@ -141,6 +151,10 @@ export class DocumentService {
         return 'doc';
       case '.docx':
         return 'docx';
+      case '.csv':
+      case '.xlsx':
+      case '.xls':
+        return 'spreadsheet';
       default:
         return 'other';
     }

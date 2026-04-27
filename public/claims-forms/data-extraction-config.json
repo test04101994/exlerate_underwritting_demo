@@ -1,0 +1,93 @@
+{
+  "form_title": "FNOL Intake — Reporter Details",
+  "form_subtitle": "Review and approve the reporter and notification details extracted from the FNOL email before the claim is assigned to an adjuster",
+  "show_adjuster_assignment": true,
+  "confidence_threshold": { "high": 0.90, "medium": 0.75, "low": 0.0 },
+  "sections": [
+    {
+      "id": "reporter_information",
+      "title": "Reporter Information",
+      "fields": [
+        { "id": "reported_by",   "label": "Reported By",        "value": "Broker",                          "confidence": 0.99, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 700, 220, 712] } },
+        { "id": "first_name",    "label": "First Name",         "value": "Greg",                            "confidence": 0.97, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 680, 220, 692] } },
+        { "id": "last_name",     "label": "Last Name",          "value": "Carpenter",                       "confidence": 0.97, "type": "text", "required": true,  "source": { "page": 1, "bbox": [220, 680, 320, 692] } },
+        { "id": "phone",         "label": "Phone",              "value": "987 765 6754",                    "confidence": 0.94, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 660, 280, 672] } },
+        { "id": "email",         "label": "Email",              "value": "Greg.Carpenter@broadway.com",     "confidence": 0.96, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 640, 380, 652] } }
+      ]
+    },
+    {
+      "id": "reporter_address",
+      "title": "Reporter Address",
+      "fields": [
+        { "id": "address_line_1", "label": "Address Line 1",    "value": "441 Walnut Hills Dr #14",         "confidence": 0.93, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 580, 380, 592] } },
+        { "id": "address_line_2", "label": "Address Line 2",    "value": "",                                "confidence": 0.60, "type": "text", "required": false, "source": { "page": 1, "bbox": [146, 560, 380, 572] } },
+        { "id": "city",           "label": "City",              "value": "Baird",                           "confidence": 0.95, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 540, 230, 552] } },
+        { "id": "state",          "label": "State",             "value": "TX",                              "confidence": 0.96, "type": "text", "required": true,  "source": { "page": 1, "bbox": [240, 540, 280, 552] } },
+        { "id": "zip",            "label": "ZIP",               "value": "79504",                           "confidence": 0.97, "type": "text", "required": true,  "source": { "page": 1, "bbox": [290, 540, 360, 552] } }
+      ]
+    },
+    {
+      "id": "agency_details",
+      "title": "Agency Details",
+      "fields": [
+        { "id": "agent_code",  "label": "Agent Code",   "value": "",                       "confidence": 0.55, "type": "text", "required": false, "source": { "page": 1, "bbox": [146, 500, 280, 512] } },
+        { "id": "agency_name", "label": "Agency Name",  "value": "Broadway Brokers Ltd.",  "confidence": 0.95, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 480, 380, 492] } }
+      ]
+    },
+    {
+      "id": "claim_contact",
+      "title": "Claim Contact (Insured)",
+      "fields": [
+        { "id": "claim_contact",       "label": "Claim Contact",       "value": "Chris Hemsworth",                       "confidence": 0.97, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 430, 320, 442] } },
+        { "id": "relation_to_insured", "label": "Relation to Insured", "value": "Insured",                               "confidence": 0.96, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 410, 280, 422] } },
+        { "id": "contact_email",       "label": "Contact Email",       "value": "Chris.Hemsworth@acmeresources.com",     "confidence": 0.96, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 390, 420, 402] } },
+        { "id": "contact_phone",       "label": "Contact Phone",       "value": "720 910 4562",                          "confidence": 0.94, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 370, 280, 382] } }
+      ]
+    },
+    {
+      "id": "notification_details",
+      "title": "Notification Details",
+      "fields": [
+        { "id": "date_notified",       "label": "Date Notified",                                 "value": "27-Oct-15",                          "confidence": 0.98, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 320, 240, 332] } },
+        { "id": "time_notified",       "label": "Time Notified",                                 "value": "10:27 AM",                           "confidence": 0.97, "type": "text", "required": true,  "source": { "page": 1, "bbox": [240, 320, 320, 332] } },
+        { "id": "time_zone",           "label": "Time Zone",                                     "value": "EST",                                "confidence": 0.97, "type": "text", "required": true,  "source": { "page": 1, "bbox": [330, 320, 380, 332] } },
+        { "id": "ack_letter_recipient","label": "Email — Additional Ack Letter Recipient",       "value": "Chris.Hemsworth@acmeresources.com",  "confidence": 0.94, "type": "text", "required": false, "source": { "page": 1, "bbox": [146, 300, 420, 312] } }
+      ]
+    },
+    {
+      "id": "loss_details",
+      "title": "Loss Details",
+      "fields": [
+        { "id": "loss_type",                "label": "Loss Type",                       "value": "Fire",                                                                                                                                                                                                                                          "confidence": 0.97, "type": "text",     "required": true,  "source": { "page": 2, "bbox": [146, 700, 220, 712] } },
+        { "id": "date_of_loss",             "label": "Date of Loss",                    "value": "21-Oct-15",                                                                                                                                                                                                                                     "confidence": 0.98, "type": "text",     "required": true,  "source": { "page": 2, "bbox": [146, 680, 240, 692] } },
+        { "id": "time_of_loss",             "label": "Time of Loss",                    "value": "23:40 EST",                                                                                                                                                                                                                                     "confidence": 0.95, "type": "text",     "required": true,  "source": { "page": 2, "bbox": [240, 680, 340, 692] } },
+        { "id": "loss_description",         "label": "Loss Description",                "value": "Fire incidents occurred on the evening of 21 October 2015 at two separate salt water disposal facilities — RJ Horz FED #1 and Booster FED #1. The fire was caused by lightning strikes from the storm in Eddy County and was extensive.", "confidence": 0.92, "type": "textarea", "required": true,  "source": { "page": 2, "bbox": [146, 600, 545, 670] } },
+        { "id": "cause_of_loss",            "label": "Cause of Loss",                   "value": "Lightning strikes from the storm",                                                                                                                                                                                                              "confidence": 0.94, "type": "text",     "required": true,  "source": { "page": 2, "bbox": [146, 580, 380, 592] } },
+        { "id": "how_was_claim_reported",   "label": "How Was Claim Reported",          "value": "Email",                                                                                                                                                                                                                                         "confidence": 0.99, "type": "text",     "required": true,  "source": { "page": 2, "bbox": [146, 560, 240, 572] } },
+        { "id": "reported_date",            "label": "Reported Date",                   "value": "26-Oct-15",                                                                                                                                                                                                                                     "confidence": 0.97, "type": "text",     "required": true,  "source": { "page": 2, "bbox": [240, 560, 340, 572] } },
+        { "id": "loss_location",            "label": "Loss Location",                   "value": "Eddy County",                                                                                                                                                                                                                                   "confidence": 0.95, "type": "text",     "required": true,  "source": { "page": 2, "bbox": [146, 540, 280, 552] } },
+        { "id": "loss_address_line_1",      "label": "Address Line 1",                  "value": "RJ Horz FED #1",                                                                                                                                                                                                                                "confidence": 0.92, "type": "text",     "required": true,  "source": { "page": 2, "bbox": [146, 520, 320, 532] } },
+        { "id": "loss_address_line_2",      "label": "Address Line 2",                  "value": "",                                                                                                                                                                                                                                              "confidence": 0.55, "type": "text",     "required": false, "source": { "page": 2, "bbox": [146, 500, 320, 512] } },
+        { "id": "loss_city",                "label": "City",                            "value": "Eddy County",                                                                                                                                                                                                                                   "confidence": 0.94, "type": "text",     "required": true,  "source": { "page": 2, "bbox": [146, 480, 280, 492] } },
+        { "id": "loss_state",               "label": "State",                           "value": "New Mexico",                                                                                                                                                                                                                                    "confidence": 0.96, "type": "text",     "required": true,  "source": { "page": 2, "bbox": [290, 480, 380, 492] } },
+        { "id": "loss_zip",                 "label": "ZIP",                             "value": "88220",                                                                                                                                                                                                                                         "confidence": 0.96, "type": "text",     "required": true,  "source": { "page": 2, "bbox": [390, 480, 460, 492] } },
+        { "id": "type_of_liability",        "label": "Type of Liability",               "value": "GL",                                                                                                                                                                                                                                            "confidence": 0.93, "type": "text",     "required": true,  "source": { "page": 2, "bbox": [146, 440, 220, 452] } },
+        { "id": "type_of_premises",         "label": "Type of Premises",                "value": "",                                                                                                                                                                                                                                              "confidence": 0.55, "type": "text",     "required": false, "source": { "page": 2, "bbox": [240, 440, 380, 452] } },
+        { "id": "insured_owned_premises",   "label": "Insured Owned Premises",          "value": "Yes",                                                                                                                                                                                                                                           "confidence": 0.90, "type": "select",   "required": true,  "options": ["Yes", "No"], "source": { "page": 2, "bbox": [146, 410, 220, 422] } },
+        { "id": "companion_claim",          "label": "Companion Claim",                 "value": "No",                                                                                                                                                                                                                                            "confidence": 0.92, "type": "select",   "required": true,  "options": ["Yes", "No"], "source": { "page": 2, "bbox": [240, 410, 340, 422] } },
+        { "id": "emergency_services_called","label": "Emergency Services Called?",      "value": "Yes",                                                                                                                                                                                                                                           "confidence": 0.96, "type": "select",   "required": true,  "options": ["Yes", "No"], "source": { "page": 2, "bbox": [146, 390, 280, 402] } },
+        { "id": "cat_claim",                "label": "CAT Claim",                       "value": "No",                                                                                                                                                                                                                                            "confidence": 0.88, "type": "select",   "required": true,  "options": ["Yes", "No"], "source": { "page": 2, "bbox": [290, 390, 400, 402] } }
+      ]
+    },
+    {
+      "id": "witness_details",
+      "title": "Witness Details",
+      "fields": [
+        { "id": "witness_first_name",        "label": "First Name",                "value": "",    "confidence": 0.50, "type": "text",   "required": false, "source": { "page": 3, "bbox": [146, 700, 280, 712] } },
+        { "id": "witness_last_name",         "label": "Last Name",                 "value": "",    "confidence": 0.50, "type": "text",   "required": false, "source": { "page": 3, "bbox": [290, 700, 420, 712] } },
+        { "id": "witness_phone",             "label": "Phone",                     "value": "",    "confidence": 0.50, "type": "text",   "required": false, "source": { "page": 3, "bbox": [146, 680, 280, 692] } },
+        { "id": "witness_reported_as_notice","label": "Reported as notice only",   "value": "No",  "confidence": 0.92, "type": "select", "required": true,  "options": ["Yes", "No"], "source": { "page": 3, "bbox": [146, 660, 280, 672] } }
+      ]
+    }
+  ]
+}

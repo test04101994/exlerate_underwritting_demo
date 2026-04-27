@@ -38,6 +38,14 @@ export default function ConfigurableJiraDataExtractionForm({
   const [extractedData, setExtractedData] = useState<any>(null)
   const [currentInstances, setCurrentInstances] = useState<{ [key: string]: number }>({})
   const [collapsedSections, setCollapsedSections] = useState<{ [key: string]: boolean }>({})
+  const [assignedAdjuster, setAssignedAdjuster] = useState<string>('')
+  const [modelState, setModelState] = useState<'hidden' | 'processing' | 'ready'>('hidden')
+
+  // Claim FNOL form replaces "Quality Summary" + "Submission Triage" panels with
+  // an adjuster-assignment dropdown + "Model Results" (Severity / Subrogation /
+  // Litigation / SIU). Model Results only appears after an adjuster is picked,
+  // and shows a processing state while the analytics model "runs".
+  const isClaimForm = configEndpoint.includes('/claims-forms/')
 
   const toggleSection = (sectionId: string) => {
     setCollapsedSections(prev => ({ ...prev, [sectionId]: !prev[sectionId] }))
@@ -57,6 +65,25 @@ export default function ConfigurableJiraDataExtractionForm({
     staleTime: 0,
     refetchOnMount: true
   })
+
+  // Adjuster assignment + Model Results only show on forms that opt in via
+  // `show_adjuster_assignment: true` in the form config (FNOL intake form).
+  // Coverage Validation / Invoice Validation forms omit the flag, so those
+  // forms are read-only data review with no adjuster picker or analytics gauges.
+  // Declared AFTER the useQuery above so `config` is initialized before access.
+  const showAdjusterAssignment = isClaimForm && (config as any)?.show_adjuster_assignment === true
+
+  // Trigger the analytics-model processing animation when an adjuster gets selected
+  useEffect(() => {
+    if (!showAdjusterAssignment) return
+    if (!assignedAdjuster) {
+      setModelState('hidden')
+      return
+    }
+    setModelState('processing')
+    const t = setTimeout(() => setModelState('ready'), 2800)
+    return () => clearTimeout(t)
+  }, [assignedAdjuster, showAdjusterAssignment])
 
   // Initialize extracted data when config loads - always refresh when config changes
   useEffect(() => {
@@ -371,7 +398,7 @@ export default function ConfigurableJiraDataExtractionForm({
                                 <SelectValue placeholder={`Select ${field.label}`} />
                               </SelectTrigger>
                               <SelectContent>
-                                {field.options?.map((option: string) => (
+                                {field.options?.filter((option: string) => option !== '').map((option: string) => (
                                   <SelectItem key={option} value={option}>
                                     {option}
                                   </SelectItem>
@@ -436,7 +463,7 @@ export default function ConfigurableJiraDataExtractionForm({
                                       <SelectValue placeholder={`Select ${field.label}`} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      {field.options?.map((option: string) => (
+                                      {field.options?.filter((option: string) => option !== '').map((option: string) => (
                                         <SelectItem key={option} value={option}>
                                           {option}
                                         </SelectItem>
@@ -452,6 +479,20 @@ export default function ConfigurableJiraDataExtractionForm({
                                     className="flex-1"
                                   />
                                 )
+                              ) : field.type === 'select' ? (
+                                <Select
+                                  value={extractedData[field.id] || field.value || ''}
+                                  onValueChange={(value) => setExtractedData((prev: any) => ({ ...prev, [field.id]: value }))}
+                                >
+                                  <SelectTrigger className="flex-1">
+                                    <SelectValue placeholder={`Select ${field.label}`} />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {field.options?.filter((option: string) => option !== '').map((option: string) => (
+                                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               ) : (
                                 <div className="flex-1 p-2 bg-muted rounded-md text-sm text-foreground">
                                   {extractedData[field.id] || field.value || 'N/A'}
@@ -483,10 +524,24 @@ export default function ConfigurableJiraDataExtractionForm({
                               <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                             <SelectContent>
-                              {field.options?.map((option: string) => (
+                              {field.options?.filter((option: string) => option !== '').map((option: string) => (
                                 <SelectItem key={option} value={option}>
                                   {option}
                                 </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : field.type === 'select' ? (
+                          <Select
+                            value={extractedData[field.id] || field.value || ''}
+                            onValueChange={(value) => setExtractedData((prev: any) => ({ ...prev, [field.id]: value }))}
+                          >
+                            <SelectTrigger className="flex-1">
+                              <SelectValue placeholder={`Select ${field.label}`} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {field.options?.filter((option: string) => option !== '').map((option: string) => (
+                                <SelectItem key={option} value={option}>{option}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
@@ -529,7 +584,7 @@ export default function ConfigurableJiraDataExtractionForm({
                                 <SelectValue placeholder={`Select ${field.label}`} />
                               </SelectTrigger>
                               <SelectContent>
-                                {field.options?.map((option: string) => (
+                                {field.options?.filter((option: string) => option !== '').map((option: string) => (
                                   <SelectItem key={option} value={option}>
                                     {option}
                                   </SelectItem>
@@ -545,6 +600,34 @@ export default function ConfigurableJiraDataExtractionForm({
                               className="flex-1"
                             />
                           )
+                        ) : field.type === 'select' ? (
+                          <Select
+                            value={extractedData[field.id] || field.value || ''}
+                            onValueChange={(value) => setExtractedData((prev: any) => ({ ...prev, [field.id]: value }))}
+                          >
+                            <SelectTrigger className="flex-1">
+                              <SelectValue placeholder={`Select ${field.label}`} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {field.options?.filter((option: string) => option !== '').map((option: string) => (
+                                <SelectItem key={option} value={option}>{option}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : field.type === 'select' ? (
+                          <Select
+                            value={extractedData[field.id] || field.value || ''}
+                            onValueChange={(value) => setExtractedData((prev: any) => ({ ...prev, [field.id]: value }))}
+                          >
+                            <SelectTrigger className="flex-1">
+                              <SelectValue placeholder={`Select ${field.label}`} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {field.options?.filter((option: string) => option !== '').map((option: string) => (
+                                <SelectItem key={option} value={option}>{option}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         ) : (
                           <div
                             className={`flex-1 p-2 bg-muted rounded-md text-sm text-foreground ${field.source?.page ? 'cursor-pointer hover:bg-orange-500/10 hover:border hover:border-orange-500/30 transition-colors' : ''}`}
@@ -563,37 +646,33 @@ export default function ConfigurableJiraDataExtractionForm({
             </div>
           ))}
 
-          {/* Quality Summary */}
-          <div className="bg-muted p-4 rounded-lg border border-border">
-            <h4 className="font-medium text-foreground mb-2">Quality Summary</h4>
-            <div className="grid grid-cols-3 gap-4 text-sm">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{confidenceCounts.high}</div>
-                <div className="text-muted-foreground">High Confidence</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-yellow-600">{confidenceCounts.medium}</div>
-                <div className="text-muted-foreground">Medium Confidence</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">{confidenceCounts.low}</div>
-                <div className="text-muted-foreground">Low Confidence</div>
+          {/* Quality Summary — hidden for claim FNOL forms (replaced by Model Results) */}
+          {!isClaimForm && (
+            <div className="bg-muted p-4 rounded-lg border border-border">
+              <h4 className="font-medium text-foreground mb-2">Quality Summary</h4>
+              <div className="grid grid-cols-3 gap-4 text-sm">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">{confidenceCounts.high}</div>
+                  <div className="text-muted-foreground">High Confidence</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-yellow-600">{confidenceCounts.medium}</div>
+                  <div className="text-muted-foreground">Medium Confidence</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-600">{confidenceCounts.low}</div>
+                  <div className="text-muted-foreground">Low Confidence</div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Submission Triage */}
+          {/* Reusable gauge — used by Submission Triage and Claim Model Results */}
           {(() => {
-            const total = confidenceCounts.high + confidenceCounts.medium + confidenceCounts.low;
-            const modelScore = total > 0 ? Math.round((confidenceCounts.high / total) * 100) : 0;
-            const nonModelScore = total > 0 ? Math.round((confidenceCounts.medium / total) * 100) : 0;
-            const compositeScore = Math.round((modelScore + nonModelScore) / 2);
-            const ragColor = compositeScore >= 70 ? '#22C55E' : compositeScore >= 40 ? '#F59E0B' : '#EF4444';
-
             const CircleGauge = ({ pct, label }: { pct: number; label: string }) => {
               const r = 28;
               const circ = 2 * Math.PI * r;
-              const color = pct >= 60 ? '#F59E0B' : '#EF4444';
+              const color = pct >= 70 ? '#22C55E' : pct >= 40 ? '#F59E0B' : '#EF4444';
               const offset = circ * (1 - pct / 100);
               return (
                 <div className="flex flex-col items-center gap-1">
@@ -614,6 +693,78 @@ export default function ConfigurableJiraDataExtractionForm({
               );
             };
 
+            if (showAdjusterAssignment) {
+              // Claim FNOL flow:
+              //   1. Adjuster dropdown (defaults to "Not selected")
+              //   2. Once an adjuster is picked, the analytics model runs
+              //      (~2.8s processing animation), then Model Results appears.
+              return (
+                <>
+                  <div className="bg-muted p-4 rounded-lg border border-border">
+                    <h4 className="font-medium text-foreground mb-1">Assign Adjuster</h4>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Select the adjuster to handle this claim. Selecting an adjuster will run the analytics model and surface predicted exposure scores below.
+                    </p>
+                    <select
+                      value={assignedAdjuster}
+                      onChange={(e) => setAssignedAdjuster(e.target.value)}
+                      className="w-full md:w-1/2 px-3 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">— Not selected —</option>
+                      <option value="Michael Brown">Michael Brown</option>
+                      <option value="Rachel Green">Rachel Green</option>
+                      <option value="David Lee">David Lee</option>
+                      <option value="Sarah Mitchell">Sarah Mitchell</option>
+                      <option value="Tom Wilson">Tom Wilson</option>
+                    </select>
+                  </div>
+
+                  {/* Model Results — only after an adjuster is selected.
+                      Shows a processing state for a couple of seconds, then the gauges. */}
+                  {modelState === 'processing' && (
+                    <div className="bg-muted p-6 rounded-lg border border-border">
+                      <h4 className="font-medium text-foreground mb-1">Model Results</h4>
+                      <p className="text-xs text-muted-foreground mb-4">Running analytics model for {assignedAdjuster}'s caseload…</p>
+                      <div className="grid grid-cols-4 gap-2 items-end">
+                        {['Severity', 'Subrogation', 'Litigation', 'SIU'].map((label, i) => (
+                          <div key={label} className="flex flex-col items-center gap-1">
+                            <div className="w-[72px] h-[72px] rounded-full border-4 border-muted-foreground/10 border-t-blue-500 animate-spin" style={{ animationDelay: `${i * 0.1}s`, animationDuration: '1.1s' }} />
+                            <span className="text-xs text-muted-foreground text-center">{label}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                        <span>Scoring severity, subrogation potential, litigation risk, and SIU referral likelihood…</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {modelState === 'ready' && (
+                    <div className="bg-muted p-4 rounded-lg border border-border">
+                      <h4 className="font-medium text-foreground mb-1">Model Results</h4>
+                      <p className="text-xs text-muted-foreground mb-4">Predicted likelihood from the FNOL data — higher percentages indicate higher exposure on each dimension.</p>
+                      <div className="grid grid-cols-4 gap-2 items-end">
+                        <CircleGauge pct={72} label="Severity" />
+                        <CircleGauge pct={18} label="Subrogation" />
+                        <CircleGauge pct={35} label="Litigation" />
+                        <CircleGauge pct={12} label="SIU" />
+                      </div>
+                    </div>
+                  )}
+                </>
+              );
+            }
+
+            // Coverage Validation form (claim, no adjuster assignment) — render no extra panels
+            if (isClaimForm) return null;
+
+            // Submission/Jira flows keep Submission Triage
+            const total = confidenceCounts.high + confidenceCounts.medium + confidenceCounts.low;
+            const modelScore = total > 0 ? Math.round((confidenceCounts.high / total) * 100) : 0;
+            const nonModelScore = total > 0 ? Math.round((confidenceCounts.medium / total) * 100) : 0;
+            const compositeScore = Math.round((modelScore + nonModelScore) / 2);
+            const ragColor = compositeScore >= 70 ? '#22C55E' : compositeScore >= 40 ? '#F59E0B' : '#EF4444';
             return (
               <div className="bg-muted p-4 rounded-lg border border-border">
                 <h4 className="font-medium text-foreground mb-4">Submission Triage</h4>

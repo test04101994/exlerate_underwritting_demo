@@ -156,8 +156,10 @@ export default function Dashboard() {
   // Convert dashboard cases to Case format with agent configurations
   const mockCases: Case[] = useMemo(() => {
     if (!dashboardCases || !Array.isArray(dashboardCases) || dashboardCases.length === 0) return [];
-    
-    return dashboardCases.map((dashboardCase: any) => {
+
+    return dashboardCases
+      .filter((dashboardCase: any) => dashboardCase.case_type !== 'claim')
+      .map((dashboardCase: any) => {
       const agentConfigs = dashboardCase.case_type === 'slip' ? [
         { name: "Data Extraction", type: "data_extraction", icon: <FileText className="h-4 w-4" />, description: "Extracts key data from Lloyd's slip documents" },
         { name: "Data Transformation", type: "transformation", icon: <Eye className="h-4 w-4" />, description: "Standardizes extracted data for downstream processing" },

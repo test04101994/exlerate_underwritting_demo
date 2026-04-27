@@ -1,0 +1,72 @@
+{
+  "form_title": "Invoice Validation — Review",
+  "form_subtitle": "Review the supplier invoice details validated against the rate card and claim assignment. Approve to proceed with payment, or flag an exception for further review.",
+  "confidence_threshold": { "high": 0.90, "medium": 0.75, "low": 0.0 },
+  "sections": [
+    {
+      "id": "claim_details",
+      "title": "Claim Details",
+      "fields": [
+        { "id": "claimant_name_on_invoice", "label": "Claimant Name on Invoice", "value": "Acme Resources, Inc", "confidence": 0.97, "type": "text", "required": true, "source": { "page": 1, "bbox": [146, 700, 380, 712] } }
+      ]
+    },
+    {
+      "id": "assignment_details",
+      "title": "Assignment Details",
+      "fields": [
+        { "id": "assignment_date", "label": "Assignment Date", "value": "11/03/16", "confidence": 0.96, "type": "text", "required": true, "source": { "page": 1, "bbox": [146, 660, 280, 672] } }
+      ]
+    },
+    {
+      "id": "supplier_details",
+      "title": "Supplier Details",
+      "fields": [
+        { "id": "supplier_name", "label": "Name", "value": "SENTER ASSOCIATES, LLC", "confidence": 0.97, "type": "text", "required": true, "source": { "page": 1, "bbox": [146, 620, 380, 632] } }
+      ]
+    },
+    {
+      "id": "reserves_and_participants",
+      "title": "Reserves and Participants",
+      "fields": [
+        { "id": "reserve_on_file", "label": "Reserve On File", "value": "$8,570", "confidence": 0.97, "type": "text", "required": true, "source": { "page": 1, "bbox": [146, 580, 280, 592] } }
+      ]
+    },
+    {
+      "id": "invoice_details",
+      "title": "Invoice Details",
+      "fields": [
+        { "id": "invoice_number",   "label": "Invoice Number", "value": "1012121",  "confidence": 0.99, "type": "text",   "required": true,  "source": { "page": 2, "bbox": [146, 700, 280, 712] } },
+        { "id": "invoice_date",     "label": "Invoice Date",   "value": "13/10/16", "confidence": 0.98, "type": "text",   "required": true,  "source": { "page": 2, "bbox": [290, 700, 380, 712] } },
+
+        { "id": "service_line_1",   "label": "Service line 1", "value": "Incident survey and verification — RJ Horz FED #1", "confidence": 0.94, "type": "text", "required": true, "source": { "page": 2, "bbox": [146, 660, 545, 672] } },
+        { "id": "amount_1",         "label": "Amount",         "value": "$850",     "confidence": 0.97, "type": "text",   "required": true,  "source": { "page": 2, "bbox": [460, 660, 545, 672] } },
+
+        { "id": "service_line_2",   "label": "Service line 2", "value": "Incident Survey and Verification — Booster FED #1", "confidence": 0.94, "type": "text", "required": true, "source": { "page": 2, "bbox": [146, 640, 545, 652] } },
+        { "id": "amount_2",         "label": "Amount",         "value": "$950",     "confidence": 0.97, "type": "text",   "required": true,  "source": { "page": 2, "bbox": [460, 640, 545, 652] } },
+
+        { "id": "service_line_3",   "label": "Service line 3", "value": "Final report submission & Authorization",            "confidence": 0.93, "type": "text", "required": true, "source": { "page": 2, "bbox": [146, 620, 545, 632] } },
+        { "id": "amount_3",         "label": "Amount",         "value": "$230",     "confidence": 0.97, "type": "text",   "required": true,  "source": { "page": 2, "bbox": [460, 620, 545, 632] } },
+
+        { "id": "service_request_validation", "label": "Service Request Validation", "value": "Yes", "confidence": 0.92, "type": "select", "required": true, "options": ["Yes", "No"], "source": { "page": 2, "bbox": [146, 580, 280, 592] } },
+        { "id": "qa_approved",                "label": "QA Approved",                "value": "Yes", "confidence": 0.92, "type": "select", "required": true, "options": ["Yes", "No"], "source": { "page": 2, "bbox": [290, 580, 420, 592] } },
+
+        { "id": "invoice_amount",   "label": "Invoice Amount", "value": "$2,030",   "confidence": 0.98, "type": "text",   "required": true,  "source": { "page": 2, "bbox": [146, 540, 280, 552] } }
+      ]
+    },
+    {
+      "id": "exception_review",
+      "title": "Exception Review",
+      "fields": [
+        { "id": "exception_reason",
+          "label": "Exception Reason (if any)",
+          "value": "",
+          "confidence": 0.0,
+          "type": "select",
+          "required": false,
+          "options": ["Auth", "Duplicate", "Rate Mismatch", "Service Not Approved", "Not Enough Information"],
+          "source": { "page": 2, "bbox": [146, 500, 380, 512] }
+        }
+      ]
+    }
+  ]
+}

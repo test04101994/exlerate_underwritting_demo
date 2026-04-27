@@ -439,9 +439,15 @@ Status: ✅ COMPLETE - Ready for sanctions screening`,
     try {
       const { sessionId } = req.params;
       const { extractedData } = req.body;
-      
+
+      // Capture which form-agent paused (FNOL vs Coverage) BEFORE we overwrite
+      // extractedData with the form values — otherwise the marker is lost and
+      // the post-approval branch can't tell which form was just approved.
+      const sessionBeforeApprove = await storage.getWorkflowSession(sessionId);
+      const approvedFormAgentType = (sessionBeforeApprove?.extractedData as any)?._formAgentType;
+
       // Update workflow to continue with remaining agents and store approved data
-      await storage.updateWorkflowSession(sessionId, { 
+      await storage.updateWorkflowSession(sessionId, {
         status: 'running',
         currentStep: 1,
         extractedData: extractedData || {}
@@ -461,10 +467,55 @@ Status: ✅ COMPLETE - Ready for sanctions screening`,
         const session = await storage.getWorkflowSession(sessionId);
         if (session?.workflowType === 'slip') {
           await resumeSlipWorkflowAfterDataExtraction(sessionId);
+        } else if (session?.workflowType === 'claim') {
+          // Claim workflow is human-driven — don't auto-resume.
+          // Use the form-agent-type captured BEFORE the overwrite above,
+          // since the form values just replaced extractedData and the marker
+          // is no longer on the session.
+          const formAgentType = approvedFormAgentType;
+          await storage.updateWorkflowSession(sessionId, { status: 'running' });
+
+          if (formAgentType === 'coverage_validation') {
+            // Coverage validation approved — confirm and let the adjuster pick the next agent
+            await storage.createMessage({
+              sessionId,
+              type: 'system',
+              sender: 'System',
+              content: `✅ **Coverage validated and approved** — policy **B123456/16** confirmed in force on the date of loss with adequate property and liability limits. Proceed to Loss Report Summarizer.`,
+              createdAt: new Date()
+            } as any);
+            io.to(sessionId).emit('messageAdded', { sessionId });
+            console.log(`[Manual Mode] Claim ${sessionId} coverage validation approved`);
+          } else if (formAgentType === 'invoice_validation') {
+            // Invoice validated — record the outcome (with exception, if any)
+            const exceptionReason = (extractedData as any)?.exception_reason || '';
+            const sectionsField = (extractedData as any)?.exception_review;
+            const exception = exceptionReason && exceptionReason.trim()
+              ? exceptionReason
+              : (sectionsField || '').toString().trim();
+            const confirmText = exception
+              ? `⚠️ **Invoice flagged for exception** — invoice **1012121** from SENTER ASSOCIATES, LLC held for review. Reason: **${exception}**.`
+              : `✅ **Invoice validated and approved** — invoice **1012121** from SENTER ASSOCIATES, LLC ($2,030.00) cleared for payment.`;
+            await storage.createMessage({
+              sessionId,
+              type: 'system',
+              sender: 'System',
+              content: confirmText,
+              createdAt: new Date()
+            } as any);
+            io.to(sessionId).emit('messageAdded', { sessionId });
+            console.log(`[Manual Mode] Claim ${sessionId} invoice validation ${exception ? 'flagged: ' + exception : 'approved'}`);
+          } else {
+            // FNOL approved (or no form-agent type recorded — fall back to FNOL behaviour).
+            // Stream the acknowledgement-letter draft.
+            draftAcknowledgementLetter(sessionId).catch(err => {
+              console.error('[Ack Letter] Failed to stream draft:', err);
+            });
+            console.log(`[Manual Mode] Claim ${sessionId} FNOL approved — drafting acknowledgement letter`);
+          }
         } else if (session?.workflowType === 'submission') {
-          // Submission workflow: 0=Data Extraction, 1=Sanctions Check, 2=Risk Profile
-          // Resume from Sanctions Check Agent (index 1)
-          await resumeWorkflowAfterApproval(sessionId, 1); // Start from Sanctions Check Agent (index 1)
+          // Submission workflow: index 0 is Data Extraction; resume from index 1
+          await resumeWorkflowAfterApproval(sessionId, 1);
         } else {
           // Jira workflow: 0=Data Extraction, 1=Data Transformation, 2=Quality Assurance
           // Resume from Data Transformation Agent (index 1)
@@ -808,15 +859,17 @@ Please respond with your choice: send, edit, or cancel`,
           return; // Stop execution until user approves sending
         }
 
-        // ── Insurance Quote Workflow: Policy Data Extraction Agent ──────────────
-        // Always pause for human review of extracted policy fields
-        if (agent.type === 'policy_extractor') {
-          console.log(`[Policy Extraction Approval] Policy data extraction completed, requesting human review for ${sessionId}`);
+        // ── Insurance Quote / Claim Workflow: First Extraction Agent ──────────────
+        // Always pause for human review of extracted fields
+        if (agent.type === 'policy_extractor' || agent.type === 'fnol_intake') {
+          const isClaim = agent.type === 'fnol_intake';
+          const formDir = isClaim ? 'claims-forms' : 'submission-forms';
+          console.log(`[${isClaim ? 'Claim' : 'Policy'} Extraction Approval] Data extraction completed, requesting human review for ${sessionId}`);
 
           // Load form config (which contains real extracted values + bboxes from the PDF)
           // and store it on the session so the form endpoint can serve it per-session
           try {
-            const configPath = path.join(process.cwd(), 'public', 'submission-forms', 'data-extraction-config.json');
+            const configPath = path.join(process.cwd(), 'public', formDir, 'data-extraction-config.json');
             if (fs.existsSync(configPath)) {
               const formConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
               await storage.updateWorkflowSession(sessionId, {
@@ -827,11 +880,11 @@ Please respond with your choice: send, edit, or cancel`,
               await storage.updateWorkflowSession(sessionId, { status: 'pending_data_extraction' });
             }
           } catch (err) {
-            console.error('[Policy Extractor] Failed to load form config:', err);
+            console.error(`[${isClaim ? 'Claim' : 'Policy'} Extractor] Failed to load form config:`, err);
             await storage.updateWorkflowSession(sessionId, { status: 'pending_data_extraction' });
           }
 
-          console.log(`[Workflow Paused] Waiting for policy data extraction approval for ${sessionId}`);
+          console.log(`[Workflow Paused] Waiting for ${isClaim ? 'claim' : 'policy'} data extraction approval for ${sessionId}`);
           return;
         }
 
@@ -1302,7 +1355,7 @@ The workflow will automatically continue when human comments are detected.`;
         }
       }
       
-    } else if (agent.type === 'policy_extractor' || agent.type === 'geocoding' || agent.type === 'property_data' || agent.type === 'geospatial_risk' || agent.type === 'cat_risk' || agent.type === 'portfolio_risk' || agent.type === 'quote_generator') {
+    } else if (agent.type === 'policy_extractor' || agent.type === 'geocoding' || agent.type === 'property_data' || agent.type === 'geospatial_risk' || agent.type === 'cat_risk' || agent.type === 'portfolio_risk' || agent.type === 'quote_generator' || agent.type === 'fnol_intake' || agent.type === 'coverage_validation' || agent.type === 'loss_report_summarizer' || agent.type === 'invoice_validation' || agent.type === 'claim_event_summarizer' || agent.type === 'correspondence_generator') {
       // Insurance quote workflow agents
       console.log(`[Insurance Agent] ${agent.name} (${agent.type}) processing for ${sessionId}`);
 
@@ -1341,6 +1394,42 @@ The workflow will automatically continue when human comments are detected.`;
           if (i < delayIntervals.length) {
             await new Promise(resolve => setTimeout(resolve, delayIntervals[i]));
           }
+        }
+      }
+
+      // After the agent finishes its chat trace, pause for human review of
+      // the corresponding form. The shared /api/claims-forms/data-extraction-config
+      // endpoint serves session._formConfig if present, so we set it per agent.
+      const claimFormConfigByAgent: Record<string, string> = {
+        fnol_intake:         'data-extraction-config.json',     // FNOL — Reporter / Loss / Witness
+        coverage_validation: 'coverage-validation-config.json', // Coverage — Policy / Coverages / Deductibles
+        invoice_validation:  'invoice-validation-config.json',  // Invoice — Claim / Assignment / Supplier / Reserves / Invoice / Exception
+      };
+      const formFile = claimFormConfigByAgent[agent.type];
+      if (formFile) {
+        try {
+          const configPath = path.join(process.cwd(), 'public', 'claims-forms', formFile);
+          if (fs.existsSync(configPath)) {
+            const formConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+            // Preserve any prior data on extractedData; just rewrite _formConfig + _formAgentType
+            const session = await storage.getWorkflowSession(sessionId);
+            const existing = (session?.extractedData as any) || {};
+            await storage.updateWorkflowSession(sessionId, {
+              status: 'pending_data_extraction',
+              extractedData: { ...existing, _formConfig: formConfig, _formAgentType: agent.type }
+            });
+            await storage.updateAgent(agent.id, { status: 'completed', progress: 100 });
+            io.to(sessionId).emit('workflow-update', {
+              sessionId,
+              status: 'pending_data_extraction',
+              message: `${agent.name} ready for review`
+            });
+            io.to(sessionId).emit('messageAdded', { sessionId });
+            console.log(`[Form Pause] ${agent.type} → loaded ${formFile} for review`);
+            return; // pause execution
+          }
+        } catch (err) {
+          console.error(`[Form Pause] Failed to load ${formFile}:`, err);
         }
       }
 
@@ -1831,7 +1920,7 @@ Unable to fetch latest comments from Jira API. Using fallback monitoring.
     
     // Insurance quote agents use the form/approval UI — no completion messages in chat.
     // QA agents are handled separately above.
-    const insuranceAgentTypes = ['policy_extractor', 'geocoding', 'property_data', 'geospatial_risk', 'cat_risk', 'portfolio_risk', 'quote_generator'];
+    const insuranceAgentTypes = ['policy_extractor', 'geocoding', 'property_data', 'geospatial_risk', 'cat_risk', 'portfolio_risk', 'quote_generator', 'fnol_intake', 'coverage_validation', 'loss_report_summarizer', 'invoice_validation', 'claim_event_summarizer', 'correspondence_generator'];
     const isInsuranceAgent = insuranceAgentTypes.includes(agent.type);
     const isQaAgent = agent.type === 'mismatch_summarizer' || agent.type === 'mismatch_summary';
     if (!isInsuranceAgent && !isQaAgent) {
@@ -3391,12 +3480,19 @@ Please respond with your choice: send, edit, or discard`,
       if (ticketKey && !detectedCaseType) {
         detectedCaseType = 'jira';
       } else if (caseId && !detectedCaseType) {
-        detectedCaseType = caseId.startsWith('SLP-') ? 'slip' : 'submission';
+        if (caseId.startsWith('SLP-')) detectedCaseType = 'slip';
+        else if (caseId.startsWith('CLM-')) detectedCaseType = 'claim';
+        else detectedCaseType = 'submission';
       }
-      
+
       const finalCaseType = detectedCaseType || 'submission';
       // CRITICAL: For Jira workflows, ALWAYS use the ticketKey as the case ID
-      const finalCaseId = ticketKey || caseId || (finalCaseType === 'submission' ? 'UW-2025-001' : finalCaseType === 'slip' ? 'SLP-2025-001' : ticketKey || 'HIS-90');
+      const finalCaseId = ticketKey || caseId || (
+        finalCaseType === 'submission' ? 'UW-2025-001'
+        : finalCaseType === 'slip' ? 'SLP-2025-001'
+        : finalCaseType === 'claim' ? 'CLM-2025-001'
+        : ticketKey || 'HIS-90'
+      );
       
       console.log('🎯 Case ID Assignment Debug:', {
         ticketKey,
@@ -3498,16 +3594,37 @@ Please respond with your choice: send, edit, or discard`,
         });
       }
 
-      // Auto-start workflow execution
-      setTimeout(async () => {
+      // Auto-start workflow execution — except for claim workflows, which are
+      // human-driven (the adjuster picks each agent manually via /run-agent)
+      if (finalCaseType === 'claim') {
+        console.log(`[Manual Mode] Claim workflow ${sessionId} created — agents will be triggered manually by the adjuster`);
+        // Welcome message so the adjuster sees something in the chat and knows
+        // they can ask questions of the Claim Assistant at any time.
         try {
-          console.log(`[Auto-start] Starting fresh workflow execution for ${sessionId}`);
-          console.log(`[Auto-start] Workflow created with ${agentConfigs.length} agents, starting with Data Extraction Agent`);
-          executeWorkflowAgents(sessionId);
-        } catch (error) {
-          console.error(`[Auto-start] Failed for ${sessionId}:`, error);
+          const { getClaimDataById } = await import('../shared/claim-data');
+          const claimData = getClaimDataById(finalCaseId);
+          const claimTypeLabel = claimData?.claim_type ? ` (${claimData.claim_type})` : '';
+          await storage.createMessage({
+            sessionId,
+            content: `Hello — I'm the **Claim Assistant** for **${finalCaseId}**${claimTypeLabel}.\n\nThis claim is set up for **manual handling** — pick which agent to run from the Agent Registry on the left, in whatever order makes sense for your investigation.\n\nYou can also **ask me questions any time** using the chat input below. Try:\n• *What's the loss amount?*\n• *Who is the claimant?*\n• *Any fraud risk?*\n• *What do you recommend?*\n\nType **help** to see everything I can answer.`,
+            type: 'agent',
+            sender: 'Claim Assistant',
+            createdAt: new Date()
+          } as any);
+        } catch (err) {
+          console.error('[Claim Welcome] Failed to write welcome message:', err);
         }
-      }, 2000);
+      } else {
+        setTimeout(async () => {
+          try {
+            console.log(`[Auto-start] Starting fresh workflow execution for ${sessionId}`);
+            console.log(`[Auto-start] Workflow created with ${agentConfigs.length} agents, starting with Data Extraction Agent`);
+            executeWorkflowAgents(sessionId);
+          } catch (error) {
+            console.error(`[Auto-start] Failed for ${sessionId}:`, error);
+          }
+        }, 2000);
+      }
         
       res.json({ sessionId, session, status: 'created' });
     } catch (error) {
@@ -3553,6 +3670,22 @@ Please respond with your choice: send, edit, or discard`,
   }
 
   function getAgentConfigsForCaseType(caseType: string) {
+    if (caseType === 'claim') {
+      // Claims processing — 6 human-triggered agents.
+      // Claim Event Summarizer is at the top because it's the always-useful
+      // "give me a chronological narrative of where this claim is right now"
+      // agent — adjusters reach for it first when picking up any claim.
+      // Claims Q&A Agent is rendered separately in the sidebar as an always-on
+      // passive agent (responds to the chat input) and is not part of this list.
+      return [
+        { name: 'Claim Event Summarizer Agent', type: 'claim_event_summarizer', description: 'Produces a chronological narrative of every event and activity on the claim file to date — for adjusters and auditors' },
+        { name: 'FNOL Intake & Assignment Agent', type: 'fnol_intake', description: 'Extracts data from FNOL email, locates the policy in PAS, checks for duplicate claims, scores severity, and assigns the appropriate adjuster' },
+        { name: 'Coverage Validation Assistant', type: 'coverage_validation', description: 'Reads the policy schedule and exclusions, validates coverages and limits against the loss, and flags any coverage gaps' },
+        { name: 'Loss Report Summarizer Agent', type: 'loss_report_summarizer', description: 'Summarises the loss adjuster\'s report and benchmarks past payouts on similar claims to support the settlement recommendation' },
+        { name: 'Invoice Validation Agent', type: 'invoice_validation', description: 'Validates supplier invoices against the rate card, checks for duplicates, and confirms compliance with contract terms' },
+        { name: 'Automated Correspondence Generator', type: 'correspondence_generator', description: 'Drafts claim letters and broker/claimant correspondence from claim data using pre-approved templates' }
+      ];
+    }
     if (caseType === 'submission' || caseType === 'insurance-quote') {
       // Insurance quote workflow: 7-agent pipeline for personal lines new business
       return [
@@ -3610,9 +3743,280 @@ Please respond with your choice: send, edit, or discard`,
       res.json(agents);
     } catch (error) {
       console.error(`[API] Error getting agents for session ${req.params.sessionId}:`, error);
-      res.status(500).json({ 
-        message: 'Failed to get agents', 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      res.status(500).json({
+        message: 'Failed to get agents',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Regenerate the Claim Event Summary at a different length (short/medium/long).
+  // Triggered by the length picker buttons in chat messages tagged with [REGENERATE_SUMMARY:*].
+  app.post('/api/workflows/:sessionId/regenerate-summary', async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const { length } = req.body as { length: 'short' | 'medium' | 'long' };
+      if (!length || !['short', 'medium', 'long'].includes(length)) {
+        return res.status(400).json({ error: 'length must be short, medium, or long' });
+      }
+
+      const narrative = buildClaimEventNarrative(length);
+      const message = await storage.createMessage({
+        sessionId,
+        type: 'agent',
+        sender: 'Claim Event Summarizer Agent',
+        content: `**Regenerated as ${length} summary**\n\n${narrative}\n\n[REGENERATE_SUMMARY:${length}]`,
+        createdAt: new Date()
+      } as any);
+
+      io.to(sessionId).emit('messageAdded', { sessionId });
+      res.json({ success: true, messageId: message.id });
+    } catch (error) {
+      console.error('[Regenerate Summary] Error:', error);
+      res.status(500).json({ error: 'Failed to regenerate summary' });
+    }
+  });
+
+  // Stream a sequence of "drafting the ack letter" messages — Thinking,
+  // tool calls, tool results, then the final letter — each with a delay so
+  // it reads like an agent at work, not a hard-coded dump.
+  async function draftAcknowledgementLetter(sessionId: string) {
+    const steps: Array<{ delayMs: number; content: string }> = [
+      {
+        delayMs: 700,
+        content: `**Thinking:** FNOL data approved by adjuster. Drafting the acknowledgement letter — selecting the appropriate template, generating a claim number, and merging policy + claimant details.`
+      },
+      {
+        delayMs: 1100,
+        content: `→ \`select_letter_template\`
+\`\`\`json
+{ "letter_type": "acknowledgement", "language": "en-US", "channel": "email_and_print" }
+\`\`\``
+      },
+      {
+        delayMs: 900,
+        content: `✓ \`select_letter_template\` → \`tpl_ack_v4\` (compliance-approved, version 4, last reviewed 2025-01-12)`
+      },
+      {
+        delayMs: 1100,
+        content: `→ \`generate_claim_number\`
+\`\`\`json
+{ "policy_number": "B123456/16", "year": 2022, "sequence": "auto" }
+\`\`\``
+      },
+      {
+        delayMs: 900,
+        content: `✓ \`generate_claim_number\` → **CP20222202-0058**`
+      },
+      {
+        delayMs: 1100,
+        content: `→ \`merge_claim_data\`
+\`\`\`json
+{
+  "policyholder": "Acme Resources, Inc",
+  "policy_number": "B123456/16",
+  "date_of_loss": "10/21/2015",
+  "claim_number": "CP20222202-0058",
+  "adjuster": { "name": "MS Arica", "title": "Sr. Claim Rep", "ext": "767" }
+}
+\`\`\``
+      },
+      {
+        delayMs: 900,
+        content: `✓ \`merge_claim_data\` returned a fully-populated letter. Ready for adjuster review.`
+      },
+      {
+        delayMs: 800,
+        content: buildAckLetterMessage()
+      }
+    ];
+
+    for (const step of steps) {
+      await new Promise(r => setTimeout(r, step.delayMs));
+      await storage.createMessage({
+        sessionId,
+        type: 'agent',
+        sender: 'FNOL Intake & Assignment Agent',
+        content: step.content,
+        createdAt: new Date()
+      } as any);
+      io.to(sessionId).emit('messageAdded', { sessionId });
+    }
+  }
+
+  // Acknowledgement letter drafted after FNOL approval. The trailing
+  // [ACK_LETTER:ready] marker is replaced by a "Ready to Send" button in
+  // the chat renderer; clicking it hits /send-ack-letter and the marker
+  // becomes [ACK_LETTER:sent].
+  function buildAckLetterMessage(): string {
+    return `📨 **Acknowledgement letter drafted — ready for adjuster review**
+
+---
+
+**EXL Insurance Company**
+5-7 rue Léon Laval,
+L-3372 Leudelange, Grand Duchy of Luxembourg
+Registered in Luxembourg
+Registered Number: B232280
+
+---
+
+**Acme Resources, Inc**
+1234 FAIRY DR
+Midland, Texas
+
+---
+
+Thank you for contacting EXL Insurance to notify us of the claim submitted on behalf of policyholder:
+
+**Acme Resources, Inc**
+**Policy Number:** B123456/16
+**Date of Loss:** 10/21/2015
+
+My name is **MS Arica** and I am the EXL Claim Specialist who will be handling your claim. My contact information is: Arica@EXLInsurance.com | +1.235.454.1234 (ext 767).
+
+The claim number assigned to this loss is: **CP20222202-0058**
+
+I will contact you within the next 24 hours to discuss this claim. You may also contact me directly using my email or phone number referenced above. Please include the claim number in the subject line of your email or in the voice message.
+
+Thank you and I look forward to speaking with you.
+
+---
+
+**Thank You Arica**
+Sr. Claim Rep
+Direct Number: +1.235.454.1234
+E-mail: Arica@EXLInsurance.com
+
+[ACK_LETTER:ready]`;
+  }
+
+  // Mark the policy validation as approved. Adjuster signs off on the
+  // policy details surfaced by the Coverage Validation Assistant.
+  // Posts a confirmation message; the chat marker swaps to [VALIDATE_POLICY:approved].
+  app.post('/api/workflows/:sessionId/validate-policy', async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const at = new Date();
+      await storage.createMessage({
+        sessionId,
+        type: 'system',
+        sender: 'System',
+        content: `✅ **Policy validation approved** — coverage and limits confirmed for policy **B123456/16** at ${at.toLocaleString('en-GB', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short', year: 'numeric' })}.\n\nClaim is cleared to proceed to loss report review.\n\n[VALIDATE_POLICY:approved]`,
+        createdAt: at
+      } as any);
+      io.to(sessionId).emit('messageAdded', { sessionId });
+      res.json({ success: true, approvedAt: at.toISOString() });
+    } catch (error) {
+      console.error('[Validate Policy] Error:', error);
+      res.status(500).json({ error: 'Failed to validate policy' });
+    }
+  });
+
+  // Mark the acknowledgement letter as sent. Posts a confirmation message
+  // and updates the original draft to swap [ACK_LETTER:ready] → [ACK_LETTER:sent].
+  app.post('/api/workflows/:sessionId/send-ack-letter', async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const sentAt = new Date();
+      await storage.createMessage({
+        sessionId,
+        type: 'system',
+        sender: 'System',
+        content: `✅ **Acknowledgement letter sent** to broker (Greg.Carpenter@broadway.com) and claimant contact (Chris.Hemsworth@acmeresources.com) at ${sentAt.toLocaleString('en-GB', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short', year: 'numeric' })}.\n\nClaim number **CP20222202-0058** is now active.\n\n[ACK_LETTER:sent]`,
+        createdAt: sentAt
+      } as any);
+      io.to(sessionId).emit('messageAdded', { sessionId });
+      res.json({ success: true, sentAt: sentAt.toISOString() });
+    } catch (error) {
+      console.error('[Send Ack Letter] Error:', error);
+      res.status(500).json({ error: 'Failed to send acknowledgement letter' });
+    }
+  });
+
+  function buildClaimEventNarrative(length: 'short' | 'medium' | 'long'): string {
+    if (length === 'short') {
+      return `On 26 October 2015, Chris Hemsworth filed a First Notice of Loss on behalf of **Acme Resources, Inc.** for two fire incidents at saltwater disposal facilities (RJ Horz FED #1 and Booster FED #1) in Eddy County, New Mexico, on 21 October. Lightning strikes during a storm caused the fires; both were extinguished within 4.5 hours.
+
+Total claim: **$2,156,592.91** · Recommended net settlement: **$1,592,499.74**.`;
+    }
+    if (length === 'long') {
+      return `On October 26th, Chris Hemsworth emailed a First Notice of Loss (FNOL) on behalf of Acme Resources, Inc.
+
+The email detailed a property claim for two fire incidents at saltwater disposal facilities on October 21st, 2015, at 23:40 hours.
+
+The affected facilities, RJ Horz FED #1 and Booster FED #1, are saltwater disposal sites with storage tanks located in Eddy County, New Mexico.
+
+The fires were caused by lightning strikes during a storm, damaging tanks at both facilities.
+
+Fire departments from Otis, Happy Valley, Malaga, and Loving responded and extinguished the fires by 02:15 hours on October 22nd, 2015, approximately 4.5 hours after they started.
+
+The policy under review is Policy Number B123456/16 issued by EXL Insurance Company, covering Acme Resources, Inc. from May 2nd, 2015, to May 2nd, 2016, which includes the date of the incident.
+
+The property schedule lists insured values of $650,000 each for the RJ Horz FED #1 and Booster FED #1 tank batteries at the time of the loss.
+
+Endorsement No. 8 to Section 2 covers extra expenses to continue normal operations for up to 24 months, not exceeding $1,000,000 per occurrence.
+
+Endorsement No. 10 to Section 2 covers pollution clean-up, removal, and disposal with a sub-limit of $150,000 per occurrence and annually.
+
+The Section 2 deductible is $25,000 per occurrence, not applicable to claims for total loss of a scheduled item.
+
+Senter Associates LLC submitted the first investigation report on March 11th, 2016, confirming the extensive damage caused by lightning and fires, as shown in the included photos.
+
+The final report, submitted on October 13th, 2016, confirms that repairs at RJ Horz FED #1 were completed and the facility was back online in the first week of June 2016, while the other facility was not repaired for economic reasons.
+
+The report details a total claim amount of **$2,156,592.91** for both locations, including repair costs, debris removal, and pollution remediation.
+
+It recommends a net settlement amount of **$1,592,499.74** for both locations, subject to liability.
+
+The report summarizes the net claim amounts for each location and requests full and final settlement consideration from Underwriters, with no basis for subrogation.
+
+An invoice from Senter Associates LLC for investigation and reporting services was received on October 13th, 2016.`;
+    }
+    // medium (default)
+    return `On October 26th, Chris Hemsworth emailed a First Notice of Loss (FNOL) on behalf of Acme Resources, Inc. for two fire incidents at saltwater disposal facilities on October 21st, 2015 at 23:40 hours.
+
+The affected facilities — RJ Horz FED #1 and Booster FED #1, located in Eddy County, New Mexico — were damaged by lightning strikes during a storm. Fire departments from Otis, Happy Valley, Malaga, and Loving extinguished the fires by 02:15 hours on October 22nd, approximately 4.5 hours after they started.
+
+The policy under review (B123456/16, EXL Insurance) covers Acme Resources from May 2nd, 2015 to May 2nd, 2016. The schedule lists $650,000 each for RJ Horz FED #1 and Booster FED #1 tank batteries.
+
+Senter Associates LLC submitted the first investigation report on March 11th, 2016 confirming extensive damage; the final report on October 13th, 2016 confirmed RJ Horz FED #1 was repaired and back online in early June 2016, while the second facility was not repaired for economic reasons. The total claim amount is **$2,156,592.91** across both locations, with a recommended net settlement of **$1,592,499.74**, subject to liability.`;
+  }
+
+  // Run a single agent on demand. Used by claim workflows where the adjuster
+  // picks each agent manually instead of running the pipeline sequentially.
+  app.post('/api/workflows/:sessionId/run-agent', async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const { agentId } = req.body as { agentId: number };
+
+      if (!agentId && agentId !== 0) {
+        return res.status(400).json({ error: 'agentId is required' });
+      }
+
+      const agents = await storage.getAgentsBySession(sessionId);
+      const agent = agents.find(a => a.id === Number(agentId));
+      if (!agent) {
+        return res.status(404).json({ error: 'Agent not found in this session' });
+      }
+
+      // Reset to pending so executeAgent re-runs it cleanly even if it was completed
+      await storage.updateAgent(agent.id, { status: 'pending', progress: 0, results: {} });
+      await storage.updateWorkflowSession(sessionId, { status: 'running' });
+
+      // Fire and forget — UI updates via socket and refetch
+      setTimeout(() => {
+        executeAgent(sessionId, agent).catch(err => {
+          console.error(`[Run Agent] Failed to execute agent ${agent.id}:`, err);
+        });
+      }, 100);
+
+      res.json({ success: true, agentId: agent.id, agentName: agent.name });
+    } catch (error) {
+      console.error('[Run Agent] Error:', error);
+      res.status(500).json({
+        message: 'Failed to run agent',
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });
@@ -4205,16 +4609,560 @@ Status: All required information received. Workflow resuming automatically...`,
         }
       }
 
+      // Claim Q&A Assistant — for claim workflows, any free-form user message
+      // (i.e. not an approval keyword) gets a context-aware response.
+      const isApprovalKeyword = ['yes', 'no', 'send', 'edit', 'discard', 'cancel'].includes(lowerContent);
+      if (!isApprovalKeyword) {
+        try {
+          const session = await storage.getWorkflowSession(req.params.sessionId);
+          if (session?.workflowType === 'claim') {
+            // Fire and forget — response comes through via storage.createMessage,
+            // and the frontend's polling/socket refresh picks it up
+            respondToClaimQuery(req.params.sessionId, content).catch(err => {
+              console.error('[Claim Q&A] Failed to generate response:', err);
+            });
+          }
+        } catch (err) {
+          console.error('[Claim Q&A] Failed to check workflow type:', err);
+        }
+      }
+
       // Don't emit message-created event to prevent duplicates in frontend
       // Frontend will refetch messages through React Query
       res.json(message);
     } catch (error) {
-      res.status(500).json({ 
-        message: 'Failed to create message', 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+      res.status(500).json({
+        message: 'Failed to create message',
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });
+
+  // Generate a context-aware response to an adjuster's free-form question
+  // about a claim. Produces a realistic agent trace — Thinking → tool call →
+  // tool result → final answer — each emitted as a separate chat message with
+  // delays, mirroring the format of the workflow agents in insurance-agent-steps.ts.
+  async function respondToClaimQuery(sessionId: string, userMessage: string) {
+    const session = await storage.getWorkflowSession(sessionId);
+    if (!session?.caseId) return;
+
+    const { getClaimDataById } = await import('../shared/claim-data');
+    const claimData = getClaimDataById(session.caseId);
+    const agents = await storage.getAgentsBySession(sessionId);
+    const completed = agents.filter(a => a.status === 'completed');
+    const completedTypes = new Set(completed.map(a => a.type));
+
+    const steps = buildClaimQaSteps(userMessage, claimData, completedTypes, completed);
+
+    for (const step of steps) {
+      // Pre-message wait — gives the chat time to refresh and feels like the
+      // assistant is "thinking" before each turn
+      if (step.delayBeforeMs && step.delayBeforeMs > 0) {
+        await new Promise(r => setTimeout(r, step.delayBeforeMs));
+      }
+      await storage.createMessage({
+        sessionId,
+        content: step.message,
+        type: 'agent',
+        sender: 'Claim Assistant',
+        createdAt: new Date()
+      } as any);
+      io.to(sessionId).emit('messageAdded', { sessionId });
+    }
+  }
+
+  interface ClaimQaStep { message: string; delayBeforeMs: number; }
+
+  function buildClaimQaSteps(
+    question: string,
+    claimData: any,
+    completedTypes: Set<string>,
+    completedAgents: any[]
+  ): ClaimQaStep[] {
+    if (!claimData) {
+      return [{
+        delayBeforeMs: 600,
+        message: "I don't have claim data loaded for this session yet. Once the Claim Data Extraction Agent has run, I can answer questions about loss particulars, coverage, fraud risk, and recommendations."
+      }];
+    }
+
+    const q = question.toLowerCase().trim();
+    const cid = claimData.claim_id;
+
+    // ── Greetings / help — answer directly, no tool call needed ──────────
+    if (/^(hi|hello|hey|yo|good (morning|afternoon|evening))\b/.test(q)) {
+      return [{
+        delayBeforeMs: 600,
+        message: `Hello — I'm the Claim Assistant for **${cid}** (${claimData.claim_type}). I can answer questions about the loss, coverage, fraud risk, reserves, or recommend next steps. What would you like to know?`
+      }];
+    }
+
+    if (/^help|what can|who are you|capabilities/.test(q)) {
+      return [{
+        delayBeforeMs: 600,
+        message: `I can answer questions about this claim:\n\n• **Loss details** — "What happened?", "How much?", "When?", "Where?"\n• **Claimant** — "Who is the claimant?"\n• **Coverage** — "Is the policy in force?", "What's covered?"\n• **Fraud** — "Any red flags?", "What's the fraud risk?"\n• **Reserves** — "What's the reserve?"\n• **Decision** — "What do you recommend?", "Next steps?"\n• **Status** — "Where are we?", "What's done?"`
+      }];
+    }
+
+    // ── Loss amount / financials ────────────────────────────────────────
+    // Note: do NOT match bare "amount" here — that would also catch
+    // "settlement amount", "invoice amount", "business liability amount" etc.
+    // and short-circuit the more specific intents below. Keep this tight.
+    if (/loss amount|how much|claim value|estimated.{0,5}loss|loss financials/.test(q)) {
+      return agentTrace({
+        thinking: `User is asking about loss financials. Querying the claim record for the indemnity, reserve, and deductible figures, then composing a structured summary.`,
+        toolCall: { name: 'lookup_claim_financials', args: { claim_id: cid } },
+        toolResult: {
+          loss_amount: claimData.loss_amount,
+          reserve_amount: claimData.reserve_amount,
+          paid_amount: claimData.paid_amount,
+          deductible: claimData.deductible,
+          coverage_type: claimData.coverage_type
+        },
+        answer: `**Loss financials for ${cid}:**\n• Estimated loss: **${claimData.loss_amount}**\n• Recommended reserve: **${claimData.reserve_amount}**\n• Paid to date: **${claimData.paid_amount}**\n• Deductible: **${claimData.deductible}**\n• Coverage type: ${claimData.coverage_type}`
+      });
+    }
+
+    // ── Limit per location (Property + GL) ─────────────────────────────
+    if (/limit.{0,15}(each|per).{0,5}location|location.{0,5}limit|limits.{0,10}location/.test(q)) {
+      return agentTrace({
+        thinking: `User is asking about per-location limits on the policy. Pulling the property limit and general liability limit from the policy schedule.`,
+        toolCall: { name: 'fetch_location_limits', args: { policy_number: 'B123456/16' } },
+        toolResult: {
+          property_limit_per_location: '$650,000',
+          locations: ['RJ Horz FED #1', 'Booster FED #1'],
+          general_liability_limit: '$3,000,000',
+          deductible_per_occurrence: '$25,000'
+        },
+        answer: `**Limits per location for policy B123456/16:**\n• Property limit: **$650,000 each location** (RJ Horz FED #1 and Booster FED #1)\n• General Liability limit: **$3,000,000** (policy aggregate)\n• Deductible: **$25,000** per occurrence`
+      });
+    }
+
+    // ── Business / General Liability amount ────────────────────────────
+    if (/business liability|general liability|^gl\b|liability.{0,10}(amount|limit|coverage)/.test(q)) {
+      return agentTrace({
+        thinking: `User is asking about the General Liability (Business Liability) amount on the policy. Pulling the GL limit from the policy schedule.`,
+        toolCall: { name: 'fetch_liability_limit', args: { policy_number: 'B123456/16', section: 'GL' } },
+        toolResult: {
+          liability_type: 'General Liability',
+          policy_aggregate_limit: '$3,000,000',
+          per_occurrence: 'subject to policy aggregate'
+        },
+        answer: `**Business Liability (GL) on policy B123456/16:**\n• General Liability limit: **$3,000,000** (policy aggregate)\n• Available if a third-party claim arises from the loss`
+      });
+    }
+
+    // ── Recommended settlement amount ──────────────────────────────────
+    if (/recommended settlement|settlement amount|net settlement|settle.{0,10}(amount|figure)/.test(q)) {
+      return agentTrace({
+        thinking: `User is asking about the recommended settlement. Pulling the figure from Senter Associates' final investigation report and the Loss Report Summarizer's benchmark.`,
+        toolCall: { name: 'fetch_recommended_settlement', args: { claim_id: 'ABC12356' } },
+        toolResult: {
+          gross_claim_amount: '$2,156,592.91',
+          recommended_net_settlement: '$1,592,499.74',
+          basis: 'Senter Associates final report (13 Oct 2016)',
+          subrogation: 'no basis identified'
+        },
+        answer: `**Recommended settlement for claim ABC12356:**\n• Gross claim amount: **$2,156,592.91** (across both locations)\n• Recommended **net settlement: $1,592,499.74**, subject to liability\n• Basis: Senter Associates LLC final investigation report, 13 Oct 2016\n• Subrogation: no basis identified`
+      });
+    }
+
+    // ── Reserve specifically ────────────────────────────────────────────
+    if (/^reserve|recommended reserve|what.{0,5}reserve/.test(q)) {
+      const ran = completedTypes.has('loss_report_summarizer');
+      return agentTrace({
+        thinking: `User is asking about the reserve. Pulling the recommended reserve figure from the claim record and noting whether the Loss Report Summarizer has benchmarked it yet.`,
+        toolCall: { name: 'get_recommended_reserve', args: { claim_id: cid, summarizer_completed: ran } },
+        toolResult: { recommended_reserve: claimData.reserve_amount, loss_report_summarizer_complete: ran },
+        answer: ran
+          ? `Reserve sits at **${claimData.reserve_amount}** with a benchmark from the Loss Report Summarizer Agent. Use the Automated Correspondence Generator to draft the settlement letter.`
+          : `Current recommended reserve is **${claimData.reserve_amount}**. Run the **Loss Report Summarizer Agent** for a benchmarked view against similar past payouts.`
+      });
+    }
+
+    // ── Coverage / policy in force ──────────────────────────────────────
+    if (/policy.{0,20}(in.{0,5}force|valid|active|expired)|coverage|covered|in force/.test(q)) {
+      const ran = completedTypes.has('coverage_validation');
+      return agentTrace({
+        thinking: `User wants coverage status. Pulling policy reference, coverage type, and deductible from the claim record. Coverage Validation ${ran ? 'has' : 'has not'} run yet.`,
+        toolCall: { name: 'verify_policy_coverage', args: { policy_number: claimData.policy_number, date_of_loss: claimData.date_of_loss } },
+        toolResult: {
+          policy_number: claimData.policy_number,
+          coverage_type: claimData.coverage_type,
+          deductible: claimData.deductible,
+          validation_run: ran
+        },
+        answer: ran
+          ? `**Policy ${claimData.policy_number}**\n• Coverage type: ${claimData.coverage_type}\n• Deductible: ${claimData.deductible}\n• Coverage Validation Assistant has confirmed peril is covered and policy was in force on **${claimData.date_of_loss}**.`
+          : `**Policy ${claimData.policy_number}**\n• Coverage type: ${claimData.coverage_type}\n• Deductible: ${claimData.deductible}\n\nRun the **Coverage Validation Assistant** for a formal in-force check and exclusions review.`
+      });
+    }
+
+    // ── Invoice / supplier billing ─────────────────────────────────────
+    if (/invoice|supplier|rate card|billing|payment due/.test(q)) {
+      const ran = completedTypes.has('invoice_validation');
+      return agentTrace({
+        thinking: `User asking about supplier invoices on this claim. Checking whether the Invoice Validation Agent has scrutinised any incoming invoices yet.`,
+        toolCall: { name: 'list_invoices', args: { claim_id: cid } },
+        toolResult: {
+          invoices_on_file: ran ? 3 : 0,
+          duplicates_flagged: 0,
+          rate_card_compliant: ran ? true : null,
+          validation_run: ran
+        },
+        answer: ran
+          ? `Invoice Validation Agent has reviewed 3 supplier invoices — all rate-card compliant, no duplicates flagged.`
+          : `No invoice review yet. Run the **Invoice Validation Agent** to check supplier invoices against the rate card and flag duplicates.`
+      });
+    }
+
+    // ── Event timeline / audit history ─────────────────────────────────
+    if (/timeline|history|events|audit|narrative|story so far/.test(q)) {
+      const ran = completedTypes.has('claim_event_summarizer');
+      return agentTrace({
+        thinking: `User wants the claim history. Pulling the chronological event log. ${ran ? 'Claim Event Summarizer has already produced a narrative.' : 'Suggesting the Event Summarizer Agent for a full chronological view.'}`,
+        toolCall: { name: 'fetch_claim_events', args: { claim_id: cid } },
+        toolResult: {
+          first_event: claimData.date_reported,
+          last_event: claimData.updated_at,
+          event_count: 24,
+          summary_run: ran
+        },
+        answer: ran
+          ? `Claim Event Summarizer has produced a chronological narrative — see its message in the chat. The file shows **24 events** between ${claimData.date_reported} and ${claimData.updated_at}.`
+          : `Run the **Claim Event Summarizer Agent** for a full chronological narrative of every action on this claim.`
+      });
+    }
+
+    // ── Claimant ────────────────────────────────────────────────────────
+    if (/who.{0,10}(claim|policyholder|insured)|claimant|policyholder/.test(q)) {
+      return agentTrace({
+        thinking: `User asking who the claimant is. Pulling claimant record and contact details.`,
+        toolCall: { name: 'fetch_claimant_record', args: { claim_id: cid } },
+        toolResult: {
+          name: `${claimData.claimant_title} ${claimData.claimant_first_name} ${claimData.claimant_surname}`,
+          role: claimData.claimant_role,
+          email: claimData.claimant_email,
+          phone: claimData.claimant_phone,
+          policyholder_of_record: claimData.policyholder_name
+        },
+        answer: `**Claimant:** ${claimData.claimant_title} ${claimData.claimant_first_name} ${claimData.claimant_surname} (${claimData.claimant_role})\n• Email: ${claimData.claimant_email}\n• Phone: ${claimData.claimant_phone}\n• Policyholder of record: ${claimData.policyholder_name}`
+      });
+    }
+
+    // ── Date / timing ───────────────────────────────────────────────────
+    if (/when|date.{0,10}(loss|incident|happen|occur|reported)|how long ago/.test(q)) {
+      const delay = calcDaysBetween(claimData.date_of_loss, claimData.date_reported);
+      return agentTrace({
+        thinking: `User asking about timing. Pulling date of loss and date reported, computing the reporting delay.`,
+        toolCall: { name: 'compute_loss_timeline', args: { claim_id: cid } },
+        toolResult: {
+          date_of_loss: claimData.date_of_loss,
+          date_reported: claimData.date_reported,
+          reporting_delay_days: delay
+        },
+        answer: `• **Date of loss:** ${claimData.date_of_loss}\n• **Date reported:** ${claimData.date_reported}\n• Reporting delay: **${delay} day(s)**`
+      });
+    }
+
+    // ── Location ────────────────────────────────────────────────────────
+    if (/where|location|address|property|site/.test(q)) {
+      return agentTrace({
+        thinking: `User asking about loss location. Pulling property address and the specific site of loss within the property.`,
+        toolCall: { name: 'fetch_loss_location', args: { claim_id: cid } },
+        toolResult: {
+          property_address: `${claimData.property_house_number} ${claimData.property_address_line1}, ${claimData.property_city}, ${claimData.property_postcode}`,
+          loss_location: claimData.loss_location
+        },
+        answer: `**Loss site:**\n${claimData.property_house_number} ${claimData.property_address_line1}, ${claimData.property_city}, ${claimData.property_postcode}\n\nSpecific location at the property: *${claimData.loss_location}*`
+      });
+    }
+
+    // ── Description / what happened ─────────────────────────────────────
+    if (/what.{0,10}happen|describe|incident|loss description|story|details/.test(q)) {
+      return agentTrace({
+        thinking: `User asking for the incident narrative. Pulling loss description, fault party, and third-party involvement flag.`,
+        toolCall: { name: 'fetch_incident_narrative', args: { claim_id: cid } },
+        toolResult: {
+          claim_type: claimData.claim_type,
+          description: claimData.loss_description,
+          fault_party: claimData.fault_party,
+          third_party_involved: claimData.third_party_involved
+        },
+        answer: `**${claimData.claim_type}** — ${claimData.loss_description}\n\n• Fault party: ${claimData.fault_party}\n• Third-party involvement: ${claimData.third_party_involved}`
+      });
+    }
+
+    // ── Evidence ────────────────────────────────────────────────────────
+    if (/witness|evidence|police|photo|document|proof/.test(q)) {
+      return agentTrace({
+        thinking: `User asking about supporting evidence. Counting witnesses, photos, supporting docs, and checking for a police report number.`,
+        toolCall: { name: 'count_evidence_artifacts', args: { claim_id: cid } },
+        toolResult: {
+          witnesses: claimData.witness_count,
+          photos: claimData.photo_evidence_count,
+          supporting_docs: claimData.supporting_docs_count,
+          police_report: claimData.police_report_number || null
+        },
+        answer: `**Evidence on file for ${cid}:**\n• Witnesses: **${claimData.witness_count}**\n• Photos: **${claimData.photo_evidence_count}**\n• Supporting documents: **${claimData.supporting_docs_count}**\n• Police report: ${claimData.police_report_number || '_none_'}`
+      });
+    }
+
+    // ── Adjuster / handler ──────────────────────────────────────────────
+    if (/adjuster|handler|who.{0,10}(handling|assigned)/.test(q)) {
+      return agentTrace({
+        thinking: `User asking who's handling this claim. Pulling assigned adjuster and broker contact.`,
+        toolCall: { name: 'fetch_handler_assignments', args: { claim_id: cid } },
+        toolResult: {
+          adjuster: claimData.adjuster_name,
+          adjuster_email: claimData.adjuster_email,
+          broker_contact: claimData.broker_contact_name,
+          intermediary: claimData.intermediary_name
+        },
+        answer: `**Assigned adjuster:** ${claimData.adjuster_name} (${claimData.adjuster_email})\n**Broker:** ${claimData.broker_contact_name} at ${claimData.intermediary_name} — ${claimData.broker_email}`
+      });
+    }
+
+    // ── Status / progress ───────────────────────────────────────────────
+    if (/status|where are we|progress|done|complete/.test(q)) {
+      const completedNames = completedAgents.map(a => a.name);
+      return agentTrace({
+        thinking: `User asking about workflow progress. Pulling claim status and listing completed agents from the session.`,
+        toolCall: { name: 'get_workflow_progress', args: { claim_id: cid } },
+        toolResult: {
+          claim_status: claimData.claim_status,
+          completed_agents: completedNames,
+          completed_count: completedNames.length
+        },
+        answer: `**Current claim status:** ${claimData.claim_status}\n\n**Agents completed:** ${completedNames.length ? completedNames.join(', ') : '_none yet_'}\n\nUse the Agent Registry to run remaining agents.`
+      });
+    }
+
+    // ── Recommendation / next steps ─────────────────────────────────────
+    if (/recommend|decision|next step|adjudic|what.{0,5}(do|should)|verdict|outcome/.test(q)) {
+      const ran = completedTypes.has('correspondence_generator');
+      const order: Array<{type: string; name: string}> = [
+        { type: 'fnol_intake', name: 'FNOL Intake & Assignment' },
+        { type: 'coverage_validation', name: 'Coverage Validation Assistant' },
+        { type: 'loss_report_summarizer', name: 'Loss Report Summarizer' },
+        { type: 'invoice_validation', name: 'Invoice Validation' },
+        { type: 'claim_event_summarizer', name: 'Claim Event Summarizer' },
+        { type: 'correspondence_generator', name: 'Automated Correspondence Generator' }
+      ];
+      const next = order.find(o => !completedTypes.has(o.type));
+      return agentTrace({
+        thinking: `User asking for a recommendation. Checking which agents have completed to suggest the next logical step. Correspondence ${ran ? 'has' : 'has not'} been generated.`,
+        toolCall: { name: 'recommend_next_step', args: { completed_types: Array.from(completedTypes) } },
+        toolResult: {
+          correspondence_complete: ran,
+          next_suggested_agent: ran ? null : next?.name,
+          remaining_count: order.filter(o => !completedTypes.has(o.type)).length
+        },
+        answer: ran
+          ? `Correspondence has already been generated — see the most recent message in the chat for the drafted letters.`
+          : `No correspondence drafted yet. Suggested next step: run the **${next?.name} Agent**.\n\nA typical claim flow runs Intake → Coverage → Loss Report → Invoice → Event Summary → Correspondence, but you can pick the order based on what stage the claim is at.`
+      });
+    }
+
+    // ── Fallback ────────────────────────────────────────────────────────
+    return [{
+      delayBeforeMs: 700,
+      message: `I don't have a specific answer for that yet. I can help with the loss details, claimant, coverage, fraud risk, reserves, evidence, and recommendations. Try **help** to see the full list of things I can answer about ${cid}.`
+    }];
+  }
+
+  // Format an agentic trace as four sequential chat messages with delays:
+  // Thinking → tool call → tool result → final answer.
+  function agentTrace(opts: {
+    thinking: string;
+    toolCall: { name: string; args: Record<string, any> };
+    toolResult: Record<string, any>;
+    answer: string;
+  }): ClaimQaStep[] {
+    return [
+      {
+        delayBeforeMs: 700,
+        message: `**Thinking:** ${opts.thinking}`
+      },
+      {
+        delayBeforeMs: 1100,
+        message: `→ \`${opts.toolCall.name}\`\n\`\`\`json\n${JSON.stringify(opts.toolCall.args, null, 2)}\n\`\`\``
+      },
+      {
+        delayBeforeMs: 900,
+        message: `✓ \`${opts.toolCall.name}\` returned:\n\`\`\`json\n${JSON.stringify(opts.toolResult, null, 2)}\n\`\`\``
+      },
+      {
+        delayBeforeMs: 800,
+        message: opts.answer
+      }
+    ];
+  }
+
+  function calcDaysBetween(a: string, b: string): number {
+    try {
+      const d1 = new Date(a);
+      const d2 = new Date(b);
+      return Math.round(Math.abs((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)));
+    } catch { return 0; }
+  }
+
+  // ── Lightweight .eml parser ────────────────────────────────────────────
+  // Extracts top-level headers, the best body part (text/html preferred),
+  // and attachment filenames. Handles quoted-printable + base64 + RFC 2047
+  // (=?charset?Q?...?=) subject encoding. Pure-string parsing — no deps.
+  interface ParsedEml {
+    from: string;
+    to: string;
+    cc: string;
+    subject: string;
+    date: string;
+    html: string | null;
+    text: string;
+    attachments: { filename: string; contentType: string }[];
+  }
+
+  function parseEml(raw: string): ParsedEml {
+    // Split headers from body at first blank line
+    const headerEnd = raw.search(/\r?\n\r?\n/);
+    const rawHeaders = headerEnd >= 0 ? raw.slice(0, headerEnd) : raw;
+    const rawBody = headerEnd >= 0 ? raw.slice(headerEnd).replace(/^\r?\n\r?\n/, '') : '';
+
+    const headers = parseHeaderBlock(rawHeaders);
+    const subject = decodeRfc2047(headers['subject'] || '');
+    const from = decodeRfc2047(headers['from'] || '');
+    const to = decodeRfc2047(headers['to'] || '');
+    const cc = decodeRfc2047(headers['cc'] || '');
+    const date = headers['date'] || '';
+
+    const topContentType = headers['content-type'] || 'text/plain';
+    const parts = extractParts(rawBody, topContentType);
+
+    let bestHtml: string | null = null;
+    let bestText: string = '';
+    const attachments: { filename: string; contentType: string }[] = [];
+
+    for (const part of parts) {
+      const ctype = (part.headers['content-type'] || '').toLowerCase();
+      const disposition = (part.headers['content-disposition'] || '').toLowerCase();
+      const isAttachment = disposition.includes('attachment') ||
+        /name\s*=\s*"?[^"]+\.(pdf|doc|docx|xlsx|xls|jpg|jpeg|png|zip)"?/i.test(part.headers['content-type'] || '');
+
+      if (isAttachment) {
+        const fnMatch = (part.headers['content-disposition'] || '').match(/filename\s*=\s*"?([^";\r\n]+)"?/i)
+          || (part.headers['content-type'] || '').match(/name\s*=\s*"?([^";\r\n]+)"?/i);
+        if (fnMatch) {
+          attachments.push({ filename: decodeRfc2047(fnMatch[1].trim()), contentType: ctype.split(';')[0].trim() });
+        }
+        continue;
+      }
+
+      const decoded = decodePartBody(part.body, part.headers['content-transfer-encoding'] || '');
+      if (ctype.startsWith('text/html') && !bestHtml) bestHtml = decoded;
+      else if (ctype.startsWith('text/plain') && !bestText) bestText = decoded;
+    }
+
+    return { from, to, cc, subject, date, html: bestHtml, text: bestText, attachments };
+  }
+
+  function parseHeaderBlock(block: string): Record<string, string> {
+    const out: Record<string, string> = {};
+    const lines = block.split(/\r?\n/);
+    let currentKey: string | null = null;
+    let currentVal = '';
+    const flush = () => {
+      if (currentKey) out[currentKey.toLowerCase()] = currentVal.trim();
+    };
+    for (const line of lines) {
+      if (/^\s/.test(line) && currentKey) {
+        currentVal += ' ' + line.trim();
+      } else {
+        flush();
+        const m = line.match(/^([A-Za-z][A-Za-z0-9-]*):\s*(.*)$/);
+        if (m) { currentKey = m[1]; currentVal = m[2]; }
+        else { currentKey = null; currentVal = ''; }
+      }
+    }
+    flush();
+    return out;
+  }
+
+  interface MimePart { headers: Record<string, string>; body: string; }
+
+  function extractParts(body: string, contentTypeHeader: string): MimePart[] {
+    const ct = contentTypeHeader.toLowerCase();
+    const boundaryMatch = contentTypeHeader.match(/boundary\s*=\s*"?([^";\r\n]+)"?/i);
+    if (!ct.startsWith('multipart/') || !boundaryMatch) {
+      // Single part
+      return [{ headers: { 'content-type': contentTypeHeader }, body }];
+    }
+    const boundary = '--' + boundaryMatch[1];
+    const segments = body.split(boundary);
+    const parts: MimePart[] = [];
+    for (const seg of segments) {
+      const trimmed = seg.replace(/^\r?\n/, '').replace(/\r?\n--$/, '').replace(/--$/, '');
+      if (!trimmed.trim()) continue;
+      const headerEnd = trimmed.search(/\r?\n\r?\n/);
+      if (headerEnd < 0) continue;
+      const partHeaderBlock = trimmed.slice(0, headerEnd);
+      const partBody = trimmed.slice(headerEnd).replace(/^\r?\n\r?\n/, '');
+      const partHeaders = parseHeaderBlock(partHeaderBlock);
+      const childCtype = partHeaders['content-type'] || '';
+      // Recurse into nested multipart (e.g. multipart/alternative inside multipart/mixed)
+      if (childCtype.toLowerCase().startsWith('multipart/')) {
+        parts.push(...extractParts(partBody, childCtype));
+      } else {
+        parts.push({ headers: partHeaders, body: partBody });
+      }
+    }
+    return parts;
+  }
+
+  function decodePartBody(body: string, transferEncoding: string): string {
+    const enc = (transferEncoding || '').trim().toLowerCase();
+    if (enc === 'base64') {
+      try { return Buffer.from(body.replace(/[\r\n]/g, ''), 'base64').toString('utf-8'); }
+      catch { return body; }
+    }
+    if (enc === 'quoted-printable') {
+      return decodeQuotedPrintable(body);
+    }
+    return body;
+  }
+
+  function decodeQuotedPrintable(input: string): string {
+    // Remove soft line breaks (= at end of line) and decode =XX hex bytes
+    const noSoftBreaks = input.replace(/=\r?\n/g, '');
+    const bytes: number[] = [];
+    for (let i = 0; i < noSoftBreaks.length; i++) {
+      const c = noSoftBreaks[i];
+      if (c === '=' && i + 2 < noSoftBreaks.length) {
+        const hex = noSoftBreaks.slice(i + 1, i + 3);
+        if (/^[0-9A-Fa-f]{2}$/.test(hex)) {
+          bytes.push(parseInt(hex, 16));
+          i += 2;
+          continue;
+        }
+      }
+      bytes.push(c.charCodeAt(0));
+    }
+    try { return Buffer.from(bytes).toString('utf-8'); }
+    catch { return String.fromCharCode(...bytes); }
+  }
+
+  // RFC 2047 encoded-word: =?charset?Q?text?= or =?charset?B?text?=
+  function decodeRfc2047(input: string): string {
+    if (!input) return '';
+    return input.replace(/=\?([^?]+)\?([QqBb])\?([^?]+)\?=/g, (_, charset, encType, encText) => {
+      try {
+        if (encType.toLowerCase() === 'q') {
+          return decodeQuotedPrintable(encText.replace(/_/g, ' '));
+        } else {
+          return Buffer.from(encText, 'base64').toString('utf-8');
+        }
+      } catch { return encText; }
+    });
+  }
 
   // Negotiation Chatbot API
   app.post('/api/negotiation-chat', async (req, res) => {
@@ -4440,19 +5388,41 @@ Status: All required information received. Workflow resuming automatically...`,
     }
   });
 
+  // API endpoint to get claim data for the data extraction form
+  app.get('/api/claim-data/:caseId', async (req, res) => {
+    try {
+      const { caseId } = req.params;
+      console.log(`[Claim Data API] Fetching data for caseId: ${caseId}`);
+
+      const { getClaimDataById } = await import('../shared/claim-data');
+      const data = getClaimDataById(caseId);
+
+      if (!data) {
+        return res.status(404).json({ error: 'Claim data not found' });
+      }
+
+      res.setHeader('Content-Type', 'application/json');
+      res.json(data);
+    } catch (error) {
+      console.error('Error loading claim data:', error);
+      res.status(500).json({ error: 'Failed to fetch claim data' });
+    }
+  });
+
   // API endpoint to get extracted data based on case ID and type
   app.get('/api/extracted-data/:dataId', async (req, res) => {
     try {
       const { dataId } = req.params;
       const { caseType } = req.query;
-      
+
       let data;
       if (caseType === 'slip') {
-        // Import slip data dynamically
         const { getSlipDataById } = await import('../shared/slip-data');
         data = getSlipDataById(dataId);
+      } else if (caseType === 'claim') {
+        const { getClaimDataById } = await import('../shared/claim-data');
+        data = getClaimDataById(dataId);
       } else {
-        // Default to submission data
         const { getSubmissionDataById } = await import('../shared/csv-data');
         data = getSubmissionDataById(dataId);
       }
@@ -4495,7 +5465,7 @@ Status: All required information received. Workflow resuming automatically...`,
       } = req.body as {
         businessName: string;
         policyType: string;
-        caseType: 'submission' | 'slip';
+        caseType: 'submission' | 'slip' | 'claim';
         priority: 'high' | 'medium' | 'low';
         brokerEmail: string;
         assignedUnderwriter: string;
@@ -4511,7 +5481,7 @@ Status: All required information received. Workflow resuming automatically...`,
       const { loadDashboardCases } = await import('../shared/dashboard-cases');
       const existingCases = loadDashboardCases();
       const year = new Date().getFullYear();
-      const prefix = caseType === 'slip' ? 'SLP' : 'UW';
+      const prefix = caseType === 'slip' ? 'SLP' : caseType === 'claim' ? 'CLM' : 'UW';
       const samePrefixCases = existingCases.filter(c => c.case_id.startsWith(`${prefix}-${year}-`));
       const nextNum = samePrefixCases.length + 1;
       const caseId = `${prefix}-${year}-${String(nextNum).padStart(3, '0')}`;
@@ -4532,8 +5502,12 @@ Status: All required information received. Workflow resuming automatically...`,
       // Build CSV row and append to dashboard-cases.csv
       const now = new Date().toISOString();
       const submissionDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '/');
-      const initialAgent = caseType === 'slip' ? 'Data Extraction Agent' : 'Policy Data Extraction Agent';
-      const emailSubject = `New ${caseType === 'slip' ? "Lloyd's Slip" : 'Insurance'} Submission — ${businessName}`;
+      const initialAgent = caseType === 'slip' ? 'Data Extraction Agent' : caseType === 'claim' ? 'Claim Data Extraction Agent' : 'Policy Data Extraction Agent';
+      const emailSubject = caseType === 'slip'
+        ? `New Lloyd's Slip Submission — ${businessName}`
+        : caseType === 'claim'
+          ? `New Claim Notification — ${businessName}`
+          : `New Insurance Submission — ${businessName}`;
       const escapeCsv = (v: string) => v.includes(',') || v.includes('"') || v.includes('\n') ? `"${v.replace(/"/g, '""')}"` : v;
 
       const row = [
@@ -4622,11 +5596,14 @@ Status: All required information received. Workflow resuming automatically...`,
       const { caseId, fileName } = req.params;
       const { workflowType } = req.query;
       
-      // For submission workflows, always serve from shared defaults
+      // Route to the right shared defaults folder per workflow type
       const isSubmissionWorkflow = workflowType === 'submission' || caseId.startsWith('SUB-') || caseId.startsWith('UW-');
-      let filePath = isSubmissionWorkflow
-        ? path.join(process.cwd(), 'assets/documents/documents/_submission_defaults', fileName)
-        : path.join(process.cwd(), 'assets/documents/documents', caseId, fileName);
+      const isClaimWorkflow = workflowType === 'claim' || caseId.startsWith('CLM-');
+      let filePath = isClaimWorkflow
+        ? path.join(process.cwd(), 'assets/documents/documents/_claim_defaults', fileName)
+        : isSubmissionWorkflow
+          ? path.join(process.cwd(), 'assets/documents/documents/_submission_defaults', fileName)
+          : path.join(process.cwd(), 'assets/documents/documents', caseId, fileName);
       
       // Check if file exists
       if (!fs.existsSync(filePath)) {
@@ -4694,9 +5671,35 @@ Status: All required information received. Workflow resuming automatically...`,
     }
   });
 
+  // Parse a .eml file into structured JSON for the email viewer.
+  // Extracts top-level headers (From/To/Cc/Subject/Date), the best body part
+  // (text/html preferred over text/plain), and a list of attachment filenames.
+  app.get('/api/eml-content/:caseId/:fileName', async (req, res) => {
+    try {
+      const { caseId, fileName } = req.params;
+      const isClaimWorkflow = caseId.startsWith('CLM-') || req.query.workflowType === 'claim';
+      const isSubmissionWorkflow = caseId.startsWith('SUB-') || caseId.startsWith('UW-');
+      const filePath = isClaimWorkflow
+        ? path.join(process.cwd(), 'assets/documents/documents/_claim_defaults', fileName)
+        : isSubmissionWorkflow
+          ? path.join(process.cwd(), 'assets/documents/documents/_submission_defaults', fileName)
+          : path.join(process.cwd(), 'assets/documents/documents', caseId, fileName);
+
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: 'Email not found' });
+      }
+
+      const raw = fs.readFileSync(filePath, 'utf-8');
+      res.json(parseEml(raw));
+    } catch (error) {
+      console.error('[EML Parse] Error:', error);
+      res.status(500).json({ error: 'Failed to parse email' });
+    }
+  });
+
   // ===== CASE MANAGEMENT ROUTES =====
   // Routes for handling submission and slip cases
-  
+
   // Get all cases
   app.get('/api/cases', async (req, res) => {
     try {
@@ -4711,7 +5714,7 @@ Status: All required information received. Workflow resuming automatically...`,
   app.get('/api/cases/:caseType', async (req, res) => {
     try {
       const { caseType } = req.params;
-      if (caseType !== 'submission' && caseType !== 'slip') {
+      if (caseType !== 'submission' && caseType !== 'slip' && caseType !== 'claim') {
         return res.status(400).json({ error: 'Invalid case type. Must be "submission" or "slip"' });
       }
       const cases = await storage.getCasesByType(caseType);
@@ -5097,6 +6100,58 @@ Status: All required information received. Workflow resuming automatically...`,
     }
   });
 
+  // API endpoint to serve claims form configuration
+  // If ?sessionId=X is provided, merges real extracted values from the session's claim_extractor results
+  app.get('/api/claims-forms/data-extraction-config', async (req, res) => {
+    try {
+      const { sessionId, agentType } = req.query as { sessionId?: string; agentType?: string };
+
+      // Map agent types to their static form config files
+      const agentTypeToFile: Record<string, string> = {
+        fnol_intake:         'data-extraction-config.json',
+        coverage_validation: 'coverage-validation-config.json',
+        invoice_validation:  'invoice-validation-config.json',
+      };
+
+      // Explicit agent-type override (used by the sidebar's "View extracted data"
+      // button to re-open a specific agent's form even when its values are
+      // no longer the most recent thing on the session).
+      if (agentType && agentTypeToFile[agentType]) {
+        const overridePath = path.join(process.cwd(), 'public', 'claims-forms', agentTypeToFile[agentType]);
+        if (fs.existsSync(overridePath)) {
+          return res.json(JSON.parse(fs.readFileSync(overridePath, 'utf8')));
+        }
+      }
+
+      // Otherwise, prefer the form config currently active on the session
+      // (set by the agent that most recently paused for review).
+      if (sessionId && typeof sessionId === 'string') {
+        try {
+          const session = await storage.getWorkflowSession(sessionId);
+          const sessionFormConfig = (session?.extractedData as any)?._formConfig;
+          if (sessionFormConfig) {
+            return res.json(sessionFormConfig);
+          }
+        } catch (err) {
+          console.warn('[Claims Forms] Failed to load session config, using static:', err);
+        }
+      }
+
+      // Fallback to static FNOL config
+      const fallbackPath = path.join(process.cwd(), 'public', 'claims-forms', 'data-extraction-config.json');
+      if (!fs.existsSync(fallbackPath)) {
+        return res.status(404).json({ error: 'Claims form configuration not found' });
+      }
+      res.json(JSON.parse(fs.readFileSync(fallbackPath, 'utf8')));
+    } catch (error) {
+      console.error('[Claims Forms] Error loading configuration:', error);
+      res.status(500).json({
+        error: 'Failed to load claims form configuration',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // API endpoint to serve slip form configuration
   app.get('/api/slip-forms/data-extraction-config', async (req, res) => {
     try {
@@ -5314,6 +6369,9 @@ Status: All required information received. Workflow resuming automatically...`,
           if (workflowType === 'slip') {
             const { getSlipDataById } = await import('../shared/slip-data');
             originalData = getSlipDataById(caseId) || {};
+          } else if (workflowType === 'claim') {
+            const { getClaimDataById } = await import('../shared/claim-data');
+            originalData = getClaimDataById(caseId) || {};
           } else {
             const { getSubmissionDataById } = await import('../shared/csv-data');
             originalData = getSubmissionDataById(caseId) || {};

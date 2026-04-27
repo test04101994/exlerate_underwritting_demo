@@ -1,0 +1,183 @@
+{
+  "version": "1.0.0",
+  "workflowType": "claim",
+  "name": "Insurance Claim Processing Workflow",
+  "description": "Complete workflow for processing first-notice-of-loss insurance claims through to adjudication",
+  "metadata": {
+    "estimatedDuration": 150,
+    "totalSteps": 5,
+    "approvalGates": 2,
+    "created": "2026-04-25",
+    "lastModified": "2026-04-25"
+  },
+  "configuration": {
+    "parallelExecution": false,
+    "failureHandling": "pause_and_notify",
+    "retryPolicy": {
+      "maxRetries": 3,
+      "retryDelay": 30,
+      "exponentialBackoff": true
+    },
+    "timeoutSettings": {
+      "stepTimeout": 300,
+      "workflowTimeout": 3600,
+      "approvalTimeout": 86400
+    }
+  },
+  "dataFlow": {
+    "inputSchema": "claim_input_schema",
+    "outputSchema": "claim_output_schema",
+    "intermediateData": [
+      {"step": "claim-data-extraction", "schema": "extracted_claim_schema"},
+      {"step": "coverage-verification", "schema": "coverage_decision_schema"},
+      {"step": "fraud-check", "schema": "fraud_assessment_schema"},
+      {"step": "reserve-setting", "schema": "reserve_breakdown_schema"},
+      {"step": "adjudication", "schema": "adjudication_decision_schema"}
+    ]
+  },
+  "steps": [
+    {
+      "stepId": "step-1",
+      "agentId": "claim-data-extraction",
+      "name": "Claim Data Extraction",
+      "description": "Extract and validate claim notification details",
+      "executionType": "sequential",
+      "preconditions": ["workflow_initiated"],
+      "postconditions": ["claim_extracted", "human_approved"],
+      "errorHandling": {
+        "onFailure": "pause_workflow",
+        "notifyUsers": ["adjuster", "admin"],
+        "escalationLevel": "medium"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "detailed",
+        "metrics": ["extraction_accuracy", "processing_time", "confidence_score"]
+      }
+    },
+    {
+      "stepId": "step-2",
+      "agentId": "coverage-verification",
+      "name": "Coverage Verification",
+      "description": "Confirm peril is covered and policy is in force on date of loss",
+      "executionType": "sequential",
+      "preconditions": ["claim_extracted"],
+      "postconditions": ["coverage_confirmed"],
+      "errorHandling": {
+        "onFailure": "require_manual_review",
+        "notifyUsers": ["adjuster", "underwriter"],
+        "escalationLevel": "high"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "detailed",
+        "metrics": ["coverage_match_rate", "processing_time"]
+      }
+    },
+    {
+      "stepId": "step-3",
+      "agentId": "fraud-check",
+      "name": "Fraud Screening",
+      "description": "Screen claim against fraud indicators and historical patterns",
+      "executionType": "sequential",
+      "preconditions": ["coverage_confirmed"],
+      "postconditions": ["fraud_screened"],
+      "conditionalExecution": {
+        "escalateIf": "fraud_risk_level === 'high'"
+      },
+      "errorHandling": {
+        "onFailure": "require_manual_review",
+        "notifyUsers": ["adjuster", "siu_analyst"],
+        "escalationLevel": "high"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "detailed",
+        "metrics": ["fraud_risk_level", "false_positive_rate"]
+      }
+    },
+    {
+      "stepId": "step-4",
+      "agentId": "reserve-setting",
+      "name": "Reserve Setting",
+      "description": "Calculate appropriate case reserve",
+      "executionType": "sequential",
+      "preconditions": ["fraud_screened"],
+      "postconditions": ["reserve_set"],
+      "errorHandling": {
+        "onFailure": "use_fallback_benchmark",
+        "notifyUsers": ["actuarial_team", "adjuster"],
+        "escalationLevel": "medium"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "standard",
+        "metrics": ["reserve_accuracy", "model_confidence"]
+      }
+    },
+    {
+      "stepId": "step-5",
+      "agentId": "adjudication",
+      "name": "Adjudication",
+      "description": "Issue final claim decision with settlement breakdown",
+      "executionType": "sequential",
+      "preconditions": ["reserve_set"],
+      "postconditions": ["claim_adjudicated", "human_approved"],
+      "errorHandling": {
+        "onFailure": "pause_workflow",
+        "notifyUsers": ["adjuster", "claims_manager"],
+        "escalationLevel": "medium"
+      },
+      "monitoring": {
+        "trackProgress": true,
+        "logLevel": "standard",
+        "metrics": ["decision_confidence", "settlement_accuracy"]
+      }
+    }
+  ],
+  "approvalGates": [
+    {
+      "gateId": "claim-data-extraction-approval",
+      "stepId": "step-1",
+      "type": "human_approval",
+      "approvers": ["adjuster", "senior_adjuster"],
+      "approvalType": "data_extraction",
+      "timeout": 86400,
+      "escalationPolicy": "escalate_to_manager_after_24h"
+    },
+    {
+      "gateId": "adjudication-approval",
+      "stepId": "step-5",
+      "type": "human_approval",
+      "approvers": ["adjuster", "claims_manager"],
+      "approvalType": "adjudication_review",
+      "timeout": 3600,
+      "escalationPolicy": "auto_escalate_after_1h"
+    }
+  ],
+  "notifications": {
+    "channels": ["email", "dashboard"],
+    "events": [
+      {"event": "workflow_started", "recipients": ["adjuster"]},
+      {"event": "approval_required", "recipients": ["adjuster", "supervisor"]},
+      {"event": "workflow_completed", "recipients": ["adjuster", "claimant"]},
+      {"event": "workflow_failed", "recipients": ["adjuster", "admin", "claims_manager"]}
+    ]
+  },
+  "integrations": {
+    "csvDataSource": {
+      "enabled": true,
+      "source": "claims.csv",
+      "refreshInterval": 300
+    },
+    "documentViewer": {
+      "enabled": true,
+      "supportedFormats": ["pdf", "email", "csv"]
+    },
+    "emailService": {
+      "enabled": true,
+      "provider": "aws_ses",
+      "templates": "claim_email_templates"
+    }
+  }
+}

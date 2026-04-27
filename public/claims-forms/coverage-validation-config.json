@@ -1,0 +1,57 @@
+{
+  "form_title": "Coverage Validation — Review",
+  "form_subtitle": "Review the policy details, coverages, and deductibles surfaced from policy B123456/16. Approve to confirm the claim is covered and proceed to loss report review.",
+  "confidence_threshold": { "high": 0.90, "medium": 0.75, "low": 0.0 },
+  "sections": [
+    {
+      "id": "policy_details",
+      "title": "Policy Details",
+      "fields": [
+        { "id": "policy_number",          "label": "Policy Number",          "value": "B123456/16",                                                              "confidence": 0.99, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 700, 280, 712] } },
+        { "id": "policy_period",          "label": "Policy Period",          "value": "05/02/2015 to 05/02/2016",                                                "confidence": 0.98, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 680, 380, 692] } },
+        { "id": "insured",                "label": "Insured",                "value": "Acme Resources, Inc",                                                     "confidence": 0.97, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 660, 380, 672] } },
+        { "id": "agent",                  "label": "Agent",                  "value": "Greg Carpenter",                                                          "confidence": 0.96, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 640, 320, 652] } },
+        { "id": "broker",                 "label": "Broker",                 "value": "Broadway Brokers Ltd",                                                    "confidence": 0.95, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 620, 380, 632] } },
+        { "id": "policy_type",            "label": "Policy Type",            "value": "Commercial Property & GL",                                                "confidence": 0.94, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 600, 380, 612] } },
+        { "id": "location_covered",       "label": "Location Covered",       "value": "RJ Horz FED #1 and Booster FED #1, Eddy County, New Mexico",              "confidence": 0.93, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 580, 545, 592] } },
+        { "id": "policy_premium",         "label": "Policy Premium",         "value": "$4,040.82",                                                               "confidence": 0.97, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 560, 280, 572] } },
+        { "id": "property_limit",         "label": "Property Limit",         "value": "$650,000 each location",                                                  "confidence": 0.96, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 540, 380, 552] } },
+        { "id": "general_liability_limit","label": "General Liability Limit","value": "$3,000,000",                                                              "confidence": 0.96, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 520, 320, 532] } },
+        { "id": "policy_deductible",      "label": "Deductible",             "value": "$25,000",                                                                 "confidence": 0.96, "type": "text", "required": true,  "source": { "page": 1, "bbox": [146, 500, 280, 512] } }
+      ]
+    },
+    {
+      "id": "coverages",
+      "title": "Coverages",
+      "fields": [
+        { "id": "cov_escalation",                "label": "Escalation",                                       "value": "Up to 15% of the Estimated Contract Value any one loss",  "confidence": 0.94, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 700, 545, 712] } },
+        { "id": "cov_removal_of_debris",         "label": "Removal of Debris",                                "value": "Up to 10% of the Estimated Contract Value any one loss",  "confidence": 0.94, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 680, 545, 692] } },
+        { "id": "cov_material_damage",           "label": "Material Damage",                                  "value": "Up to 10% of the Estimated Contract Value any one loss",  "confidence": 0.94, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 660, 545, 672] } },
+        { "id": "cov_expediting_expenses",       "label": "Expediting Expenses",                              "value": "Up to 10% of the Estimated Contract Value any one loss",  "confidence": 0.94, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 640, 545, 652] } },
+        { "id": "cov_mitigation_expenses",       "label": "Mitigation Expenses",                              "value": "Up to 10% of the Estimated Contract Value any one loss",  "confidence": 0.94, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 620, 545, 632] } },
+        { "id": "cov_pollution_remediation",     "label": "Pollution Remediation",                            "value": "$150,000",                                                "confidence": 0.97, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 600, 380, 612] } },
+        { "id": "cov_search_and_locate",         "label": "Search & Locate Costs",                            "value": "$50,000 any one loss",                                    "confidence": 0.96, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 580, 380, 592] } },
+        { "id": "cov_recovery_of_property",      "label": "Recovery of Property Insured",                     "value": "$50,000 any one loss",                                    "confidence": 0.96, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 560, 380, 572] } },
+        { "id": "cov_firefighting_expenses",     "label": "Firefighting Expenses",                            "value": "$100,000 any one loss",                                   "confidence": 0.96, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 540, 380, 552] } },
+        { "id": "cov_extra_cost_reinstatement",  "label": "Extra Cost of Reinstatement",                      "value": "$100,000 any one loss",                                   "confidence": 0.96, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 520, 380, 532] } },
+        { "id": "cov_plot_ratio_indemnity",      "label": "Plot Ratio Indemnity",                             "value": "Included up to the Estimated Contract Value",             "confidence": 0.94, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 500, 545, 512] } },
+        { "id": "cov_undamaged_foundations",     "label": "Undamaged Foundations",                            "value": "Included up to the Estimated Contract Value",             "confidence": 0.94, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 480, 545, 492] } },
+        { "id": "cov_undamaged_ancillary",       "label": "Undamaged Ancillary or Peripheral Equipment",      "value": "Included up to the Estimated Contract Value",             "confidence": 0.94, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 460, 545, 472] } },
+        { "id": "cov_materials_in_transit",      "label": "Materials in Transit",                             "value": "Included up to the Estimated Contract Value",             "confidence": 0.94, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 440, 545, 452] } },
+        { "id": "cov_materials_offsite",         "label": "Materials Stored Offsite",                         "value": "Included up to the Estimated Contract Value",             "confidence": 0.94, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 420, 545, 432] } },
+        { "id": "cov_offsite_fabrication",       "label": "Offsite Fabrication",                              "value": "Included up to the Estimated Contract Value",             "confidence": 0.94, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 400, 545, 412] } },
+        { "id": "cov_government_fees",           "label": "Government and Other Fees",                        "value": "$50,000 any one loss",                                    "confidence": 0.96, "type": "text", "required": false, "source": { "page": 2, "bbox": [146, 380, 380, 392] } }
+      ]
+    },
+    {
+      "id": "deductibles",
+      "title": "Deductibles",
+      "fields": [
+        { "id": "ded_cyclone",        "label": "Cyclone — Named Cyclone and associated rain depression",   "value": "$10,000 each & every loss", "confidence": 0.96, "type": "text", "required": false, "source": { "page": 3, "bbox": [146, 700, 545, 712] } },
+        { "id": "ded_major_perils",   "label": "Major Perils",                                            "value": "$25,000 each & every loss", "confidence": 0.97, "type": "text", "required": true,  "source": { "page": 3, "bbox": [146, 680, 380, 692] } },
+        { "id": "ded_pre_existing",   "label": "Pre-Existing Property",                                   "value": "$10,000 each & every loss", "confidence": 0.96, "type": "text", "required": false, "source": { "page": 3, "bbox": [146, 660, 380, 672] } },
+        { "id": "ded_other_claims",   "label": "All Other Claims",                                        "value": "$10,000 each & every loss", "confidence": 0.96, "type": "text", "required": false, "source": { "page": 3, "bbox": [146, 640, 380, 652] } }
+      ]
+    }
+  ]
+}

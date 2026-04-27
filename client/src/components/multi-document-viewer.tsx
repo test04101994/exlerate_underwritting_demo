@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { FileText, Download, X, GripVertical, ZoomIn, ZoomOut, RotateCcw, MapPin } from 'lucide-react';
+import { FileText, Download, X, GripVertical, ZoomIn, ZoomOut, RotateCcw, MapPin, Sheet } from 'lucide-react';
 import { getSubmissionDataById } from "@shared/csv-data";
 import { useQuery } from '@tanstack/react-query';
 import { PropertyMapCard } from './property-map-card';
@@ -26,11 +26,168 @@ interface DocumentViewerProps {
 interface Document {
   id: string;
   title: string;
-  type: 'pdf' | 'email' | 'other';
+  type: 'pdf' | 'email' | 'spreadsheet' | 'other';
   icon: React.ReactNode;
   content: React.ReactNode;
   name?: string;
   size?: number;
+}
+
+// Email view backed by the /api/eml-content endpoint. Fetches parsed
+// headers + body + attachments and renders a styled email layout.
+function EmailView({ caseId, fileName, workflowType }: { caseId: string; fileName: string; workflowType?: string }) {
+  const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setData(null); setError(null);
+    const url = `/api/eml-content/${encodeURIComponent(caseId)}/${encodeURIComponent(fileName)}${workflowType ? `?workflowType=${workflowType}` : ''}`;
+    fetch(url)
+      .then(r => r.ok ? r.json() : Promise.reject(`HTTP ${r.status}`))
+      .then(j => { if (!cancelled) setData(j); })
+      .catch(err => { if (!cancelled) setError(String(err)); });
+    return () => { cancelled = true; };
+  }, [caseId, fileName, workflowType]);
+
+  if (error) return <div className="p-6 text-sm text-red-600">Failed to parse email: {error}</div>;
+  if (!data) return <div className="p-6 text-sm text-muted-foreground">Loading email…</div>;
+
+  const headers: Array<[string, string]> = [
+    ['From', data.from],
+    ['To', data.to],
+    ['CC', data.cc],
+    ['Date', data.date],
+    ['Subject', data.subject],
+  ].filter(([, v]) => v) as Array<[string, string]>;
+
+  return (
+    <div className="bg-white dark:bg-background h-full overflow-auto">
+      <div className="px-5 py-4 border-b bg-muted/30">
+        <h3 className="text-sm font-semibold text-foreground mb-2">{data.subject || fileName}</h3>
+        <div className="grid gap-1 text-xs">
+          {headers.map(([k, v]) => (
+            <div key={k} className="flex gap-2">
+              <span className="text-muted-foreground min-w-[44px]">{k}:</span>
+              <span className="text-foreground break-all">{v}</span>
+            </div>
+          ))}
+        </div>
+        {data.attachments && data.attachments.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {data.attachments.map((a: any, i: number) => (
+              <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] border border-border bg-card">
+                <FileText className="h-3 w-3" />
+                {a.filename}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="p-5">
+        {data.html ? (
+          <div className="prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: data.html }} />
+        ) : (
+          <pre className="whitespace-pre-wrap text-sm text-foreground font-sans leading-relaxed">{data.text}</pre>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// CSV-backed spreadsheet view — fetches the file as text, splits into rows/cols,
+// and renders as a styled table that visually reads as a spreadsheet.
+function SpreadsheetView({ url, name }: { url: string; name: string }) {
+  const [rows, setRows] = useState<string[][] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setRows(null);
+    setError(null);
+    fetch(url)
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.text();
+      })
+      .then(text => {
+        if (cancelled) return;
+        const parsed = parseCsv(text);
+        setRows(parsed);
+      })
+      .catch(err => {
+        if (cancelled) return;
+        setError(err.message || 'Failed to load spreadsheet');
+      });
+    return () => { cancelled = true; };
+  }, [url]);
+
+  if (error) {
+    return <div className="p-6 text-sm text-red-600">Failed to load {name}: {error}</div>;
+  }
+  if (!rows) {
+    return <div className="p-6 text-sm text-muted-foreground">Loading spreadsheet…</div>;
+  }
+  if (rows.length === 0) {
+    return <div className="p-6 text-sm text-muted-foreground">Empty spreadsheet.</div>;
+  }
+
+  const [header, ...body] = rows;
+
+  return (
+    <div className="bg-white dark:bg-background h-full overflow-auto">
+      <div className="px-4 py-2.5 border-b bg-muted/30 text-xs text-muted-foreground flex items-center justify-between">
+        <span>{name}</span>
+        <span>{body.length} row{body.length === 1 ? '' : 's'} · {header.length} column{header.length === 1 ? '' : 's'}</span>
+      </div>
+      <table className="w-full text-xs border-collapse">
+        <thead className="sticky top-0 z-10">
+          <tr>
+            <th className="bg-muted text-muted-foreground font-medium px-2 py-1.5 border border-border w-10 text-center">#</th>
+            {header.map((h, i) => (
+              <th key={i} className="bg-muted text-foreground font-semibold px-3 py-1.5 border border-border text-left whitespace-nowrap">
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {body.map((row, ri) => (
+            <tr key={ri} className="hover:bg-blue-50/40 dark:hover:bg-blue-950/30">
+              <td className="bg-muted/50 text-muted-foreground text-center px-2 py-1.5 border border-border w-10 font-mono">{ri + 1}</td>
+              {header.map((_, ci) => (
+                <td key={ci} className="px-3 py-1.5 border border-border align-top text-foreground">{row[ci] ?? ''}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// Minimal CSV parser supporting quoted values with commas and escaped quotes
+function parseCsv(text: string): string[][] {
+  const rows: string[][] = [];
+  let cur: string[] = [];
+  let field = '';
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }
+      else if (c === '"') { inQuotes = false; }
+      else { field += c; }
+    } else {
+      if (c === '"') { inQuotes = true; }
+      else if (c === ',') { cur.push(field); field = ''; }
+      else if (c === '\n') { cur.push(field); rows.push(cur); cur = []; field = ''; }
+      else if (c === '\r') { /* skip */ }
+      else { field += c; }
+    }
+  }
+  if (field.length > 0 || cur.length > 0) { cur.push(field); rows.push(cur); }
+  return rows.filter(r => !(r.length === 1 && r[0].trim() === ''));
 }
 
 export function MultiDocumentViewer({ sessionId, className, onWidthChange, initialWidth = 320, submissionId = "UW-2025-001", caseId, workflowType, highlight, propertyLocation }: DocumentViewerProps) {
@@ -135,10 +292,12 @@ export function MultiDocumentViewer({ sessionId, className, onWidthChange, initi
     return caseDocuments.map((doc: any, index: number) => ({
       id: doc.id,
       title: doc.name,
-      type: doc.type as 'pdf' | 'email' | 'doc' | 'docx' | 'other',
+      type: doc.type as 'pdf' | 'email' | 'doc' | 'docx' | 'spreadsheet' | 'other',
       name: doc.name,
       size: doc.size,
-      icon: <FileText className="h-4 w-4" />,
+      icon: doc.type === 'spreadsheet'
+        ? <Sheet className="h-4 w-4 text-emerald-600" />
+        : <FileText className="h-4 w-4" />,
       content: (
         <div className="flex flex-col h-full gap-2">
           <div className="flex items-center justify-between flex-shrink-0">
@@ -220,6 +379,24 @@ export function MultiDocumentViewer({ sessionId, className, onWidthChange, initi
                   </div>
                 </div>
               </div>
+            ) : doc.type === 'spreadsheet' ? (
+              <SpreadsheetView
+                url={`/api/documents/${caseId || submissionId}/${doc.name}${workflowType ? `?workflowType=${workflowType}` : ''}`}
+                name={doc.name}
+              />
+            ) : (doc.name?.toLowerCase().endsWith('.html') || doc.name?.toLowerCase().endsWith('.htm')) ? (
+              <iframe
+                src={`/api/documents/${caseId || submissionId}/${doc.name}${workflowType ? `?workflowType=${workflowType}` : ''}`}
+                title={doc.name}
+                className="w-full h-full bg-white"
+                sandbox="allow-same-origin"
+              />
+            ) : doc.name?.toLowerCase().endsWith('.eml') ? (
+              <EmailView
+                caseId={caseId || submissionId || ''}
+                fileName={doc.name}
+                workflowType={workflowType}
+              />
             ) : doc.type === 'email' ? (
               <div className="bg-white p-6 h-full overflow-auto">
                 <div className="max-w-4xl mx-auto">

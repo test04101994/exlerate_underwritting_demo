@@ -20312,3 +20312,315 @@ Output: {""agent_name"":""Policy Data Extraction Agent"",""status"":""completed"
 UW-2025-001,SUB-1773509509850-t5itiumq,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
 New Status: pending_data_extraction
 Step: 1/7",completed,medium,2026-03-14T17:32:11.074Z,2026-03-14T17:32:11.092Z,2026-03-14T17:32:11.092Z
+CLM-2025-001,CLA-1777095313104-2wrts321,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 5",completed,medium,2026-04-25T05:35:13.105Z,2026-04-25T05:35:13.120Z,2026-04-25T05:35:13.120Z
+CLM-2025-001,CLA-1777095313104-2wrts321,agent_execution,Claim Data Extraction Agent,agent,Claim Data Extraction Agent Started,Agent processing started for claim_extractor,"Agent Type: claim_extractor
+Status: started
+Progress: 0%",completed,medium,2026-04-25T05:35:15.539Z,2026-04-25T05:35:15.561Z,2026-04-25T05:35:15.561Z
+CLM-2025-001,CLA-1777095313104-2wrts321,agent_execution,Claim Data Extraction Agent,agent,Claim Data Extraction Agent Completed,Agent successfully completed processing,"Agent: Claim Data Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Claim Data Extraction Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Claim Data Extraction Agent completed successfully with AI processing""}",completed,medium,2026-04-25T05:35:33.676Z,2026-04-25T05:35:33.716Z,2026-04-25T05:35:33.716Z
+CLM-2025-001,CLA-1777095313104-2wrts321,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 1/5",completed,medium,2026-04-25T05:35:34.066Z,2026-04-25T05:35:34.073Z,2026-04-25T05:35:34.073Z
+UW-2025-001,SUB-1777095464073-1hfo9seu,system_event,System,system,Workflow Started,Personal Lines Submission — UW-2025-001 workflow initiated,"Workflow Type: submission
+Case ID: UW-2025-001
+Total Steps: 7",completed,medium,2026-04-25T05:37:44.073Z,2026-04-25T05:37:44.086Z,2026-04-25T05:37:44.086Z
+UW-2025-001,SUB-1777095464073-1hfo9seu,agent_execution,Policy Data Extraction Agent,agent,Policy Data Extraction Agent Started,Agent processing started for policy_extractor,"Agent Type: policy_extractor
+Status: started
+Progress: 0%",completed,medium,2026-04-25T05:37:46.539Z,2026-04-25T05:37:46.557Z,2026-04-25T05:37:46.557Z
+UW-2025-001,SUB-1777095464073-1hfo9seu,agent_execution,Policy Data Extraction Agent,agent,Policy Data Extraction Agent Completed,Agent successfully completed processing,"Agent: Policy Data Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Policy Data Extraction Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Policy Data Extraction Agent completed successfully with AI processing""}",completed,medium,2026-04-25T05:38:04.664Z,2026-04-25T05:38:04.685Z,2026-04-25T05:38:04.685Z
+UW-2025-001,SUB-1777095464073-1hfo9seu,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 1/7",completed,medium,2026-04-25T05:38:04.923Z,2026-04-25T05:38:04.932Z,2026-04-25T05:38:04.932Z
+CLM-2025-001,CLA-1777095690184-nzltywap,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 5",completed,medium,2026-04-25T05:41:30.184Z,2026-04-25T05:41:30.195Z,2026-04-25T05:41:30.195Z
+CLM-2025-001,CLA-1777095690184-nzltywap,agent_execution,Claim Data Extraction Agent,agent,Claim Data Extraction Agent Started,Agent processing started for claim_extractor,"Agent Type: claim_extractor
+Status: started
+Progress: 0%",completed,medium,2026-04-25T05:41:36.052Z,2026-04-25T05:41:36.082Z,2026-04-25T05:41:36.082Z
+CLM-2025-001,CLA-1777095690184-nzltywap,agent_execution,Claim Data Extraction Agent,agent,Claim Data Extraction Agent Completed,Agent successfully completed processing,"Agent: Claim Data Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Claim Data Extraction Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Claim Data Extraction Agent completed successfully with AI processing""}",completed,medium,2026-04-25T05:41:54.156Z,2026-04-25T05:41:54.178Z,2026-04-25T05:41:54.178Z
+CLM-2025-001,CLA-1777095690184-nzltywap,agent_execution,Coverage Verification Agent,agent,Coverage Verification Agent Started,Agent processing started for coverage_verification,"Agent Type: coverage_verification
+Status: started
+Progress: 0%",completed,medium,2026-04-25T05:42:11.380Z,2026-04-25T05:42:11.396Z,2026-04-25T05:42:11.396Z
+CLM-2025-001,CLA-1777095690184-nzltywap,agent_execution,Coverage Verification Agent,agent,Coverage Verification Agent Completed,Agent successfully completed processing,"Agent: Coverage Verification Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Coverage Verification Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Coverage Verification Agent completed successfully with AI processing""}",completed,medium,2026-04-25T05:42:29.480Z,2026-04-25T05:42:29.495Z,2026-04-25T05:42:29.495Z
+CLM-2025-001,CLA-1777095764871-by27skgd,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 5",completed,medium,2026-04-25T05:42:44.871Z,2026-04-25T05:42:44.885Z,2026-04-25T05:42:44.885Z
+CLM-2025-001,CLA-1777095764871-by27skgd,agent_execution,Claim Data Extraction Agent,agent,Claim Data Extraction Agent Started,Agent processing started for claim_extractor,"Agent Type: claim_extractor
+Status: started
+Progress: 0%",completed,medium,2026-04-25T05:43:19.361Z,2026-04-25T05:43:19.414Z,2026-04-25T05:43:19.414Z
+CLM-2025-001,CLA-1777095764871-by27skgd,agent_execution,Claim Data Extraction Agent,agent,Claim Data Extraction Agent Completed,Agent successfully completed processing,"Agent: Claim Data Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Claim Data Extraction Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Claim Data Extraction Agent completed successfully with AI processing""}",completed,medium,2026-04-25T05:43:37.480Z,2026-04-25T05:43:37.507Z,2026-04-25T05:43:37.507Z
+CLM-2025-001,CLA-1777096023986-spq77jzw,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 5",completed,medium,2026-04-25T05:47:03.986Z,2026-04-25T05:47:03.995Z,2026-04-25T05:47:03.995Z
+CLM-2025-001,CLA-1777096023986-spq77jzw,agent_execution,Claim Data Extraction Agent,agent,Claim Data Extraction Agent Started,Agent processing started for claim_extractor,"Agent Type: claim_extractor
+Status: started
+Progress: 0%",completed,medium,2026-04-25T05:47:07.043Z,2026-04-25T05:47:07.058Z,2026-04-25T05:47:07.058Z
+CLM-2025-001,CLA-1777096036084-ctbh16q2,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 5",completed,medium,2026-04-25T05:47:16.084Z,2026-04-25T05:47:16.091Z,2026-04-25T05:47:16.091Z
+CLM-2025-001-archived-1777096036078,CLA-1777096023986-spq77jzw,agent_execution,Claim Data Extraction Agent,agent,Claim Data Extraction Agent Completed,Agent successfully completed processing,"Agent: Claim Data Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Claim Data Extraction Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Claim Data Extraction Agent completed successfully with AI processing""}",completed,medium,2026-04-25T05:47:25.150Z,2026-04-25T05:47:25.166Z,2026-04-25T05:47:25.166Z
+CLM-2025-001,CLA-1777096036084-ctbh16q2,agent_execution,Coverage Verification Agent,agent,Coverage Verification Agent Started,Agent processing started for coverage_verification,"Agent Type: coverage_verification
+Status: started
+Progress: 0%",completed,medium,2026-04-25T05:47:29.951Z,2026-04-25T05:47:29.966Z,2026-04-25T05:47:29.966Z
+CLM-2025-001-archived-1777096036078,CLA-1777096023986-spq77jzw,agent_execution,Coverage Verification Agent,agent,Coverage Verification Agent Started,Agent processing started for coverage_verification,"Agent Type: coverage_verification
+Status: started
+Progress: 0%",completed,medium,2026-04-25T05:47:30.247Z,2026-04-25T05:47:30.262Z,2026-04-25T05:47:30.262Z
+CLM-2025-001,CLA-1777096036084-ctbh16q2,agent_execution,Coverage Verification Agent,agent,Coverage Verification Agent Completed,Agent successfully completed processing,"Agent: Coverage Verification Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Coverage Verification Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Coverage Verification Agent completed successfully with AI processing""}",completed,medium,2026-04-25T05:48:13.001Z,2026-04-25T05:48:13.037Z,2026-04-25T05:48:13.037Z
+CLM-2025-001-archived-1777096036078,CLA-1777096023986-spq77jzw,agent_execution,Coverage Verification Agent,agent,Coverage Verification Agent Completed,Agent successfully completed processing,"Agent: Coverage Verification Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Coverage Verification Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Coverage Verification Agent completed successfully with AI processing""}",completed,medium,2026-04-25T05:48:13.288Z,2026-04-25T05:48:13.303Z,2026-04-25T05:48:13.303Z
+CLM-2025-001,CLA-1777096036084-ctbh16q2,agent_execution,Claim Data Extraction Agent,agent,Claim Data Extraction Agent Started,Agent processing started for claim_extractor,"Agent Type: claim_extractor
+Status: started
+Progress: 0%",completed,medium,2026-04-25T05:49:41.404Z,2026-04-25T05:49:41.422Z,2026-04-25T05:49:41.422Z
+CLM-2025-001,CLA-1777096036084-ctbh16q2,agent_execution,Claim Data Extraction Agent,agent,Claim Data Extraction Agent Completed,Agent successfully completed processing,"Agent: Claim Data Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Claim Data Extraction Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Claim Data Extraction Agent completed successfully with AI processing""}",completed,medium,2026-04-25T05:49:59.508Z,2026-04-25T05:49:59.525Z,2026-04-25T05:49:59.525Z
+CLM-2025-001,CLA-1777096446135-9s29ojd6,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 5",completed,medium,2026-04-25T05:54:06.135Z,2026-04-25T05:54:06.150Z,2026-04-25T05:54:06.150Z
+CLM-2025-001,CLA-1777096792993-xo6k7fb9,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 5",completed,medium,2026-04-25T05:59:52.993Z,2026-04-25T05:59:53.000Z,2026-04-25T05:59:53.000Z
+CLM-2025-001,CLA-1777097228114-ow9r322j,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 5",completed,medium,2026-04-25T06:07:08.114Z,2026-04-25T06:07:08.126Z,2026-04-25T06:07:08.126Z
+CLM-2025-001,CLA-1777108030108-bu3u3ncj,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 5",completed,medium,2026-04-25T09:07:10.108Z,2026-04-25T09:07:10.120Z,2026-04-25T09:07:10.120Z
+CLM-2025-001,CLA-1777108236689-q9ewexj2,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 5",completed,medium,2026-04-25T09:10:36.689Z,2026-04-25T09:10:36.703Z,2026-04-25T09:10:36.703Z
+CLM-2025-001,CLA-1777108671119-hm9oxtb4,system_event,System,system,Workflow Started,Test workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 5",completed,medium,2026-04-25T09:17:51.119Z,2026-04-25T09:17:51.127Z,2026-04-25T09:17:51.127Z
+CLM-2025-001,CLA-1777109130399-pgsf76a8,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 5",completed,medium,2026-04-25T09:25:30.400Z,2026-04-25T09:25:30.408Z,2026-04-25T09:25:30.408Z
+CLM-2025-001,CLA-1777109172542-x1m02azg,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 5",completed,medium,2026-04-25T09:26:12.542Z,2026-04-25T09:26:12.550Z,2026-04-25T09:26:12.550Z
+CLM-2025-001,CLA-1777109430723-nthucqrz,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 5",completed,medium,2026-04-25T09:30:30.723Z,2026-04-25T09:30:30.732Z,2026-04-25T09:30:30.732Z
+CLM-2025-001,CLA-1777264406502-cijy37im,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 5",completed,medium,2026-04-27T04:33:26.502Z,2026-04-27T04:33:26.510Z,2026-04-27T04:33:26.510Z
+CLM-2025-001,CLA-1777264989577-hd8y006f,system_event,System,system,Workflow Started,Test workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T04:43:09.578Z,2026-04-27T04:43:09.595Z,2026-04-27T04:43:09.595Z
+CLM-2025-001,CLA-1777265014218-vjgmg2bm,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T04:43:34.218Z,2026-04-27T04:43:34.227Z,2026-04-27T04:43:34.227Z
+CLM-2025-001,CLA-1777265014218-vjgmg2bm,agent_execution,FNOL Intake & Assignment Agent,agent,FNOL Intake & Assignment Agent Started,Agent processing started for fnol_intake,"Agent Type: fnol_intake
+Status: started
+Progress: 0%",completed,medium,2026-04-27T04:43:58.484Z,2026-04-27T04:43:58.512Z,2026-04-27T04:43:58.512Z
+CLM-2025-001,CLA-1777265014218-vjgmg2bm,agent_execution,FNOL Intake & Assignment Agent,agent,FNOL Intake & Assignment Agent Completed,Agent successfully completed processing,"Agent: FNOL Intake & Assignment Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""FNOL Intake & Assignment Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""FNOL Intake & Assignment Agent completed successfully with AI processing""}",completed,medium,2026-04-27T04:44:47.799Z,2026-04-27T04:44:47.817Z,2026-04-27T04:44:47.817Z
+CLM-2025-001,CLA-1777265129967-22gtkfqf,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T04:45:29.967Z,2026-04-27T04:45:29.974Z,2026-04-27T04:45:29.974Z
+CLM-2025-001-archived-1777265014206,CLA-1777264989577-hd8y006f,agent_execution,Invoice Validation Agent,agent,Invoice Validation Agent Started,Agent processing started for invoice_validation,"Agent Type: invoice_validation
+Status: started
+Progress: 0%",completed,medium,2026-04-27T04:49:01.377Z,2026-04-27T04:49:01.393Z,2026-04-27T04:49:01.393Z
+CLM-2025-001-archived-1777265014206,CLA-1777264989577-hd8y006f,agent_execution,Invoice Validation Agent,agent,Invoice Validation Agent Completed,Agent successfully completed processing,"Agent: Invoice Validation Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Invoice Validation Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Invoice Validation Agent completed successfully with AI processing""}",completed,medium,2026-04-27T04:49:40.464Z,2026-04-27T04:49:40.480Z,2026-04-27T04:49:40.480Z
+CLM-2025-001,CLA-1777265840602-34j7rj1k,system_event,System,system,Workflow Started,Test workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T04:57:20.602Z,2026-04-27T04:57:20.623Z,2026-04-27T04:57:20.623Z
+CLM-2025-001,CLA-1777265840602-34j7rj1k,agent_execution,Claim Event Summarizer Agent,agent,Claim Event Summarizer Agent Started,Agent processing started for claim_event_summarizer,"Agent Type: claim_event_summarizer
+Status: started
+Progress: 0%",completed,medium,2026-04-27T04:57:23.237Z,2026-04-27T04:57:23.253Z,2026-04-27T04:57:23.253Z
+CLM-2025-001,CLA-1777265860170-79bo4vyq,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T04:57:40.170Z,2026-04-27T04:57:40.177Z,2026-04-27T04:57:40.177Z
+CLM-2025-001,CLA-1777265860170-79bo4vyq,agent_execution,Claim Event Summarizer Agent,agent,Claim Event Summarizer Agent Started,Agent processing started for claim_event_summarizer,"Agent Type: claim_event_summarizer
+Status: started
+Progress: 0%",completed,medium,2026-04-27T04:57:43.131Z,2026-04-27T04:57:43.152Z,2026-04-27T04:57:43.152Z
+CLM-2025-001-archived-1777265860161,CLA-1777265840602-34j7rj1k,agent_execution,Claim Event Summarizer Agent,agent,Claim Event Summarizer Agent Completed,Agent successfully completed processing,"Agent: Claim Event Summarizer Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Claim Event Summarizer Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Claim Event Summarizer Agent completed successfully with AI processing""}",completed,medium,2026-04-27T04:58:06.611Z,2026-04-27T04:58:06.632Z,2026-04-27T04:58:06.632Z
+CLM-2025-001,CLA-1777265860170-79bo4vyq,agent_execution,Claim Event Summarizer Agent,agent,Claim Event Summarizer Agent Completed,Agent successfully completed processing,"Agent: Claim Event Summarizer Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Claim Event Summarizer Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Claim Event Summarizer Agent completed successfully with AI processing""}",completed,medium,2026-04-27T04:58:26.521Z,2026-04-27T04:58:26.543Z,2026-04-27T04:58:26.543Z
+CLM-2025-001,CLA-1777265860170-79bo4vyq,agent_execution,Claim Event Summarizer Agent,agent,Claim Event Summarizer Agent Started,Agent processing started for claim_event_summarizer,"Agent Type: claim_event_summarizer
+Status: started
+Progress: 0%",completed,medium,2026-04-27T05:03:54.545Z,2026-04-27T05:03:54.595Z,2026-04-27T05:03:54.595Z
+CLM-2025-001,CLA-1777265860170-79bo4vyq,agent_execution,Claim Event Summarizer Agent,agent,Claim Event Summarizer Agent Completed,Agent successfully completed processing,"Agent: Claim Event Summarizer Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Claim Event Summarizer Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Claim Event Summarizer Agent completed successfully with AI processing""}",completed,medium,2026-04-27T05:04:37.988Z,2026-04-27T05:04:38.011Z,2026-04-27T05:04:38.011Z
+CLM-2025-001,CLA-1777265860170-79bo4vyq,agent_execution,FNOL Intake & Assignment Agent,agent,FNOL Intake & Assignment Agent Started,Agent processing started for fnol_intake,"Agent Type: fnol_intake
+Status: started
+Progress: 0%",completed,medium,2026-04-27T05:09:17.898Z,2026-04-27T05:09:17.913Z,2026-04-27T05:09:17.913Z
+CLM-2025-001,CLA-1777265860170-79bo4vyq,agent_execution,FNOL Intake & Assignment Agent,agent,FNOL Intake & Assignment Agent Completed,Agent successfully completed processing,"Agent: FNOL Intake & Assignment Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""FNOL Intake & Assignment Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""FNOL Intake & Assignment Agent completed successfully with AI processing""}",completed,medium,2026-04-27T05:10:07.211Z,2026-04-27T05:10:07.227Z,2026-04-27T05:10:07.227Z
+CLM-2025-001,CLA-1777267381898-c2uiv50e,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T05:23:01.899Z,2026-04-27T05:23:01.914Z,2026-04-27T05:23:01.914Z
+CLM-2025-001,CLA-1777267381898-c2uiv50e,agent_execution,FNOL Intake & Assignment Agent,agent,FNOL Intake & Assignment Agent Started,Agent processing started for fnol_intake,"Agent Type: fnol_intake
+Status: started
+Progress: 0%",completed,medium,2026-04-27T05:23:05.376Z,2026-04-27T05:23:05.393Z,2026-04-27T05:23:05.393Z
+CLM-2025-001,CLA-1777267381898-c2uiv50e,agent_execution,FNOL Intake & Assignment Agent,agent,FNOL Intake & Assignment Agent Completed,Agent successfully completed processing,"Agent: FNOL Intake & Assignment Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""FNOL Intake & Assignment Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""FNOL Intake & Assignment Agent completed successfully with AI processing""}",completed,medium,2026-04-27T05:23:54.678Z,2026-04-27T05:23:54.696Z,2026-04-27T05:23:54.696Z
+CLM-2025-001,CLA-1777267649843-zpkyy48c,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T05:27:29.843Z,2026-04-27T05:27:29.855Z,2026-04-27T05:27:29.855Z
+CLM-2025-001,CLA-1777267936431-xbrmlhzz,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T05:32:16.431Z,2026-04-27T05:32:16.451Z,2026-04-27T05:32:16.451Z
+CLM-2025-001,CLA-1777267936431-xbrmlhzz,agent_execution,Loss Report Summarizer Agent,agent,Loss Report Summarizer Agent Started,Agent processing started for loss_report_summarizer,"Agent Type: loss_report_summarizer
+Status: started
+Progress: 0%",completed,medium,2026-04-27T05:32:20.485Z,2026-04-27T05:32:20.502Z,2026-04-27T05:32:20.502Z
+CLM-2025-001,CLA-1777267936431-xbrmlhzz,agent_execution,Loss Report Summarizer Agent,agent,Loss Report Summarizer Agent Completed,Agent successfully completed processing,"Agent: Loss Report Summarizer Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Loss Report Summarizer Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Loss Report Summarizer Agent completed successfully with AI processing""}",completed,medium,2026-04-27T05:33:00.053Z,2026-04-27T05:33:00.080Z,2026-04-27T05:33:00.080Z
+CLM-2025-001,CLA-1777268995837-4nuyqcei,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T05:49:55.837Z,2026-04-27T05:49:55.850Z,2026-04-27T05:49:55.850Z
+CLM-2025-001,CLA-1777268995837-4nuyqcei,agent_execution,Coverage Validation Assistant,agent,Coverage Validation Assistant Started,Agent processing started for coverage_validation,"Agent Type: coverage_validation
+Status: started
+Progress: 0%",completed,medium,2026-04-27T05:50:10.944Z,2026-04-27T05:50:10.967Z,2026-04-27T05:50:10.967Z
+CLM-2025-001,CLA-1777268995837-4nuyqcei,agent_execution,Coverage Validation Assistant,agent,Coverage Validation Assistant Completed,Agent successfully completed processing,"Agent: Coverage Validation Assistant
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Coverage Validation Assistant"",""status"":""completed"",""confidence"":0.95,""summary"":""Coverage Validation Assistant completed successfully with AI processing""}",completed,medium,2026-04-27T05:50:49.798Z,2026-04-27T05:50:49.824Z,2026-04-27T05:50:49.824Z
+CLM-2025-001,CLA-1777269481287-nuoa0o1l,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T05:58:01.287Z,2026-04-27T05:58:01.299Z,2026-04-27T05:58:01.299Z
+CLM-2025-001,CLA-1777269481287-nuoa0o1l,agent_execution,Coverage Validation Assistant,agent,Coverage Validation Assistant Started,Agent processing started for coverage_validation,"Agent Type: coverage_validation
+Status: started
+Progress: 0%",completed,medium,2026-04-27T05:58:05.226Z,2026-04-27T05:58:05.243Z,2026-04-27T05:58:05.243Z
+CLM-2025-001,CLA-1777269481287-nuoa0o1l,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 0/6",completed,medium,2026-04-27T05:58:44.069Z,2026-04-27T05:58:44.077Z,2026-04-27T05:58:44.077Z
+CLM-2025-001,CLA-1777269481287-nuoa0o1l,agent_execution,Coverage Validation Assistant,agent,Coverage Validation Assistant Completed,Agent successfully completed processing,"Agent: Coverage Validation Assistant
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-04-27T05:58:44.086Z,2026-04-27T05:58:44.115Z,2026-04-27T05:58:44.115Z
+CLM-2025-001,CLA-1777269481287-nuoa0o1l,system_event,System,system,Workflow Status Changed,Status changed from pending_data_extraction to running,"Previous Status: pending_data_extraction
+New Status: running
+Step: 1/6",completed,medium,2026-04-27T06:02:09.992Z,2026-04-27T06:02:10.008Z,2026-04-27T06:02:10.008Z
+CLM-2025-001,CLA-1777271085971-q7jyxsm7,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T06:24:45.971Z,2026-04-27T06:24:45.983Z,2026-04-27T06:24:45.983Z
+CLM-2025-001,CLA-1777271255295-yc2l5k9t,system_event,System,system,Workflow Started,Test workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T06:27:35.295Z,2026-04-27T06:27:35.313Z,2026-04-27T06:27:35.313Z
+CLM-2025-001,CLA-1777271391051-y8vygi4y,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T06:29:51.051Z,2026-04-27T06:29:51.061Z,2026-04-27T06:29:51.061Z
+CLM-2025-001,CLA-1777271391051-y8vygi4y,agent_execution,Claim Event Summarizer Agent,agent,Claim Event Summarizer Agent Started,Agent processing started for claim_event_summarizer,"Agent Type: claim_event_summarizer
+Status: started
+Progress: 0%",completed,medium,2026-04-27T06:30:07.863Z,2026-04-27T06:30:07.883Z,2026-04-27T06:30:07.883Z
+CLM-2025-001,CLA-1777271391051-y8vygi4y,agent_execution,Claim Event Summarizer Agent,agent,Claim Event Summarizer Agent Completed,Agent successfully completed processing,"Agent: Claim Event Summarizer Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Claim Event Summarizer Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Claim Event Summarizer Agent completed successfully with AI processing""}",completed,medium,2026-04-27T06:30:51.232Z,2026-04-27T06:30:51.250Z,2026-04-27T06:30:51.250Z
+CLM-2025-001,CLA-1777271391051-y8vygi4y,agent_execution,Invoice Validation Agent,agent,Invoice Validation Agent Started,Agent processing started for invoice_validation,"Agent Type: invoice_validation
+Status: started
+Progress: 0%",completed,medium,2026-04-27T06:33:11.830Z,2026-04-27T06:33:11.849Z,2026-04-27T06:33:11.849Z
+CLM-2025-001,CLA-1777271391051-y8vygi4y,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 1/6",completed,medium,2026-04-27T06:33:49.674Z,2026-04-27T06:33:49.682Z,2026-04-27T06:33:49.682Z
+CLM-2025-001,CLA-1777271391051-y8vygi4y,agent_execution,Invoice Validation Agent,agent,Invoice Validation Agent Completed,Agent successfully completed processing,"Agent: Invoice Validation Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-04-27T06:33:49.690Z,2026-04-27T06:33:49.710Z,2026-04-27T06:33:49.710Z
+CLM-2025-001,CLA-1777271650693-o1ip386f,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T06:34:10.693Z,2026-04-27T06:34:10.702Z,2026-04-27T06:34:10.702Z
+CLM-2025-001,CLA-1777271650693-o1ip386f,agent_execution,Invoice Validation Agent,agent,Invoice Validation Agent Started,Agent processing started for invoice_validation,"Agent Type: invoice_validation
+Status: started
+Progress: 0%",completed,medium,2026-04-27T06:34:15.019Z,2026-04-27T06:34:15.034Z,2026-04-27T06:34:15.034Z
+CLM-2025-001,CLA-1777271650693-o1ip386f,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 0/6",completed,medium,2026-04-27T06:34:52.793Z,2026-04-27T06:34:52.800Z,2026-04-27T06:34:52.800Z
+CLM-2025-001,CLA-1777271650693-o1ip386f,agent_execution,Invoice Validation Agent,agent,Invoice Validation Agent Completed,Agent successfully completed processing,"Agent: Invoice Validation Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-04-27T06:34:52.808Z,2026-04-27T06:34:52.831Z,2026-04-27T06:34:52.831Z
+CLM-2025-001,CLA-1777271939557-s9it1zeb,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T06:38:59.558Z,2026-04-27T06:38:59.566Z,2026-04-27T06:38:59.566Z
+CLM-2025-001,CLA-1777271939557-s9it1zeb,agent_execution,Invoice Validation Agent,agent,Invoice Validation Agent Started,Agent processing started for invoice_validation,"Agent Type: invoice_validation
+Status: started
+Progress: 0%",completed,medium,2026-04-27T06:39:02.022Z,2026-04-27T06:39:02.037Z,2026-04-27T06:39:02.037Z
+CLM-2025-001,CLA-1777271939557-s9it1zeb,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 0/6",completed,medium,2026-04-27T06:39:39.826Z,2026-04-27T06:39:39.833Z,2026-04-27T06:39:39.833Z
+CLM-2025-001,CLA-1777271939557-s9it1zeb,agent_execution,Invoice Validation Agent,agent,Invoice Validation Agent Completed,Agent successfully completed processing,"Agent: Invoice Validation Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-04-27T06:39:39.842Z,2026-04-27T06:39:39.862Z,2026-04-27T06:39:39.862Z
+CLM-2025-001,CLA-1777272023978-elccww83,system_event,System,system,Workflow Started,Claim Processing — CLM-2025-001 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-27T06:40:23.979Z,2026-04-27T06:40:23.991Z,2026-04-27T06:40:23.991Z
+CLM-2025-001,CLA-1777272023978-elccww83,agent_execution,Invoice Validation Agent,agent,Invoice Validation Agent Started,Agent processing started for invoice_validation,"Agent Type: invoice_validation
+Status: started
+Progress: 0%",completed,medium,2026-04-27T06:40:32.306Z,2026-04-27T06:40:32.322Z,2026-04-27T06:40:32.322Z
+CLM-2025-001,CLA-1777272023978-elccww83,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 0/6",completed,medium,2026-04-27T06:41:10.130Z,2026-04-27T06:41:10.140Z,2026-04-27T06:41:10.140Z
+CLM-2025-001,CLA-1777272023978-elccww83,agent_execution,Invoice Validation Agent,agent,Invoice Validation Agent Completed,Agent successfully completed processing,"Agent: Invoice Validation Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-04-27T06:41:10.151Z,2026-04-27T06:41:10.168Z,2026-04-27T06:41:10.168Z

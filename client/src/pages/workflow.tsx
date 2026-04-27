@@ -45,6 +45,11 @@ export default function WorkflowPage() {
   });
   const [isEmailEditorOpen, setIsEmailEditorOpen] = useState(false);
   const [showDataExtractionForm, setShowDataExtractionForm] = useState(false);
+  // When the sidebar's View Data button is clicked, capture which agent's
+  // form to load — so claim workflows can switch between FNOL and Coverage
+  // Validation forms even after the session-level _formConfig has been
+  // overwritten by approved values.
+  const [viewFormAgentType, setViewFormAgentType] = useState<string | undefined>(undefined);
   const [showTimeline, setShowTimeline] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
@@ -94,6 +99,7 @@ export default function WorkflowPage() {
   );
   const wfType = (workflowData as any)?.session?.workflowType || '';
   const isSubmissionWorkflow = wfType === 'submission';
+  const isClaimWorkflow = wfType === 'claim';
   // For submission workflows, show the data extraction form as the primary UI while
   // the pipeline is initialising (running) or waiting for human review (pending_data_extraction).
   // Once the underwriter approves the form (dataExtractionCompleted=true) we switch back to
@@ -101,7 +107,12 @@ export default function WorkflowPage() {
   // Exclude pending_approval — that's the quote-review stage handled by the approval modal.
   const isSubmissionAtDataExtractionGate = isSubmissionWorkflow && !dataExtractionCompleted &&
     workflowStatus === 'pending_data_extraction';
-  const shouldShowDataExtractionForm = showDataExtractionForm || hasPendingDataExtractionApproval || isSubmissionAtDataExtractionGate;
+  // Claim workflows can pause for the form multiple times in a single session
+  // (FNOL Intake form, then Coverage Validation form). Auto-show whenever the
+  // session is at a data-extraction gate — the form's contents come from
+  // session.extractedData._formConfig which the agent updates per-pause.
+  const isClaimAtDataExtractionGate = isClaimWorkflow && workflowStatus === 'pending_data_extraction';
+  const shouldShowDataExtractionForm = showDataExtractionForm || hasPendingDataExtractionApproval || isSubmissionAtDataExtractionGate || isClaimAtDataExtractionGate;
   
 
 
@@ -585,7 +596,10 @@ export default function WorkflowPage() {
                   onNewSession={handleNewSession}
                   onOpenEmailEditor={() => setIsEmailEditorOpen(true)}
                   isDataExtractionApproved={dataExtractionCompleted}
-                  onShowDataExtractionForm={() => setShowDataExtractionForm(true)}
+                  onShowDataExtractionForm={(agentType) => {
+                    setViewFormAgentType(agentType);
+                    setShowDataExtractionForm(true);
+                  }}
                 />
               </Panel>
               <PanelResizeHandle className="w-1 bg-border hover:bg-blue-400 transition-colors cursor-col-resize" />
@@ -669,12 +683,16 @@ export default function WorkflowPage() {
                     {(() => {
                       const isJiraForm = wfType === 'jira' || isJiraWorkflow || currentSessionId?.startsWith('JIR-');
                       const isSlipForm = wfType === 'slip';
+                      const isClaimForm = wfType === 'claim';
 
+                      const claimAgentParam = viewFormAgentType ? `&agentType=${viewFormAgentType}` : '';
                       const configEndpoint = isJiraForm
                         ? '/api/jira-forms/data-extraction-config'
                         : isSlipForm
                           ? '/api/slip-forms/data-extraction-config'
-                          : `/api/submission-forms/data-extraction-config?sessionId=${currentSessionId}`;
+                          : isClaimForm
+                            ? `/api/claims-forms/data-extraction-config?sessionId=${currentSessionId}${claimAgentParam}`
+                            : `/api/submission-forms/data-extraction-config?sessionId=${currentSessionId}`;
 
                       return (
                         <ConfigurableJiraDataExtractionForm
@@ -698,6 +716,7 @@ export default function WorkflowPage() {
                       agents={workflowData?.agents || []}
                       onApprove={(requestId) => handleApproval(requestId, true)}
                       onReject={(requestId) => handleApproval(requestId, false)}
+                      workflowType={wfType}
                     />
                   </div>
                 )}
@@ -740,8 +759,9 @@ export default function WorkflowPage() {
         />
       )}
       
-      {/* Negotiation Chatbot */}
-      {currentSessionId && <NegotiationChatbot sessionId={currentSessionId} />}
+      {/* Negotiation Chatbot — submission/slip workflows only. Claim workflows
+          have their own Q&A path through the main chat input. */}
+      {currentSessionId && wfType !== 'claim' && <NegotiationChatbot sessionId={currentSessionId} />}
     </div>
   );
 }

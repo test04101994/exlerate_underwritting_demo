@@ -1,0 +1,200 @@
+{
+  "version": "1.0.0",
+  "description": "Agent configuration for claims processing workflows",
+  "agents": [
+    {
+      "id": "claim-data-extraction",
+      "name": "Claim Data Extraction Agent",
+      "type": "claim_extractor",
+      "description": "Extracts claim details from notification documents including loss particulars, claimant information, policy reference, and supporting evidence",
+      "role": "data_processor",
+      "executionOrder": 1,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 300,
+        "temperature": 0.1
+      },
+      "prompt": {
+        "systemPrompt": "claim_extraction_system_prompt",
+        "contextTemplate": "claim_context_template",
+        "outputFormat": "structured_json"
+      },
+      "dataSource": {
+        "type": "csv",
+        "source": "claims.csv",
+        "keyField": "claim_id",
+        "displayFields": [
+          "claim_number", "policy_number", "claim_type", "date_of_loss",
+          "claimant_first_name", "claimant_surname", "loss_amount", "loss_description"
+        ]
+      },
+      "validation": {
+        "requiredFields": ["claim_number", "policy_number", "date_of_loss", "loss_amount"],
+        "confidenceThreshold": 0.7
+      },
+      "approval": {
+        "requiresHumanApproval": true,
+        "approvalType": "data_extraction",
+        "pauseWorkflow": true,
+        "formInterface": "DataExtractionForm"
+      },
+      "dependencies": [],
+      "progressTracking": {
+        "stages": ["initializing", "extracting", "validating", "awaiting_approval", "completed"],
+        "estimatedDuration": 30
+      }
+    },
+    {
+      "id": "coverage-verification",
+      "name": "Coverage Verification Agent",
+      "type": "coverage_verification",
+      "description": "Cross-checks the claim against the underlying policy to confirm peril is covered, limits are adequate, and the loss occurred within the policy period",
+      "role": "policy_analyst",
+      "executionOrder": 2,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 300,
+        "temperature": 0.1
+      },
+      "prompt": {
+        "systemPrompt": "coverage_verification_prompt",
+        "contextTemplate": "coverage_context_template",
+        "outputFormat": "coverage_decision"
+      },
+      "validation": {
+        "requiredFields": ["coverage_status", "policy_in_force", "peril_covered", "limit_sufficient"],
+        "confidenceThreshold": 0.85,
+        "allowedValues": {
+          "coverage_status": ["covered", "partially_covered", "not_covered", "requires_review"]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": "conditional",
+        "approvalCondition": "coverage_status === 'not_covered' || coverage_status === 'requires_review'",
+        "approvalType": "coverage_review",
+        "pauseWorkflow": true
+      },
+      "dependencies": ["claim-data-extraction"],
+      "progressTracking": {
+        "stages": ["fetching_policy", "comparing_perils", "validating_limits", "completed"],
+        "estimatedDuration": 30
+      }
+    },
+    {
+      "id": "fraud-check",
+      "name": "Fraud Check Agent",
+      "type": "fraud_check",
+      "description": "Screens claim against historical patterns and red-flag indicators including prior claim frequency, suspicious timing, and inconsistent documentation",
+      "role": "fraud_analyst",
+      "executionOrder": 3,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 350,
+        "temperature": 0.0
+      },
+      "prompt": {
+        "systemPrompt": "fraud_check_prompt",
+        "contextTemplate": "fraud_context_template",
+        "outputFormat": "fraud_assessment"
+      },
+      "validation": {
+        "requiredFields": ["fraud_risk_level", "red_flags", "recommended_action"],
+        "confidenceThreshold": 0.8,
+        "allowedValues": {
+          "fraud_risk_level": ["low", "medium", "high"],
+          "recommended_action": ["proceed", "investigate", "refer_to_siu", "deny"]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": "conditional",
+        "approvalCondition": "fraud_risk_level === 'high' || recommended_action === 'refer_to_siu'",
+        "approvalType": "fraud_override",
+        "pauseWorkflow": true
+      },
+      "dependencies": ["coverage-verification"],
+      "progressTracking": {
+        "stages": ["scanning_history", "analyzing_indicators", "scoring_risk", "completed"],
+        "estimatedDuration": 35
+      }
+    },
+    {
+      "id": "reserve-setting",
+      "name": "Reserve Setting Agent",
+      "type": "reserve_setting",
+      "description": "Calculates appropriate case reserve based on loss particulars, severity benchmarks, and historical settlement patterns",
+      "role": "actuarial_analyst",
+      "executionOrder": 4,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 350,
+        "temperature": 0.2
+      },
+      "prompt": {
+        "systemPrompt": "reserve_setting_prompt",
+        "contextTemplate": "reserve_context_template",
+        "outputFormat": "reserve_breakdown"
+      },
+      "validation": {
+        "requiredFields": ["recommended_reserve", "indemnity_reserve", "expense_reserve", "rationale"],
+        "confidenceThreshold": 0.85,
+        "numericValidation": {
+          "recommended_reserve": {"min": 0, "max": 10000000}
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": false
+      },
+      "dependencies": ["fraud-check"],
+      "progressTracking": {
+        "stages": ["benchmarking", "calculating", "validating", "completed"],
+        "estimatedDuration": 25
+      }
+    },
+    {
+      "id": "adjudication",
+      "name": "Adjudication Agent",
+      "type": "adjudication",
+      "description": "Issues the final claim decision (approve, partial settlement, or deny) with itemised settlement breakdown and reasoning",
+      "role": "claims_adjudicator",
+      "executionOrder": 5,
+      "required": true,
+      "aiModel": {
+        "provider": "openrouter",
+        "model": "gpt-4o-mini",
+        "maxTokens": 400,
+        "temperature": 0.2
+      },
+      "prompt": {
+        "systemPrompt": "adjudication_prompt",
+        "contextTemplate": "adjudication_context_template",
+        "outputFormat": "adjudication_decision"
+      },
+      "validation": {
+        "requiredFields": ["decision", "settlement_amount", "rationale"],
+        "confidenceThreshold": 0.9,
+        "allowedValues": {
+          "decision": ["approved", "partial_settlement", "denied", "escalate"]
+        }
+      },
+      "approval": {
+        "requiresHumanApproval": true,
+        "approvalType": "adjudication_review",
+        "pauseWorkflow": true,
+        "actions": ["approve", "edit", "deny"]
+      },
+      "dependencies": ["reserve-setting"],
+      "progressTracking": {
+        "stages": ["compiling", "deciding", "drafting_letter", "awaiting_approval", "completed"],
+        "estimatedDuration": 30
+      }
+    }
+  ]
+}

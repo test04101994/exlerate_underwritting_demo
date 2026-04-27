@@ -230,7 +230,11 @@ export class MemStorage implements IStorage {
     // Return the most recent session, but prefer workflows with matching case type
     if (allSessions.length > 0) {
       // Auto-detect expected case type from case ID
-      const expectedCaseType = caseId.startsWith('SLP-') ? 'slip' : 'submission';
+      const expectedCaseType = caseId.startsWith('SLP-')
+        ? 'slip'
+        : caseId.startsWith('CLM-')
+          ? 'claim'
+          : 'submission';
       
       // First, try to find workflows with matching case type
       const matchingTypeSessions = allSessions.filter(session => 
@@ -734,6 +738,46 @@ export class MemStorage implements IStorage {
       }
     ];
 
+    // Claim cases
+    const claimCases = [
+      {
+        caseId: 'CLM-2025-001',
+        caseType: 'claim',
+        businessName: 'Lee Warner Jones',
+        policyType: 'Water Damage',
+        assignedUnderwriter: 'Michael Brown',
+        priority: 'high',
+        status: 'pending_approval',
+        premium: '£18,500',
+        broker: 'Peters Charley',
+        submissionDate: new Date('2025-02-15')
+      },
+      {
+        caseId: 'CLM-2025-002',
+        caseType: 'claim',
+        businessName: 'Michael James Thompson',
+        policyType: 'Theft',
+        assignedUnderwriter: 'Rachel Green',
+        priority: 'high',
+        status: 'processing',
+        premium: '£62,400',
+        broker: 'Michael Thompson',
+        submissionDate: new Date('2025-03-02')
+      },
+      {
+        caseId: 'CLM-2025-003',
+        caseType: 'claim',
+        businessName: 'Emma Louise Wilson',
+        policyType: 'Fire',
+        assignedUnderwriter: 'David Lee',
+        priority: 'medium',
+        status: 'completed',
+        premium: '£42,750',
+        broker: 'Emma Wilson',
+        submissionDate: new Date('2025-03-18')
+      }
+    ];
+
     // Slip cases
     const slipCases = [
       {
@@ -775,11 +819,11 @@ export class MemStorage implements IStorage {
     ];
 
     // Initialize all cases
-    [...submissionCases, ...slipCases].forEach(caseData => {
+    [...submissionCases, ...slipCases, ...claimCases].forEach(caseData => {
       const fullCase: Case = {
         id: this.currentCaseId++,
         caseId: caseData.caseId,
-        caseType: caseData.caseType as 'submission' | 'slip',
+        caseType: caseData.caseType as 'submission' | 'slip' | 'claim',
         businessName: caseData.businessName,
         policyType: caseData.policyType,
         assignedUnderwriter: caseData.assignedUnderwriter,

@@ -3,7 +3,7 @@ import { join } from 'path';
 
 export interface DashboardCase {
   case_id: string;
-  case_type: 'submission' | 'slip';
+  case_type: 'submission' | 'slip' | 'claim';
   business_name: string;
   policy_type: string;
   submission_date: string;
@@ -73,7 +73,7 @@ export function loadDashboardCases(): DashboardCase[] {
       
       // Convert string values to appropriate types
       caseData.agent_progress = parseInt(caseData.agent_progress) || 0;
-      caseData.case_type = caseData.case_type as 'submission' | 'slip';
+      caseData.case_type = caseData.case_type as 'submission' | 'slip' | 'claim';
       caseData.status = caseData.status as 'pending_approval' | 'processing' | 'completed' | 'rejected';
       caseData.priority = caseData.priority as 'high' | 'medium' | 'low';
       
@@ -94,7 +94,7 @@ export function getDashboardCaseById(caseId: string): DashboardCase | null {
 }
 
 // Function to get cases by type
-export function getDashboardCasesByType(caseType: 'submission' | 'slip'): DashboardCase[] {
+export function getDashboardCasesByType(caseType: 'submission' | 'slip' | 'claim'): DashboardCase[] {
   const cases = loadDashboardCases();
   return cases.filter(c => c.case_type === caseType);
 }
@@ -112,7 +112,7 @@ export function getDashboardCasesByStatus(status: string): DashboardCase[] {
 }
 
 // Function to get agent configurations based on case type
-export function getAgentConfigsForDashboardCase(caseType: 'submission' | 'slip') {
+export function getAgentConfigsForDashboardCase(caseType: 'submission' | 'slip' | 'claim') {
   if (caseType === 'slip') {
     return [
       { name: 'Slip Validation Agent', type: 'slip_validator', icon: '📋' },
@@ -121,6 +121,15 @@ export function getAgentConfigsForDashboardCase(caseType: 'submission' | 'slip')
       { name: 'Pricing Agent', type: 'pricing_agent', icon: '💰' },
       { name: 'Approval Agent', type: 'approval_agent', icon: '✅' },
       { name: 'Documentation Agent', type: 'documentation_agent', icon: '📄' }
+    ];
+  } else if (caseType === 'claim') {
+    return [
+      { name: 'Claim Event Summarizer Agent', type: 'claim_event_summarizer', icon: '🕐' },
+      { name: 'FNOL Intake & Assignment Agent', type: 'fnol_intake', icon: '📥' },
+      { name: 'Coverage Validation Assistant', type: 'coverage_validation', icon: '🔍' },
+      { name: 'Loss Report Summarizer Agent', type: 'loss_report_summarizer', icon: '📋' },
+      { name: 'Invoice Validation Agent', type: 'invoice_validation', icon: '🧾' },
+      { name: 'Automated Correspondence Generator', type: 'correspondence_generator', icon: '✉️' }
     ];
   } else {
     return [

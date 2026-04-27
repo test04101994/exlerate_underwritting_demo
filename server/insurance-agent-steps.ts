@@ -579,5 +579,334 @@ Generating PDF quote document...`
 
 [PDF_DOWNLOAD:/api/quote/download:Insurance_Quote_Harrington.pdf]`
     }
+  ],
+
+  fnol_intake: [
+    {
+      progress: 18,
+      delayMs: 1600,
+      message: `**Thinking:** Parsing the FNOL email for policy reference, claimant details, peril, date of loss, and severity indicators. Will then locate the policy in PAS, scan for duplicates, score severity, and assign an adjuster.`
+    },
+    {
+      progress: 38,
+      delayMs: 1800,
+      message: `→ \`extract_fnol_fields\`
+\`\`\`json
+{ "source": "FNOL_email.eml", "format": "outlook_mime" }
+\`\`\``
+    },
+    {
+      progress: 56,
+      delayMs: 1600,
+      message: `✓ \`extract_fnol_fields\` returned:
+\`\`\`json
+{
+  "policy_number": "HO-2024-7731845-CA",
+  "claimant": "Lee Warner Jones",
+  "date_of_loss": "2025-02-14",
+  "peril": "water_damage",
+  "estimated_loss": "£18,500"
+}
+\`\`\``
+    },
+    {
+      progress: 74,
+      delayMs: 1700,
+      message: `→ \`pas_lookup_and_dupe_scan\`
+\`\`\`json
+{ "policy_number": "HO-2024-7731845-CA", "claimant": "Lee Warner Jones", "lookback_days": 365 }
+\`\`\``
+    },
+    {
+      progress: 88,
+      delayMs: 1500,
+      message: `✓ \`pas_lookup_and_dupe_scan\` returned:
+\`\`\`json
+{
+  "policy_in_force": true,
+  "duplicate_claims": 0,
+  "severity_band": "medium",
+  "recommended_adjuster": "Michael Brown",
+  "queue": "personal_lines_property"
+}
+\`\`\``
+    },
+    {
+      progress: 100,
+      delayMs: 0,
+      message: `**FNOL Intake & Assignment — Complete**
+
+- Policy located: **HO-2024-7731845-CA** (in force)
+- Duplicate claims: **0**
+- Severity band: **medium**
+- Adjuster assigned: **Michael Brown**
+- Routing queue: **Personal Lines · Property**`
+    }
+  ],
+
+  coverage_validation: [
+    {
+      progress: 18,
+      delayMs: 1600,
+      message: `**Thinking:** Pulling the policy schedule and exclusions, then validating that the reported peril is covered, the limit is adequate, and the loss falls within the policy period.`
+    },
+    {
+      progress: 40,
+      delayMs: 1800,
+      message: `→ \`fetch_policy_schedule\`
+\`\`\`json
+{ "policy_number": "HO-2024-7731845-CA" }
+\`\`\``
+    },
+    {
+      progress: 60,
+      delayMs: 1700,
+      message: `✓ \`fetch_policy_schedule\` returned:
+\`\`\`json
+{
+  "perils_covered": ["fire", "water_damage", "theft", "storm", "liability"],
+  "buildings_limit": "£600,000",
+  "contents_limit": "£75,000",
+  "deductible": "£500",
+  "key_exclusions": ["wear_and_tear", "gradual_seepage", "unoccupied_60_days"]
+}
+\`\`\``
+    },
+    {
+      progress: 82,
+      delayMs: 1600,
+      message: `→ \`validate_coverage\`
+\`\`\`json
+{ "peril": "fire", "date_of_loss": "2015-10-21", "loss_estimate": 2156592.91 }
+\`\`\``
+    },
+    {
+      progress: 100,
+      delayMs: 0,
+      message: `**Coverage Validation — Complete**
+
+Policy **B123456/16** evaluated against the loss. Coverage details, sub-limits, and deductibles are now ready for adjuster review in the validation form.
+
+📋 **Please review and approve the form** to confirm coverage and proceed to loss report review.`
+    }
+  ],
+
+  loss_report_summarizer: [
+    {
+      progress: 18,
+      delayMs: 1500,
+      message: `**Thinking:** Reading the loss adjuster's full report and benchmarking the proposed settlement against historical payouts on similar water-damage claims.`
+    },
+    {
+      progress: 38,
+      delayMs: 1900,
+      message: `→ \`fetch_adjuster_report\`
+\`\`\`json
+{ "claim_id": "CLM-2025-001" }
+\`\`\``
+    },
+    {
+      progress: 56,
+      delayMs: 1700,
+      message: `✓ \`fetch_adjuster_report\` returned:
+\`\`\`json
+{
+  "cause": "fatigue failure of pipe joint behind shower wall",
+  "scope_of_damage": ["bathroom flooring", "kitchen ceiling", "kitchen flooring", "downlights"],
+  "proposed_settlement": "£18,500",
+  "subrogation_potential": "low"
+}
+\`\`\``
+    },
+    {
+      progress: 78,
+      delayMs: 1700,
+      message: `→ \`compose_claim_summary_row\`
+\`\`\`json
+{ "claim_id": "ABC12356", "include_columns": ["claim", "dol", "claim_paid", "status", "loss_category", "claimant", "loss_description"] }
+\`\`\``
+    },
+    {
+      progress: 100,
+      delayMs: 0,
+      message: `**Loss Report Summary**
+
+| Claim | DOL | Claim Paid | Status | Loss Category | Claimant | Loss Description |
+|---|---|---|---|---|---|---|
+| ABC12356 | 21/10/15 | 0 | Open | Fire | Acme Resources, Inc | Fire incidents occurred on the evening of 21 October 2015 at two separate salt water disposal facilities — RJ Horz FED #1 and Booster FED #1. The fire was caused by lightning strikes from the storm in Eddy County and was extensive. |
+
+**Recommendation:** proceed to reserve setting and adjudication. Benchmark for fire claims of this scale (3rd-quartile band) supports the proposed settlement amount of **$1,592,499.74**.`
+    }
+  ],
+
+  invoice_validation: [
+    {
+      progress: 18,
+      delayMs: 1500,
+      message: `**Thinking:** Pulling the supplier invoice on file and validating it against the rate card, the claim assignment, and the prior payment history. Will surface the line items and any exception flags for adjuster review.`
+    },
+    {
+      progress: 40,
+      delayMs: 1800,
+      message: `→ \`fetch_invoice\`
+\`\`\`json
+{ "claim_id": "CP20222202-0058", "supplier": "SENTER ASSOCIATES, LLC" }
+\`\`\``
+    },
+    {
+      progress: 58,
+      delayMs: 1700,
+      message: `✓ \`fetch_invoice\` returned:
+\`\`\`json
+{
+  "invoice_number": "1012121",
+  "invoice_date": "13/10/16",
+  "supplier": "SENTER ASSOCIATES, LLC",
+  "service_lines": 3,
+  "gross": "$2,030.00"
+}
+\`\`\``
+    },
+    {
+      progress: 78,
+      delayMs: 1700,
+      message: `→ \`validate_against_rate_card_and_assignment\`
+\`\`\`json
+{ "invoice_number": "1012121", "assignment_date": "11/03/16" }
+\`\`\``
+    },
+    {
+      progress: 100,
+      delayMs: 0,
+      message: `**Invoice Validation — Complete**
+
+Invoice **1012121** from **SENTER ASSOCIATES, LLC** has been parsed and validated. Line items, totals, and exception status are now ready for adjuster review in the validation form.
+
+📋 **Please review and approve the form** to release payment, or flag an exception (Auth / Duplicate / Rate Mismatch / Service Not Approved / Not Enough Information) for further review.`
+    }
+  ],
+
+  claim_event_summarizer: [
+    {
+      progress: 18,
+      delayMs: 1500,
+      message: `**Thinking:** Reading the FNOL email, policy schedule, investigation reports, and invoices on the claim file. Will extract structured claim attributes and then compose a chronological narrative.`
+    },
+    {
+      progress: 36,
+      delayMs: 1800,
+      message: `→ \`extract_claim_attributes\`
+\`\`\`json
+{ "claim_id": "ABC12356", "sources": ["FNOL_email", "policy_schedule", "investigation_reports", "invoices"] }
+\`\`\``
+    },
+    {
+      progress: 54,
+      delayMs: 1700,
+      message: `✓ \`extract_claim_attributes\` returned:
+\`\`\`json
+{
+  "claim_number": "ABC12356",
+  "date_of_incident": "21/10/15",
+  "date_of_notification": "26/10/15",
+  "policy_number": "B123456/16",
+  "amount_paid_plus_reserve": "$8,570",
+  "claim_age_days": 354,
+  "current_state": "Open",
+  "adjuster": { "name": "MS Arica", "phone": "+1.235.454.1234", "email": "Arica@EXLInsurance.com" }
+}
+\`\`\``
+    },
+    {
+      progress: 74,
+      delayMs: 1800,
+      message: `→ \`compose_claim_narrative\`
+\`\`\`json
+{ "length": "medium", "include_attributes": true }
+\`\`\``
+    },
+    {
+      progress: 100,
+      delayMs: 0,
+      message: `**Claim Event Summary — ABC12356**
+
+**Claim Details**
+- **Claim Number:** ABC12356
+- **Date of Incident:** 21/10/15
+- **Date of Notification:** 26/10/15
+- **Policy Number:** B123456/16
+- **Amount Paid + Reserve:** $8,570
+- **Claim Age:** 354 days
+- **Current State:** Open
+- **Adjuster:** MS Arica · +1.235.454.1234 · Arica@EXLInsurance.com
+
+---
+
+**Narrative**
+
+On October 26th, Chris Hemsworth emailed a First Notice of Loss (FNOL) on behalf of Acme Resources, Inc. for two fire incidents at saltwater disposal facilities on October 21st, 2015 at 23:40 hours.
+
+The affected facilities — RJ Horz FED #1 and Booster FED #1, located in Eddy County, New Mexico — were damaged by lightning strikes during a storm. Fire departments from Otis, Happy Valley, Malaga, and Loving extinguished the fires by 02:15 hours on October 22nd, approximately 4.5 hours after they started.
+
+The policy under review (B123456/16, EXL Insurance) covers Acme Resources from May 2nd, 2015 to May 2nd, 2016. The schedule lists $650,000 each for RJ Horz FED #1 and Booster FED #1 tank batteries.
+
+Senter Associates LLC submitted the first investigation report on March 11th, 2016 confirming extensive damage; the final report on October 13th, 2016 confirmed RJ Horz FED #1 was repaired and back online in early June 2016, while the second facility was not repaired for economic reasons. The total claim amount is **$2,156,592.91** across both locations, with a recommended net settlement of **$1,592,499.74**, subject to liability.
+
+[REGENERATE_SUMMARY:medium]`
+    }
+  ],
+
+  correspondence_generator: [
+    {
+      progress: 20,
+      delayMs: 1500,
+      message: `**Thinking:** Selecting the right pre-approved template for a settlement letter, then merging claim data into the placeholders.`
+    },
+    {
+      progress: 44,
+      delayMs: 1800,
+      message: `→ \`select_template\`
+\`\`\`json
+{ "letter_type": "settlement_offer", "claim_type": "water_damage", "channel": "email" }
+\`\`\``
+    },
+    {
+      progress: 64,
+      delayMs: 1700,
+      message: `✓ \`select_template\` → \`tpl_settlement_offer_v3\` (pre-approved by compliance, version 3)`
+    },
+    {
+      progress: 84,
+      delayMs: 1800,
+      message: `→ \`merge_claim_data\`
+\`\`\`json
+{ "claim_id": "CLM-2025-001", "claimant": "Lee Warner Jones", "settlement_amount": "£18,000" }
+\`\`\``
+    },
+    {
+      progress: 100,
+      delayMs: 0,
+      message: `**Correspondence Generated**
+
+**To:** lee.jones@example.com (cc broker)
+**Subject:** Settlement offer — claim CLM-2025-001
+
+> Dear Ms Jones,
+>
+> Following the completion of our investigation into your claim, I am pleased to confirm that we are settling on the basis set out below.
+>
+> | Item | Amount |
+> |---|---|
+> | Gross loss | £18,500 |
+> | Less policy deductible | £500 |
+> | **Net settlement** | **£18,000** |
+>
+> Subject to your agreement, payment will be released within 5 working days. Please reply to confirm.
+>
+> Kind regards,
+> Michael Brown · Claims Adjuster
+
+Status: **draft ready for adjuster review and send**.`
+    }
   ]
 };

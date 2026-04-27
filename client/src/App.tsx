@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import WorkflowPage from "@/pages/workflow";
 import WorkflowTest from "@/pages/workflow-test";
 import Dashboard from "@/pages/dashboard";
+import ClaimsDashboard from "@/pages/claims-dashboard";
 import Login from "@/pages/login";
 import LocalApiTestPage from "@/pages/local-api-test";
 import ConfigurableFormTest from "@/pages/ConfigurableFormTest";
@@ -81,6 +82,7 @@ function Router() {
       <Route path="/" component={() => <ProtectedRoute component={Dashboard} />} />
       <Route path="/dashboard" component={() => <ProtectedRoute component={Dashboard} />} />
       <Route path="/jira-dashboard" component={() => <ProtectedRoute component={JiraDashboard} />} />
+      <Route path="/claims" component={() => <ProtectedRoute component={ClaimsDashboard} />} />
       <Route path="/workflow" component={() => <ProtectedRoute component={WorkflowPage} />} />
       <Route path="/workflow/:sessionId" component={() => <ProtectedRoute component={WorkflowPage} />} />
       <Route path="/test" component={() => <ProtectedRoute component={WorkflowTest} />} />
