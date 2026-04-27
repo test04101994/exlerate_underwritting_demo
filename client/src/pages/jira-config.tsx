@@ -123,7 +123,7 @@ export default function JiraConfigPage() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
               <Settings className="h-8 w-8 text-orange-600" />
-              EXLerate AI - Underwriting Platform
+              EXLerate AI - Agentic Platform
             </h1>
             <p className="text-gray-600 mt-2">
               Configure your Jira connection settings and switch between different tickets and projects.

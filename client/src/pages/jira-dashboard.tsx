@@ -303,7 +303,7 @@ export default function JiraDashboard() {
             <div>
               <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
               <p className="text-muted-foreground mt-1">
-                Underwriting Platform
+                Agentic Platform
                 <span className="ml-2 inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">
                   Auto-refreshing every 30s
                 </span>

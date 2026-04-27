@@ -73,8 +73,7 @@ export default function Login() {
               <div className="flex items-center space-x-4">
                 <img src={exlLogo} alt="EXL" className="h-14 w-auto" />
                 <div>
-                  <h1 className="text-2xl font-bold text-foreground">Underwriting Platform</h1>
-                  <p className="text-base text-muted-foreground">AI-Powered</p>
+                  <h1 className="text-2xl font-bold text-foreground">Agentic Platform</h1>
                 </div>
               </div>
 

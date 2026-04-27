@@ -238,7 +238,7 @@ const JiraIntegration = () => {
                 />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">EXLerate AI</h1>
-                  <p className="text-sm text-gray-500">Underwriting Platform</p>
+                  <p className="text-sm text-gray-500">Agentic Platform</p>
                 </div>
               </div>
             </div>

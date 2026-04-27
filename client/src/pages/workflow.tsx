@@ -497,7 +497,7 @@ export default function WorkflowPage() {
           </div>
           <h1 className="text-2xl font-semibold text-foreground">EXLerate AI</h1>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Underwriting Platform - Create and manage multi-agent workflows with human approval steps and real-time progress tracking.
+            Agentic Platform - Create and manage multi-agent workflows with human approval steps and real-time progress tracking.
           </p>
           
           <div className="flex justify-center mt-8">

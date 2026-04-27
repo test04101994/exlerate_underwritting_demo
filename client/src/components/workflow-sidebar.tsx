@@ -86,8 +86,7 @@ export function WorkflowSidebar({ session, agents, workflowStatus, onRefresh, on
         <div className="flex items-center space-x-3">
           <img src={exlLogo} alt="EXL" className="h-8 w-auto" />
           <div>
-            <h1 className="text-sm font-semibold text-foreground">Underwriting Platform</h1>
-            <p className="text-xs text-muted-foreground">AI-Powered</p>
+            <h1 className="text-sm font-semibold text-foreground">Agentic Platform</h1>
           </div>
         </div>
       </div>

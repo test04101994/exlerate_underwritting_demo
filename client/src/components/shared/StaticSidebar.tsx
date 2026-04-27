@@ -30,8 +30,7 @@ export function StaticSidebar({ onLogout }: StaticSidebarProps) {
         <div className="flex items-center space-x-3">
           <img src={exlLogo} alt="EXL" className="h-8 w-auto" />
           <div className="min-w-0">
-            <div className="text-sm font-semibold text-foreground truncate">Underwriting Platform</div>
-            <div className="text-xs text-muted-foreground truncate">AI-Powered</div>
+            <div className="text-sm font-semibold text-foreground truncate">Agentic Platform</div>
           </div>
         </div>
       </div>
