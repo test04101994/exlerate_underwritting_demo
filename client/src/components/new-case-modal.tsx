@@ -51,7 +51,7 @@ export function NewCaseModal({ open, onClose, lockedCaseType }: NewCaseModalProp
   const [brokerEmail, setBrokerEmail] = useState('');
   const [assignedUnderwriter, setAssignedUnderwriter] = useState('');
   const [description, setDescription] = useState('');
-  const [docFile, setDocFile] = useState<File | null>(null);
+  const [docFiles, setDocFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -75,7 +75,7 @@ export function NewCaseModal({ open, onClose, lockedCaseType }: NewCaseModalProp
     setBrokerEmail('');
     setAssignedUnderwriter('');
     setDescription('');
-    setDocFile(null);
+    setDocFiles([]);
     setError('');
     setSubmitting(false);
   };
@@ -86,8 +86,20 @@ export function NewCaseModal({ open, onClose, lockedCaseType }: NewCaseModalProp
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] ?? null;
-    setDocFile(file);
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    setDocFiles(prev => {
+      // Dedupe by name+size to avoid double-adding the same file
+      const seen = new Set(prev.map(f => `${f.name}|${f.size}`));
+      const additions = files.filter(f => !seen.has(`${f.name}|${f.size}`));
+      return [...prev, ...additions];
+    });
+    // Reset input so re-selecting the same file fires onChange again
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeFile = (idx: number) => {
+    setDocFiles(prev => prev.filter((_, i) => i !== idx));
   };
 
   const isMinimal = lockedCaseType === 'claim';
@@ -97,7 +109,7 @@ export function NewCaseModal({ open, onClose, lockedCaseType }: NewCaseModalProp
     setError('');
 
     if (isMinimal) {
-      if (!docFile) { setError('Please upload a supporting document.'); return; }
+      if (docFiles.length === 0) { setError('Please upload at least one supporting document.'); return; }
     } else {
       if (!businessName.trim()) { setError('Client / Business name is required.'); return; }
       if (!policyType.trim()) { setError('Policy type is required.'); return; }
@@ -105,22 +117,19 @@ export function NewCaseModal({ open, onClose, lockedCaseType }: NewCaseModalProp
 
     setSubmitting(true);
     try {
-      let documentPayload: { name: string; base64: string; mimeType: string } | undefined;
-      if (docFile) {
-        const base64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            const result = reader.result as string;
-            resolve(result.split(',')[1]); // strip data URL prefix
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(docFile);
-        });
-        documentPayload = { name: docFile.name, base64, mimeType: docFile.type };
-      }
+      const documentsPayload = await Promise.all(docFiles.map(file => new Promise<{ name: string; base64: string; mimeType: string }>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve({ name: file.name, base64: result.split(',')[1], mimeType: file.type });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      })));
 
+      const firstFile = docFiles[0];
       const finalBusinessName = isMinimal
-        ? (docFile ? docFile.name.replace(/\.[^.]+$/, '') : 'Pending Claim Details')
+        ? (firstFile ? firstFile.name.replace(/\.[^.]+$/, '') : 'Pending Claim Details')
         : businessName.trim();
       const finalPolicyType = isMinimal ? 'Pending Classification' : policyType.trim();
 
@@ -135,7 +144,9 @@ export function NewCaseModal({ open, onClose, lockedCaseType }: NewCaseModalProp
           brokerEmail: brokerEmail.trim(),
           assignedUnderwriter: assignedUnderwriter.trim(),
           description: description.trim(),
-          document: documentPayload,
+          // Send both: server will accept `documents` (multi); fallback `document` for old code paths
+          documents: documentsPayload,
+          document: documentsPayload[0],
         }),
       });
 
@@ -325,34 +336,43 @@ export function NewCaseModal({ open, onClose, lockedCaseType }: NewCaseModalProp
 
           {/* Document Upload */}
           <div className="space-y-1.5">
-            <Label>Supporting Document</Label>
+            <Label>Supporting Documents</Label>
             <div
               className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:bg-accent/50 transition-colors"
               onClick={() => fileInputRef.current?.click()}
             >
-              {docFile ? (
-                <div className="flex items-center justify-center gap-2">
-                  <FileText className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                  <span className="text-sm text-foreground truncate max-w-[250px]">{docFile.name}</span>
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); setDocFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center gap-1.5">
-                  <Upload className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Click to upload PDF, DOCX, or image</span>
-                </div>
-              )}
+              <div className="flex flex-col items-center gap-1.5">
+                <Upload className="h-5 w-5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  {docFiles.length === 0
+                    ? 'Click to upload — any file type, multiple allowed'
+                    : `Click to add more (${docFiles.length} selected)`}
+                </span>
+              </div>
             </div>
+            {docFiles.length > 0 && (
+              <ul className="space-y-1 mt-2 max-h-40 overflow-y-auto">
+                {docFiles.map((f, i) => (
+                  <li key={`${f.name}-${i}`} className="flex items-center gap-2 text-sm bg-muted/50 px-2.5 py-1.5 rounded-md">
+                    <FileText className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
+                    <span className="truncate flex-1 text-foreground">{f.name}</span>
+                    <span className="text-xs text-muted-foreground flex-shrink-0">{(f.size / 1024).toFixed(1)} KB</span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(i)}
+                      className="text-muted-foreground hover:text-red-500 flex-shrink-0"
+                      aria-label={`Remove ${f.name}`}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
             <input
               ref={fileInputRef}
               type="file"
-              accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+              multiple
               className="hidden"
               onChange={handleFileChange}
             />

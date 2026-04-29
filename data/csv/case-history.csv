@@ -20709,3 +20709,46 @@ Status: completed
 Progress: 100%
 Confidence: 0.85
 Output: {""agent_name"":""Claim Event Summarizer Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Claim Event Summarizer Agent completed successfully with AI processing""}",completed,medium,2026-04-29T04:00:32.904Z,2026-04-29T04:00:32.926Z,2026-04-29T04:00:32.926Z
+CLM-2026-002,CLA-1777435079287-17v3fj7z,agent_execution,FNOL Intake & Assignment Agent,agent,FNOL Intake & Assignment Agent Started,Agent processing started for fnol_intake,"Agent Type: fnol_intake
+Status: started
+Progress: 0%",completed,medium,2026-04-29T07:58:30.077Z,2026-04-29T07:58:30.093Z,2026-04-29T07:58:30.093Z
+CLM-2026-002,CLA-1777435079287-17v3fj7z,agent_execution,FNOL Intake & Assignment Agent,agent,FNOL Intake & Assignment Agent Started,Agent processing started for fnol_intake,"Agent Type: fnol_intake
+Status: started
+Progress: 0%",completed,medium,2026-04-29T07:58:34.430Z,2026-04-29T07:58:34.446Z,2026-04-29T07:58:34.446Z
+CLM-2025-001,CLA-1777449548930-wn5kxy60,system_event,System,system,Workflow Started,Verify greeting workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-29T07:59:08.930Z,2026-04-29T07:59:08.939Z,2026-04-29T07:59:08.939Z
+CLM-2026-003,CLA-1777449588869-12fzesw7,system_event,System,system,Workflow Started,Claim Processing — CLM-2026-003 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2026-003
+Total Steps: 6",completed,medium,2026-04-29T07:59:48.869Z,2026-04-29T07:59:48.881Z,2026-04-29T07:59:48.881Z
+CLM-2025-001,CLA-1777449631325-u7dzh1sh,system_event,System,system,Workflow Started,Verify no damage workflow initiated,"Workflow Type: claim
+Case ID: CLM-2025-001
+Total Steps: 6",completed,medium,2026-04-29T08:00:31.325Z,2026-04-29T08:00:31.332Z,2026-04-29T08:00:31.332Z
+CLM-2026-003,CLA-1777449655270-zccxwa50,system_event,System,system,Workflow Started,Claim Processing — CLM-2026-003 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2026-003
+Total Steps: 6",completed,medium,2026-04-29T08:00:55.270Z,2026-04-29T08:00:55.281Z,2026-04-29T08:00:55.281Z
+CLM-2026-003,CLA-1777449655270-zccxwa50,agent_execution,FNOL Intake & Assignment Agent,agent,FNOL Intake & Assignment Agent Started,Agent processing started for fnol_intake,"Agent Type: fnol_intake
+Status: started
+Progress: 0%",completed,medium,2026-04-29T08:01:02.714Z,2026-04-29T08:01:02.738Z,2026-04-29T08:01:02.738Z
+CLM-2026-003,CLA-1777449655270-zccxwa50,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 0/6",completed,medium,2026-04-29T08:01:51.990Z,2026-04-29T08:01:51.998Z,2026-04-29T08:01:51.998Z
+CLM-2026-003,CLA-1777449655270-zccxwa50,agent_execution,FNOL Intake & Assignment Agent,agent,FNOL Intake & Assignment Agent Completed,Agent successfully completed processing,"Agent: FNOL Intake & Assignment Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-04-29T08:01:52.008Z,2026-04-29T08:01:52.028Z,2026-04-29T08:01:52.028Z
+CLM-2026-003,CLA-1777450252539-xshqvobj,system_event,System,system,Workflow Started,Claim Processing — CLM-2026-003 workflow initiated,"Workflow Type: claim
+Case ID: CLM-2026-003
+Total Steps: 6",completed,medium,2026-04-29T08:10:52.539Z,2026-04-29T08:10:52.553Z,2026-04-29T08:10:52.553Z
+CLM-2026-003,CLA-1777450252539-xshqvobj,agent_execution,FNOL Intake & Assignment Agent,agent,FNOL Intake & Assignment Agent Started,Agent processing started for fnol_intake,"Agent Type: fnol_intake
+Status: started
+Progress: 0%",completed,medium,2026-04-29T08:10:55.856Z,2026-04-29T08:10:55.888Z,2026-04-29T08:10:55.888Z
+CLM-2026-003,CLA-1777450252539-xshqvobj,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 0/6",completed,medium,2026-04-29T08:11:45.168Z,2026-04-29T08:11:45.180Z,2026-04-29T08:11:45.180Z
+CLM-2026-003,CLA-1777450252539-xshqvobj,agent_execution,FNOL Intake & Assignment Agent,agent,FNOL Intake & Assignment Agent Completed,Agent successfully completed processing,"Agent: FNOL Intake & Assignment Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-04-29T08:11:45.188Z,2026-04-29T08:11:45.216Z,2026-04-29T08:11:45.216Z

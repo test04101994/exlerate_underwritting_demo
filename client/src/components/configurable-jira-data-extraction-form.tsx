@@ -747,9 +747,9 @@ export default function ConfigurableJiraDataExtractionForm({
                       <p className="text-xs text-muted-foreground mb-4">Predicted likelihood from the FNOL data — higher percentages indicate higher exposure on each dimension.</p>
                       <div className="grid grid-cols-4 gap-2 items-end">
                         <CircleGauge pct={72} label="Severity" />
-                        <CircleGauge pct={18} label="Subrogation" />
-                        <CircleGauge pct={35} label="Litigation" />
-                        <CircleGauge pct={12} label="SIU" />
+                        <CircleGauge pct={0} label="Subrogation" />
+                        <CircleGauge pct={0} label="Litigation" />
+                        <CircleGauge pct={0} label="SIU" />
                       </div>
                     </div>
                   )}

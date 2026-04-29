@@ -3298,9 +3298,39 @@ CLA-1777435047183-as0l6yds,3,Coverage Validation Assistant,coverage_validation,p
 CLA-1777435047183-as0l6yds,4,Loss Report Summarizer Agent,loss_report_summarizer,pending,0,{},2026-04-29T03:57:27.245Z,2026-04-29T03:57:27.245Z
 CLA-1777435047183-as0l6yds,5,Invoice Validation Agent,invoice_validation,pending,0,{},2026-04-29T03:57:27.261Z,2026-04-29T03:57:27.261Z
 CLA-1777435047183-as0l6yds,6,Automated Correspondence Generator,correspondence_generator,pending,0,{},2026-04-29T03:57:27.275Z,2026-04-29T03:57:27.275Z
-CLA-1777435079287-17v3fj7z,7,FNOL Intake & Assignment Agent,fnol_intake,pending,0,{},2026-04-29T03:57:59.303Z,2026-04-29T03:57:59.303Z
+CLA-1777435079287-17v3fj7z,7,FNOL Intake & Assignment Agent,fnol_intake,running,56,{},2026-04-29T03:57:59.303Z,2026-04-29T07:58:49.050Z
 CLA-1777435079287-17v3fj7z,8,Claim Event Summarizer Agent,claim_event_summarizer,completed,100,"{""agent_name"":""Claim Event Summarizer Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Claim Event Summarizer Agent completed successfully with AI processing""}",2026-04-29T03:57:59.324Z,2026-04-29T04:00:32.904Z
 CLA-1777435079287-17v3fj7z,9,Coverage Validation Assistant,coverage_validation,pending,0,{},2026-04-29T03:57:59.344Z,2026-04-29T03:57:59.344Z
 CLA-1777435079287-17v3fj7z,10,Loss Report Summarizer Agent,loss_report_summarizer,pending,0,{},2026-04-29T03:57:59.361Z,2026-04-29T03:57:59.361Z
 CLA-1777435079287-17v3fj7z,11,Invoice Validation Agent,invoice_validation,pending,0,{},2026-04-29T03:57:59.381Z,2026-04-29T03:57:59.381Z
 CLA-1777435079287-17v3fj7z,12,Automated Correspondence Generator,correspondence_generator,pending,0,{},2026-04-29T03:57:59.408Z,2026-04-29T03:57:59.408Z
+CLA-1777449548930-wn5kxy60,1,FNOL Intake & Assignment Agent,fnol_intake,pending,0,{},2026-04-29T07:59:08.949Z,2026-04-29T07:59:08.949Z
+CLA-1777449548930-wn5kxy60,2,Claim Event Summarizer Agent,claim_event_summarizer,pending,0,{},2026-04-29T07:59:08.981Z,2026-04-29T07:59:08.981Z
+CLA-1777449548930-wn5kxy60,3,Coverage Validation Assistant,coverage_validation,pending,0,{},2026-04-29T07:59:09.003Z,2026-04-29T07:59:09.003Z
+CLA-1777449548930-wn5kxy60,4,Loss Report Summarizer Agent,loss_report_summarizer,pending,0,{},2026-04-29T07:59:09.022Z,2026-04-29T07:59:09.022Z
+CLA-1777449548930-wn5kxy60,5,Invoice Validation Agent,invoice_validation,pending,0,{},2026-04-29T07:59:09.038Z,2026-04-29T07:59:09.038Z
+CLA-1777449548930-wn5kxy60,6,Automated Correspondence Generator,correspondence_generator,pending,0,{},2026-04-29T07:59:09.056Z,2026-04-29T07:59:09.056Z
+CLA-1777449588869-12fzesw7,7,FNOL Intake & Assignment Agent,fnol_intake,pending,0,{},2026-04-29T07:59:48.895Z,2026-04-29T07:59:48.895Z
+CLA-1777449588869-12fzesw7,8,Claim Event Summarizer Agent,claim_event_summarizer,pending,0,{},2026-04-29T07:59:48.937Z,2026-04-29T07:59:48.937Z
+CLA-1777449588869-12fzesw7,9,Coverage Validation Assistant,coverage_validation,pending,0,{},2026-04-29T07:59:48.972Z,2026-04-29T07:59:48.972Z
+CLA-1777449588869-12fzesw7,10,Loss Report Summarizer Agent,loss_report_summarizer,pending,0,{},2026-04-29T07:59:48.992Z,2026-04-29T07:59:48.992Z
+CLA-1777449588869-12fzesw7,11,Invoice Validation Agent,invoice_validation,pending,0,{},2026-04-29T07:59:49.018Z,2026-04-29T07:59:49.018Z
+CLA-1777449588869-12fzesw7,12,Automated Correspondence Generator,correspondence_generator,pending,0,{},2026-04-29T07:59:49.048Z,2026-04-29T07:59:49.048Z
+CLA-1777449631325-u7dzh1sh,1,FNOL Intake & Assignment Agent,fnol_intake,pending,0,{},2026-04-29T08:00:31.340Z,2026-04-29T08:00:31.340Z
+CLA-1777449631325-u7dzh1sh,2,Claim Event Summarizer Agent,claim_event_summarizer,pending,0,{},2026-04-29T08:00:31.357Z,2026-04-29T08:00:31.357Z
+CLA-1777449631325-u7dzh1sh,3,Coverage Validation Assistant,coverage_validation,pending,0,{},2026-04-29T08:00:31.376Z,2026-04-29T08:00:31.376Z
+CLA-1777449631325-u7dzh1sh,4,Loss Report Summarizer Agent,loss_report_summarizer,pending,0,{},2026-04-29T08:00:31.392Z,2026-04-29T08:00:31.392Z
+CLA-1777449631325-u7dzh1sh,5,Invoice Validation Agent,invoice_validation,pending,0,{},2026-04-29T08:00:31.408Z,2026-04-29T08:00:31.408Z
+CLA-1777449631325-u7dzh1sh,6,Automated Correspondence Generator,correspondence_generator,pending,0,{},2026-04-29T08:00:31.423Z,2026-04-29T08:00:31.423Z
+CLA-1777449655270-zccxwa50,7,FNOL Intake & Assignment Agent,fnol_intake,completed,100,{},2026-04-29T08:00:55.292Z,2026-04-29T08:01:52.008Z
+CLA-1777449655270-zccxwa50,8,Claim Event Summarizer Agent,claim_event_summarizer,pending,0,{},2026-04-29T08:00:55.317Z,2026-04-29T08:00:55.317Z
+CLA-1777449655270-zccxwa50,9,Coverage Validation Assistant,coverage_validation,pending,0,{},2026-04-29T08:00:55.332Z,2026-04-29T08:00:55.332Z
+CLA-1777449655270-zccxwa50,10,Loss Report Summarizer Agent,loss_report_summarizer,pending,0,{},2026-04-29T08:00:55.350Z,2026-04-29T08:00:55.350Z
+CLA-1777449655270-zccxwa50,11,Invoice Validation Agent,invoice_validation,pending,0,{},2026-04-29T08:00:55.368Z,2026-04-29T08:00:55.368Z
+CLA-1777449655270-zccxwa50,12,Automated Correspondence Generator,correspondence_generator,pending,0,{},2026-04-29T08:00:55.385Z,2026-04-29T08:00:55.385Z
+CLA-1777450252539-xshqvobj,1,FNOL Intake & Assignment Agent,fnol_intake,completed,100,{},2026-04-29T08:10:52.564Z,2026-04-29T08:11:45.188Z
+CLA-1777450252539-xshqvobj,2,Claim Event Summarizer Agent,claim_event_summarizer,pending,0,{},2026-04-29T08:10:52.609Z,2026-04-29T08:10:52.609Z
+CLA-1777450252539-xshqvobj,3,Coverage Validation Assistant,coverage_validation,pending,0,{},2026-04-29T08:10:52.636Z,2026-04-29T08:10:52.636Z
+CLA-1777450252539-xshqvobj,4,Loss Report Summarizer Agent,loss_report_summarizer,pending,0,{},2026-04-29T08:10:52.661Z,2026-04-29T08:10:52.661Z
+CLA-1777450252539-xshqvobj,5,Invoice Validation Agent,invoice_validation,pending,0,{},2026-04-29T08:10:52.676Z,2026-04-29T08:10:52.676Z
+CLA-1777450252539-xshqvobj,6,Automated Correspondence Generator,correspondence_generator,pending,0,{},2026-04-29T08:10:52.694Z,2026-04-29T08:10:52.694Z

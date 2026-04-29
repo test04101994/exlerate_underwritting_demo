@@ -3606,7 +3606,7 @@ Please respond with your choice: send, edit, or discard`,
           const claimTypeLabel = claimData?.claim_type ? ` (${claimData.claim_type})` : '';
           await storage.createMessage({
             sessionId,
-            content: `Hello — I'm the **Claim Assistant** for **${finalCaseId}**${claimTypeLabel}.\n\nThis claim is set up for **manual handling** — pick which agent to run from the Agent Registry on the left, in whatever order makes sense for your investigation.\n\nYou can also **ask me questions any time** using the chat input below. Try:\n• *What's the loss amount?*\n• *Who is the claimant?*\n• *Any fraud risk?*\n• *What do you recommend?*\n\nType **help** to see everything I can answer.`,
+            content: `Hello — I'm the **Claim Assistant** for **${finalCaseId}**.`,
             type: 'agent',
             sender: 'Claim Assistant',
             createdAt: new Date()
@@ -5474,6 +5474,7 @@ Status: All required information received. Workflow resuming automatically...`,
         assignedUnderwriter,
         description,
         document: uploadedDoc,
+        documents: uploadedDocs,
       } = req.body as {
         businessName: string;
         policyType: string;
@@ -5483,11 +5484,17 @@ Status: All required information received. Workflow resuming automatically...`,
         assignedUnderwriter: string;
         description: string;
         document?: { name: string; base64: string; mimeType: string };
+        documents?: Array<{ name: string; base64: string; mimeType: string }>;
       };
 
       if (!businessName || !policyType || !caseType || !priority) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
+
+      // Normalise: accept either `documents` (multi) or singular `document` (legacy)
+      const allDocs = Array.isArray(uploadedDocs) && uploadedDocs.length > 0
+        ? uploadedDocs
+        : (uploadedDoc ? [uploadedDoc] : []);
 
       // Generate new case ID
       const { loadDashboardCases } = await import('../shared/dashboard-cases');
@@ -5498,18 +5505,33 @@ Status: All required information received. Workflow resuming automatically...`,
       const nextNum = samePrefixCases.length + 1;
       const caseId = `${prefix}-${year}-${String(nextNum).padStart(3, '0')}`;
 
-      // Save uploaded document if provided
-      let savedDocName = '';
-      if (uploadedDoc?.base64 && uploadedDoc.name) {
+      // Save uploaded document(s) if provided
+      const savedDocNames: string[] = [];
+      if (allDocs.length > 0) {
         const docDir = path.join(process.cwd(), 'assets', 'documents', 'documents', caseId);
         if (!fs.existsSync(docDir)) {
           fs.mkdirSync(docDir, { recursive: true });
         }
-        const buf = Buffer.from(uploadedDoc.base64, 'base64');
-        const safeFilename = uploadedDoc.name.replace(/[^a-zA-Z0-9._\-() ]/g, '_');
-        fs.writeFileSync(path.join(docDir, safeFilename), buf);
-        savedDocName = safeFilename;
+        const usedNames = new Set<string>();
+        for (const d of allDocs) {
+          if (!d?.base64 || !d.name) continue;
+          const buf = Buffer.from(d.base64, 'base64');
+          let safeFilename = d.name.replace(/[^a-zA-Z0-9._\-() ]/g, '_');
+          // Avoid clobbering when the same filename is uploaded twice
+          if (usedNames.has(safeFilename)) {
+            const dot = safeFilename.lastIndexOf('.');
+            const stem = dot > 0 ? safeFilename.slice(0, dot) : safeFilename;
+            const ext = dot > 0 ? safeFilename.slice(dot) : '';
+            let n = 2;
+            while (usedNames.has(`${stem}-${n}${ext}`)) n++;
+            safeFilename = `${stem}-${n}${ext}`;
+          }
+          usedNames.add(safeFilename);
+          fs.writeFileSync(path.join(docDir, safeFilename), buf);
+          savedDocNames.push(safeFilename);
+        }
       }
+      const savedDocName = savedDocNames[0] || '';
 
       // Build CSV row and append to dashboard-cases.csv
       const now = new Date().toISOString();
@@ -5551,6 +5573,7 @@ Status: All required information received. Workflow resuming automatically...`,
         success: true,
         caseId,
         document: savedDocName || null,
+        documents: savedDocNames,
       });
     } catch (error) {
       console.error('Error creating case:', error);
