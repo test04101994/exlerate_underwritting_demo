@@ -142,6 +142,7 @@ export default function ConfigurableJiraDataExtractionForm({
 
   // Helper function to get confidence badge matching slip form style
   const getConfidenceBadge = (field: any) => {
+    if (field.confidence === 0) return null
     const confidence = field.confidence || 0.85
     const score = Math.round(confidence * 100)
     if (confidence >= 0.90) {

@@ -3672,14 +3672,11 @@ Please respond with your choice: send, edit, or discard`,
   function getAgentConfigsForCaseType(caseType: string) {
     if (caseType === 'claim') {
       // Claims processing — 6 human-triggered agents.
-      // Claim Event Summarizer is at the top because it's the always-useful
-      // "give me a chronological narrative of where this claim is right now"
-      // agent — adjusters reach for it first when picking up any claim.
       // Claims Q&A Agent is rendered separately in the sidebar as an always-on
       // passive agent (responds to the chat input) and is not part of this list.
       return [
-        { name: 'Claim Event Summarizer Agent', type: 'claim_event_summarizer', description: 'Produces a chronological narrative of every event and activity on the claim file to date — for adjusters and auditors' },
         { name: 'FNOL Intake & Assignment Agent', type: 'fnol_intake', description: 'Extracts data from FNOL email, locates the policy in PAS, checks for duplicate claims, scores severity, and assigns the appropriate adjuster' },
+        { name: 'Claim Event Summarizer Agent', type: 'claim_event_summarizer', description: 'Produces a chronological narrative of every event and activity on the claim file to date — for adjusters and auditors' },
         { name: 'Coverage Validation Assistant', type: 'coverage_validation', description: 'Reads the policy schedule and exclusions, validates coverages and limits against the loss, and flags any coverage gaps' },
         { name: 'Loss Report Summarizer Agent', type: 'loss_report_summarizer', description: 'Summarises the loss adjuster\'s report and benchmarks past payouts on similar claims to support the settlement recommendation' },
         { name: 'Invoice Validation Agent', type: 'invoice_validation', description: 'Validates supplier invoices against the rate card, checks for duplicates, and confirms compliance with contract terms' },
@@ -4720,6 +4717,21 @@ Status: All required information received. Workflow resuming automatically...`,
           coverage_type: claimData.coverage_type
         },
         answer: `**Loss financials for ${cid}:**\n• Estimated loss: **${claimData.loss_amount}**\n• Recommended reserve: **${claimData.reserve_amount}**\n• Paid to date: **${claimData.paid_amount}**\n• Deductible: **${claimData.deductible}**\n• Coverage type: ${claimData.coverage_type}`
+      });
+    }
+
+    // ── Firefighting expenses coverage ─────────────────────────────────
+    if (/firefighting|fire.fighting|fire suppress|extinguish|fire brigade/.test(q)) {
+      return agentTrace({
+        thinking: `User is asking about firefighting expenses coverage. Pulling the sub-limit from the policy schedule's additional coverages section.`,
+        toolCall: { name: 'fetch_firefighting_coverage', args: { policy_number: 'B123456/16' } },
+        toolResult: {
+          coverage: 'Firefighting Expenses',
+          sub_limit_per_loss: '$100,000',
+          basis: 'Reasonable costs to suppress or extinguish fire at insured location',
+          subject_to: 'Policy terms, conditions, and applicable deductibles'
+        },
+        answer: `The policy provides the coverage of **Firefighting Expenses up to $100,000 per loss**. This coverage applies to reasonable costs incurred to suppress or extinguish a fire at an insured location, subject to the policy terms, conditions, and applicable deductibles.`
       });
     }
 

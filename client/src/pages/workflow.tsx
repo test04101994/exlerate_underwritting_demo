@@ -52,6 +52,7 @@ export default function WorkflowPage() {
   const [viewFormAgentType, setViewFormAgentType] = useState<string | undefined>(undefined);
   const [showTimeline, setShowTimeline] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [docViewerCollapsed, setDocViewerCollapsed] = useState(false);
   
   const [dataExtractionCompleted, setDataExtractionCompleted] = useState(false);
   const [propertyLocation, setPropertyLocation] = useState<string>('');
@@ -657,6 +658,16 @@ export default function WorkflowPage() {
                   <Button variant="outline" size="sm" onClick={handleStopWorkflow} disabled={workflowData?.session?.status === 'completed'} className="h-7 w-7 p-0 text-destructive border-destructive/30 hover:bg-destructive/10">
                     <Square className="h-3.5 w-3.5" />
                   </Button>
+                  <div className="w-px h-4 bg-border mx-0.5" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setDocViewerCollapsed(!docViewerCollapsed)}
+                    className="h-7 w-7 p-0"
+                    title={docViewerCollapsed ? 'Show document viewer' : 'Hide document viewer'}
+                  >
+                    {docViewerCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  </Button>
                 </div>
               </div>
 
@@ -724,6 +735,7 @@ export default function WorkflowPage() {
             </div>
 
             {/* Right Column - Document Viewer */}
+            {!docViewerCollapsed && (
             <div className="relative border-l border-border flex-shrink-0 h-full">
               <MultiDocumentViewer
                 sessionId={currentSessionId}
@@ -739,6 +751,7 @@ export default function WorkflowPage() {
                 }}
               />
             </div>
+            )}
           </Panel>
         </PanelGroup>
       </div>

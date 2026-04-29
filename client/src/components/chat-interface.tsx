@@ -836,6 +836,7 @@ export function ChatInterface({
                 'What is the limit of each location?',
                 'What is the Business Liability Amount?',
                 'What is the recommended settlement amount?',
+                'What are the firefighting expenses covered in the policy?',
               ].map(q => (
                 <button
                   key={q}

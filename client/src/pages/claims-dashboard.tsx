@@ -33,6 +33,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { StaticSidebar } from "@/components/shared/StaticSidebar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { NewCaseModal } from "@/components/new-case-modal";
 
 interface ClaimCase {
   id: string;
@@ -126,6 +127,8 @@ export default function ClaimsDashboard() {
 
     return dashboardCases
       .filter((dc: any) => dc.case_type === 'claim')
+      .slice()
+      .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .map((dc: any) => {
         const agentConfigs = [
           { name: 'Event Summary', type: 'claim_event_summarizer', icon: <History className="h-4 w-4" />, description: 'Chronological narrative of claim events for adjusters and auditors' },
@@ -226,6 +229,7 @@ export default function ClaimsDashboard() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [documentsModal, setDocumentsModal] = useState({ isOpen: false, caseId: '' });
   const [selectedDocuments, setSelectedDocuments] = useState<any[]>([]);
+  const [newClaimOpen, setNewClaimOpen] = useState(false);
 
   const handleViewDocuments = async (caseId: string) => {
     try {
@@ -314,7 +318,7 @@ export default function ClaimsDashboard() {
               <div className="flex items-center space-x-3">
                 <ThemeToggle />
                 <Button
-                  onClick={() => handleOpenCase('CLM-2025-001')}
+                  onClick={() => setNewClaimOpen(true)}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -550,6 +554,12 @@ export default function ClaimsDashboard() {
               </div>
             )}
           </div>
+
+          <NewCaseModal
+            open={newClaimOpen}
+            onClose={() => setNewClaimOpen(false)}
+            lockedCaseType="claim"
+          />
 
           <Dialog open={documentsModal.isOpen} onOpenChange={(isOpen) => setDocumentsModal({ isOpen, caseId: documentsModal.caseId })}>
             <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
