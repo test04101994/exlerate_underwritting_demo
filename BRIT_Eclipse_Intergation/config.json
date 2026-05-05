@@ -1,0 +1,17 @@
+{
+  "dev": {
+    "endpoint": "https://dev.example.com/health",
+    "pfx": "certs/dev.pfx",
+    "password": "changeme"
+  },
+  "uat": {
+    "endpoint": "https://uat.example.com/health",
+    "pfx": "certs/uat.pfx",
+    "password": "changeme"
+  },
+  "prod": {
+    "endpoint": "https://prod.example.com/health",
+    "pfx": "certs/prod.pfx",
+    "password": "changeme"
+  }
+}
