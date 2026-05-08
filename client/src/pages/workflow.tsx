@@ -101,6 +101,7 @@ export default function WorkflowPage() {
   const wfType = (workflowData as any)?.session?.workflowType || '';
   const isSubmissionWorkflow = wfType === 'submission';
   const isClaimWorkflow = wfType === 'claim';
+  const isPreBindWorkflow = wfType === 'pre_bind';
   // For submission workflows, show the data extraction form as the primary UI while
   // the pipeline is initialising (running) or waiting for human review (pending_data_extraction).
   // Once the underwriter approves the form (dataExtractionCompleted=true) we switch back to
@@ -113,7 +114,9 @@ export default function WorkflowPage() {
   // session is at a data-extraction gate — the form's contents come from
   // session.extractedData._formConfig which the agent updates per-pause.
   const isClaimAtDataExtractionGate = isClaimWorkflow && workflowStatus === 'pending_data_extraction';
-  const shouldShowDataExtractionForm = showDataExtractionForm || hasPendingDataExtractionApproval || isSubmissionAtDataExtractionGate || isClaimAtDataExtractionGate;
+  // Pre-bind: same pattern as claim — pause for form review whenever an extractor agent flips status.
+  const isPreBindAtDataExtractionGate = isPreBindWorkflow && workflowStatus === 'pending_data_extraction';
+  const shouldShowDataExtractionForm = showDataExtractionForm || hasPendingDataExtractionApproval || isSubmissionAtDataExtractionGate || isClaimAtDataExtractionGate || isPreBindAtDataExtractionGate;
   
 
 
@@ -695,6 +698,7 @@ export default function WorkflowPage() {
                       const isJiraForm = wfType === 'jira' || isJiraWorkflow || currentSessionId?.startsWith('JIR-');
                       const isSlipForm = wfType === 'slip';
                       const isClaimForm = wfType === 'claim';
+                      const isPreBindForm = wfType === 'pre_bind';
 
                       const claimAgentParam = viewFormAgentType ? `&agentType=${viewFormAgentType}` : '';
                       const configEndpoint = isJiraForm
@@ -703,7 +707,9 @@ export default function WorkflowPage() {
                           ? '/api/slip-forms/data-extraction-config'
                           : isClaimForm
                             ? `/api/claims-forms/data-extraction-config?sessionId=${currentSessionId}${claimAgentParam}`
-                            : `/api/submission-forms/data-extraction-config?sessionId=${currentSessionId}`;
+                            : isPreBindForm
+                              ? `/api/pre-bind-forms/data-extraction-config?sessionId=${currentSessionId}${claimAgentParam}`
+                              : `/api/submission-forms/data-extraction-config?sessionId=${currentSessionId}`;
 
                       return (
                         <ConfigurableJiraDataExtractionForm

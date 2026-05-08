@@ -8,7 +8,8 @@ import {
   LogOut,
   Bot,
   BarChart2,
-  Scale
+  Scale,
+  ClipboardList
 } from "lucide-react";
 import exlLogo from "@/assets/exl-logo.svg";
 
@@ -103,6 +104,23 @@ export function StaticSidebar({ onLogout }: StaticSidebarProps) {
               <Scale className="mr-3 h-4 w-4 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium truncate">Claims</div>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  </span>
+                  <span className="text-xs text-green-600 dark:text-green-400">Active</span>
+                </div>
+              </div>
+            </Link>
+            <Link href="/pre-bind" className={`flex items-center px-3 py-2 rounded-md transition-colors ${
+              location === '/pre-bind'
+                ? 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
+                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+            }`}>
+              <ClipboardList className="mr-3 h-4 w-4 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">Pre-Bind</div>
                 <div className="flex items-center gap-1 mt-0.5">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>

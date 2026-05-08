@@ -14,6 +14,7 @@ export class DocumentService {
   private readonly documentsPath = path.join(process.cwd(), 'assets/documents/documents');
   private readonly submissionDefaultsPath = path.join(process.cwd(), 'assets/documents/documents/_submission_defaults');
   private readonly claimDefaultsPath = path.join(process.cwd(), 'assets/documents/documents/_claim_defaults');
+  private readonly preBindDefaultsPath = path.join(process.cwd(), 'assets/documents/documents/_pre_bind_defaults');
 
   constructor() {
     // Ensure documents directory exists
@@ -30,13 +31,17 @@ export class DocumentService {
 
     // For submission workflows, always use the shared submission defaults folder.
     // For claim workflows, always use the shared claim defaults folder.
+    // For pre-bind workflows, always use the shared pre-bind defaults folder.
     const isSubmissionWorkflow = workflowType === 'submission' || caseId.startsWith('SUB-') || caseId.startsWith('UW-');
     const isClaimWorkflow = workflowType === 'claim' || caseId.startsWith('CLM-');
+    const isPreBindWorkflow = workflowType === 'pre_bind' || caseId.startsWith('PRB-');
     const finalPath = isSubmissionWorkflow
       ? this.submissionDefaultsPath
       : isClaimWorkflow
         ? this.claimDefaultsPath
-        : casePath;
+        : isPreBindWorkflow
+          ? this.preBindDefaultsPath
+          : casePath;
     
     if (!fs.existsSync(finalPath)) {
       return [];
@@ -76,13 +81,16 @@ export class DocumentService {
   async getDocumentContent(caseId: string, fileName: string): Promise<string | null> {
     let filePath = path.join(this.documentsPath, caseId, fileName);
 
-    // Route to the matching shared defaults folder for submission/claim cases
+    // Route to the matching shared defaults folder for submission/claim/pre-bind cases
     const isSubmissionWorkflow = caseId.startsWith('SUB-') || caseId.startsWith('UW-');
     const isClaimWorkflow = caseId.startsWith('CLM-');
+    const isPreBindWorkflow = caseId.startsWith('PRB-');
     if (isSubmissionWorkflow) {
       filePath = path.join(this.submissionDefaultsPath, fileName);
     } else if (isClaimWorkflow) {
       filePath = path.join(this.claimDefaultsPath, fileName);
+    } else if (isPreBindWorkflow) {
+      filePath = path.join(this.preBindDefaultsPath, fileName);
     }
     
     if (!fs.existsSync(filePath)) {

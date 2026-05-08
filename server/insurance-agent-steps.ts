@@ -908,5 +908,354 @@ Senter Associates LLC submitted the first investigation report on March 11th, 20
 
 Status: **draft ready for adjuster review and send**.`
     }
+  ],
+
+  // ─────────────────────────────────────────────────────────────────────
+  // PRE-BIND (NEW BUSINESS) AGENTS
+  // ─────────────────────────────────────────────────────────────────────
+
+  submissions_extractor: [
+    {
+      progress: 18,
+      delayMs: 1500,
+      message: `**Thinking:** Reading the broker submission email + attachments. Extracting general details, policy holders, covers, jurisdictional splits, wage roll, claims, and property information.`
+    },
+    {
+      progress: 42,
+      delayMs: 1700,
+      message: `→ \`extract_submission_attributes\`
+\`\`\`json
+{ "sources": ["broker_email", "submission_pack.pdf", "supplementary_questionnaire.pdf"], "ruleset": "pre_bind_v2" }
+\`\`\``
+    },
+    {
+      progress: 72,
+      delayMs: 1700,
+      message: `✓ \`extract_submission_attributes\` returned: 9 sections populated · 62 fields extracted · 2 prior claims captured.`
+    },
+    {
+      progress: 100,
+      delayMs: 0,
+      message: `**Submission extracted — please review the form on the right.** The form will appear automatically with all extracted fields. Approve, edit, or reject the data before continuing.`
+    }
+  ],
+
+  risk_prioritization: [
+    {
+      progress: 18,
+      delayMs: 1500,
+      message: `**Thinking:** Evaluating jurisdictional split, liability limits, business activity profile, and prior claims to determine whether this can be auto-tiered or needs underwriter review.`
+    },
+    {
+      progress: 42,
+      delayMs: 1700,
+      message: `→ \`evaluate_routing\`
+\`\`\`json
+{ "submission_id": "PRB-2026-001", "rules": ["jurisdictional_concentration", "liability_limits", "trade_class", "claims_history", "data_completeness"] }
+\`\`\``
+    },
+    {
+      progress: 70,
+      delayMs: 1700,
+      message: `✓ \`evaluate_routing\` returned:
+\`\`\`json
+{
+  "usa_canada_exposure_pct": 92.11,
+  "trade_class": "Metalworking (manufacturing)",
+  "el_limit": 10000000,
+  "pl_limit": 5000000,
+  "open_claims": 1,
+  "closed_claims": 1,
+  "incomplete_property_limits": 6,
+  "auto_tier_eligible": false,
+  "decision": "Underwriter Review"
+}
+\`\`\``
+    },
+    {
+      progress: 100,
+      delayMs: 0,
+      message: `**Decision:** Underwriter Review
+
+**Justification:** Submission requires manual review due to significant USA/Canada exposure (92.11%), high liability limits, manufacturing risk profile, and presence of prior/open claims. Additionally, multiple property coverage sections contain incomplete sum insured information requiring underwriting clarification.`
+    }
+  ],
+
+  sanctions_screen: [
+    {
+      progress: 22,
+      delayMs: 1500,
+      message: `**Thinking:** Running the insured and beneficial owners against OFAC, UN, EU, and HMT sanctions lists, plus PEP screening.`
+    },
+    {
+      progress: 52,
+      delayMs: 1900,
+      message: `→ \`screen_party\`
+\`\`\`json
+{ "party": "Northwind Logistics Ltd", "include_owners": true, "lists": ["OFAC", "UN", "EU", "HMT"] }
+\`\`\``
+    },
+    {
+      progress: 80,
+      delayMs: 1700,
+      message: `✓ \`screen_party\` returned:
+\`\`\`json
+{
+  "insured_match": "no",
+  "beneficial_owner_matches": 0,
+  "pep_match": "no",
+  "country_risk": "low",
+  "screened_at": "2026-04-29T14:32:00Z",
+  "confidence": 0.99
+}
+\`\`\``
+    },
+    {
+      progress: 100,
+      delayMs: 0,
+      message: `**Sanctions Check — Clear**
+
+- Insured: ✅ no match on OFAC / UN / EU / HMT
+- Beneficial owners (3 screened): ✅ no matches
+- PEP exposure: ✅ none
+- Country risk: low
+- Confidence: 99%
+
+**No escalation required.** Proceed to underwriting.`
+    }
+  ],
+
+  submission_summary: [
+    {
+      progress: 18,
+      delayMs: 1500,
+      message: `**Thinking:** Building the one-page underwriter brief. Pulling the extracted submission data, jurisdictional split, wage roll, prior claims, and property limits to compose the narrative.`
+    },
+    {
+      progress: 42,
+      delayMs: 1700,
+      message: `→ \`compose_submission_summary\`
+\`\`\`json
+{ "submission_id": "PRB-2026-001", "format": "narrative", "audience": "underwriter", "include_sections": ["insured", "broker", "covers", "jurisdictional_splits", "wage_roll", "property", "claims", "verdict"] }
+\`\`\``
+    },
+    {
+      progress: 68,
+      delayMs: 1700,
+      message: `✓ \`compose_submission_summary\` returned: 9 sections rendered · 62 fields ingested · 2 prior claims summarised · narrative ready.`
+    },
+    {
+      progress: 100,
+      delayMs: 0,
+      message: `## Submission Summary
+
+This submission relates to **Pure Steel Manufacturing Ltd**, a limited company established on **17/10/1999**, operating from **Ginda House, Station Road**. The insured has declared an annual turnover of **3,800,000**.
+
+The submission has been introduced through intermediary **Marsh**, with broker contact **Lee Jones** (leejones@marsh.com). The broker reference HU number is **377**. The target premium for the risk is **2,000.0**. The previous insurer is **Aviva**. The quote effective date is **31/05/2026**, with a quote deadline of **12/05/2025**.
+
+The risk includes the following primary covers:
+
+- Public and Products Liability – **5,000,000**
+- Employers Liability – **10,000,000**
+- Legal Protection – **250,000**
+
+The jurisdictional exposure is heavily concentrated in **USA and Canada (92.11%)**, with the remaining exposure in **Europe excluding UK and Republic of Ireland (7.89%)**. No exposure has been declared for UK, Republic of Ireland, or Rest of World.
+
+Declared wage roll consists of:
+
+- Manual work – **75,000**
+- Clerical / non-manual – **265,000**
+
+One insured property has been declared:
+
+- **Hamilton House, 122 Princess Road, Los Angeles, USA, 90015**
+
+Property-related limits include:
+
+- Property away and in transit – **3,286.0**
+- Money cover – **2,600.0**
+
+Other property cover sections such as Buildings, Contents, Stock, Deterioration of Stock, Business Interruption, and Computer Breakdown were present but limits were not specified.
+
+The submission also includes prior claims history with two reported claims:
+
+1. **15/06/2020** – Closed claim relating to a burst pipe caused by freezing, categorized as water damage, with an incurred value of **2,217.67**.
+2. **15/10/2023** – Open claim concerning a concealed roof defect identified following a Level 2 survey, with a claim value of **1,727.18**.
+
+Overall, the submission represents a manufacturing-related risk with significant North American exposure, moderate liability limits, limited declared property sums insured, and a relatively low-value historical claims profile.`
+    }
+  ],
+
+  premium_generator: [
+    {
+      progress: 18,
+      delayMs: 1500,
+      message: `**Thinking:** Pulling the rating-engine output and layering in jurisdictional loading, liability-limit loading, and a credit for low historical claim severity.`
+    },
+    {
+      progress: 42,
+      delayMs: 1700,
+      message: `→ \`run_rating_engine\`
+\`\`\`json
+{ "submission_id": "PRB-2026-001", "trade_class": "Metalworking", "el_limit": 10000000, "pl_limit": 5000000, "usa_canada_exposure_pct": 92.11, "open_claims": 1 }
+\`\`\``
+    },
+    {
+      progress: 70,
+      delayMs: 1700,
+      message: `✓ \`run_rating_engine\` returned:
+\`\`\`json
+{
+  "base_premium_gbp": 1900,
+  "usa_canada_loading_pct": 35,
+  "liability_limit_loading_pct": 12,
+  "claims_severity_credit_pct": -8,
+  "estimated_annual_premium_low_gbp": 2500,
+  "estimated_annual_premium_high_gbp": 3200,
+  "model_confidence": 0.86
+}
+\`\`\``
+    },
+    {
+      progress: 100,
+      delayMs: 0,
+      message: `**Estimated Annual Premium:** GBP 2,500 – GBP 3,200
+
+**Rationale:** Current premium indication is elevated compared to standard manufacturing risks due to significant USA/Canada exposure (92.11%), high Employers Liability (GBP 10M) and Public Liability (GBP 5M) limits, and presence of prior/open claims. However, pricing is partially offset by relatively low historical claim severity and limited declared property exposure.`
+    }
+  ],
+
+  policy_comparison: [
+    {
+      progress: 18,
+      delayMs: 1500,
+      message: `**Thinking:** Searching the knowledge base for comparable manufacturing and industrial liability risks with cross-border operations and significant North American exposure.`
+    },
+    {
+      progress: 42,
+      delayMs: 1700,
+      message: `→ \`fetch_peer_policies\`
+\`\`\`json
+{ "submission_id": "PRB-2026-001", "trade_class": "Metalworking", "exposure_band": "small_to_mid_commercial", "jurisdiction_focus": "USA_Canada", "k": 8 }
+\`\`\``
+    },
+    {
+      progress: 70,
+      delayMs: 1700,
+      message: `✓ \`fetch_peer_policies\` returned:
+\`\`\`json
+{
+  "peer_count": 8,
+  "match_dimensions": ["trade_class", "turnover_band", "wage_roll", "jurisdictional_split", "claims_history"],
+  "liability_position": "higher than average (USA/Canada concentration)",
+  "turnover_wage_alignment": "in-line with peer mid-market manufacturing",
+  "claims_position": "lower frequency and severity than peer US-exposed manufacturing",
+  "property_exposure_position": "lower than peer manufacturing accounts",
+  "complexity_flags": ["incomplete_property_sums", "open_claim"],
+  "verdict": "in-range — underwriter assessment required"
+}
+\`\`\``
+    },
+    {
+      progress: 100,
+      delayMs: 0,
+      message: `**Comparison Summary:**
+
+This submission is comparable to mid-sized manufacturing and industrial liability risks within the knowledge base, particularly policies with cross-border operations and significant North American exposure. Compared to similar accounts:
+
+- Liability exposure is higher than average due to concentration in USA/Canada jurisdictions.
+- Turnover and wage roll are aligned with small-to-mid commercial manufacturing insureds.
+- Historical claims frequency and severity are lower than many comparable US-exposed manufacturing risks.
+- Declared property and business interruption exposure are comparatively lower than peer manufacturing accounts.
+- Risk complexity is moderately elevated because of incomplete property sum insured details and the presence of an active/open claim requiring manual underwriting review.
+
+Overall, the submission falls within the acceptable range of comparable manufacturing liability risks, but requires underwriter assessment before quotation due to jurisdictional exposure and incomplete property information.`
+    }
+  ],
+
+  data_completeness_checker: [
+    {
+      progress: 18,
+      delayMs: 1500,
+      message: `**Thinking:** Comparing the extracted submission against the underwriter's mandatory data set. The Business Activities section was extracted with no rows populated and the percentage split totals 0% — this needs to go back to the broker before pricing.`
+    },
+    {
+      progress: 38,
+      delayMs: 1700,
+      message: `→ \`check_completeness\`
+\`\`\`json
+{ "submission_id": "PRB-2026-001", "ruleset": "pre_bind_v2", "tolerance": "strict" }
+\`\`\``
+    },
+    {
+      progress: 56,
+      delayMs: 1700,
+      message: `✓ \`check_completeness\` returned:
+\`\`\`json
+{
+  "section_status": {
+    "general_details": "complete",
+    "policy_holders": "complete",
+    "covers": "complete",
+    "jurisdictional_splits": "complete (100%)",
+    "wage_roll": "complete",
+    "claims": "complete",
+    "property_information": "complete",
+    "property_limits": "partial — some sums insured not specified",
+    "business_activities": "missing — 0 activities declared, split totals 0%"
+  },
+  "blocker_section": "business_activities",
+  "blocker_severity": "high",
+  "broker_followup_required": true
+}
+\`\`\``
+    },
+    {
+      progress: 72,
+      delayMs: 1300,
+      message: `**Data Completeness — Business Activities section incomplete**
+
+| Section | Status |
+|---|---|
+| Business Activities | ❌ **0 activities declared · split totals 0%** |
+| All other sections | ✅ present |
+
+**Severity:** high — without the business activities and their percentage split we cannot rate the liability classes correctly. A broker follow-up email is required before pricing.`
+    },
+    {
+      progress: 88,
+      delayMs: 1500,
+      message: `→ \`draft_broker_followup_email\`
+\`\`\`json
+{ "tone": "professional", "missing_section": "business_activities", "recipient": "broker_of_record" }
+\`\`\``
+    },
+    {
+      progress: 100,
+      delayMs: 0,
+      message: `**Draft email to broker — professional tone**
+
+**To:** leejones@marsh.com
+**Cc:** Sarah Mitchell <sarah.mitchell@exl.com>
+**Subject:** PRB-2026-001 Pure Steel Manufacturing Ltd — Business Activities required
+
+Dear Lee,
+
+Thank you for the submission for **Pure Steel Manufacturing Ltd** (our reference **PRB-2026-001**). To complete our underwriting review, please could you provide the **Business Activities** section, which has come through blank on the submission pack.
+
+Specifically, we need:
+
+1. The **list of business activities** the insured engages in (e.g. machining, welding, pipe fitting, fabrication, etc.).
+2. The **percentage split** of turnover or wage roll across each activity, summing to 100%.
+
+This is required before we can rate the liability classes correctly and issue formal terms. We will revert with a quote within 48 hours of receipt.
+
+Kind regards,
+Sarah Mitchell · Underwriter, EXL Specialty
+
+Pick a tone to redraft, or send as-is.
+
+[REGENERATE_BROKER_EMAIL:professional]`
+    }
   ]
 };

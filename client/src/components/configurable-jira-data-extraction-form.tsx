@@ -46,6 +46,7 @@ export default function ConfigurableJiraDataExtractionForm({
   // Litigation / SIU). Model Results only appears after an adjuster is picked,
   // and shows a processing state while the analytics model "runs".
   const isClaimForm = configEndpoint.includes('/claims-forms/')
+  const isPreBindForm = configEndpoint.includes('/pre-bind-forms/')
 
   const toggleSection = (sectionId: string) => {
     setCollapsedSections(prev => ({ ...prev, [sectionId]: !prev[sectionId] }))
@@ -759,6 +760,9 @@ export default function ConfigurableJiraDataExtractionForm({
 
             // Coverage Validation form (claim, no adjuster assignment) — render no extra panels
             if (isClaimForm) return null;
+
+            // Pre-bind form — no Submission Triage panel
+            if (isPreBindForm) return null;
 
             // Submission/Jira flows keep Submission Triage
             const total = confidenceCounts.high + confidenceCounts.medium + confidenceCounts.low;

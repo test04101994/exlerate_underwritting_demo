@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Upload, FileText, X, Loader2, Wand2 } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
 
-type CaseType = 'submission' | 'slip' | 'claim';
+type CaseType = 'submission' | 'slip' | 'claim' | 'pre_bind';
 
 const DEMO_SAMPLES: Record<CaseType, { businessName: string; policyType: string; priority: 'high' | 'medium' | 'low'; brokerEmail: string; assignedUnderwriter: string; description: string }> = {
   submission: {
@@ -34,6 +34,14 @@ const DEMO_SAMPLES: Record<CaseType, { businessName: string; policyType: string;
     brokerEmail: 'c.pemberton@ajg.com',
     assignedUnderwriter: 'Michael Brown',
     description: 'First-notice-of-loss for burst pipe in upstairs bathroom causing water damage to ceiling and kitchen below. Buildings and contents cover claim, no prior claims on policy.',
+  },
+  pre_bind: {
+    businessName: 'Northwind Logistics Ltd',
+    policyType: 'Commercial Property',
+    priority: 'medium',
+    brokerEmail: 'submissions@aon-london.com',
+    assignedUnderwriter: 'Sarah Mitchell',
+    description: 'Pre-bind submission for warehousing and distribution operation across 3 sites in the Midlands. TIV £42M. Requires combined property + business interruption cover.',
   },
 };
 
@@ -102,7 +110,7 @@ export function NewCaseModal({ open, onClose, lockedCaseType }: NewCaseModalProp
     setDocFiles(prev => prev.filter((_, i) => i !== idx));
   };
 
-  const isMinimal = lockedCaseType === 'claim';
+  const isMinimal = lockedCaseType === 'claim' || lockedCaseType === 'pre_bind';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,8 +136,9 @@ export function NewCaseModal({ open, onClose, lockedCaseType }: NewCaseModalProp
       })));
 
       const firstFile = docFiles[0];
+      const minimalNameFallback = lockedCaseType === 'pre_bind' ? 'Pending Submission Details' : 'Pending Claim Details';
       const finalBusinessName = isMinimal
-        ? (firstFile ? firstFile.name.replace(/\.[^.]+$/, '') : 'Pending Claim Details')
+        ? (firstFile ? firstFile.name.replace(/\.[^.]+$/, '') : minimalNameFallback)
         : businessName.trim();
       const finalPolicyType = isMinimal ? 'Pending Classification' : policyType.trim();
 
@@ -195,11 +204,11 @@ export function NewCaseModal({ open, onClose, lockedCaseType }: NewCaseModalProp
 
   const policyTypeOptions = caseType === 'slip' ? slipPolicyTypes : caseType === 'claim' ? claimLossTypes : submissionPolicyTypes;
   const policyTypeLabel = caseType === 'claim' ? 'Loss Type' : 'Policy Type';
-  const businessNameLabel = caseType === 'claim' ? 'Claimant Name' : caseType === 'slip' ? 'Insured / Business Name' : 'Client Name';
-  const businessNamePlaceholder = caseType === 'claim' ? 'e.g. Charlotte Anne Pemberton' : caseType === 'slip' ? 'e.g. ABC Private Limited' : 'e.g. James & Patricia Harrington';
+  const businessNameLabel = caseType === 'claim' ? 'Claimant Name' : caseType === 'slip' ? 'Insured / Business Name' : caseType === 'pre_bind' ? 'Insured / Business Name' : 'Client Name';
+  const businessNamePlaceholder = caseType === 'claim' ? 'e.g. Charlotte Anne Pemberton' : caseType === 'slip' ? 'e.g. ABC Private Limited' : caseType === 'pre_bind' ? 'e.g. Northwind Logistics Ltd' : 'e.g. James & Patricia Harrington';
   const underwriterLabel = caseType === 'claim' ? 'Assigned Adjuster' : 'Assigned Underwriter';
-  const dialogTitle = caseType === 'claim' ? 'Create New Claim' : 'Create New Insurance Case';
-  const submitLabel = caseType === 'claim' ? 'Create Claim' : 'Create Case';
+  const dialogTitle = caseType === 'claim' ? 'Create New Claim' : caseType === 'pre_bind' ? 'Create New Submission' : 'Create New Insurance Case';
+  const submitLabel = caseType === 'claim' ? 'Create Claim' : caseType === 'pre_bind' ? 'Create Submission' : 'Create Case';
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>

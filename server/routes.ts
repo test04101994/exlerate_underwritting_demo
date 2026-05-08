@@ -513,6 +513,19 @@ Status: ✅ COMPLETE - Ready for sanctions screening`,
             });
             console.log(`[Manual Mode] Claim ${sessionId} FNOL approved — drafting acknowledgement letter`);
           }
+        } else if (session?.workflowType === 'pre_bind') {
+          // Pre-bind workflow is human-driven — confirm approval and let the
+          // underwriter pick the next agent manually via the Run buttons.
+          await storage.updateWorkflowSession(sessionId, { status: 'running' });
+          await storage.createMessage({
+            sessionId,
+            type: 'system',
+            sender: 'System',
+            content: `✅ **Submission data approved** — extracted fields locked in. Pick the next agent (Sanctions Checker, Data Completeness, Risk Prioritization, etc.) from the Agent Registry to continue.`,
+            createdAt: new Date()
+          } as any);
+          io.to(sessionId).emit('messageAdded', { sessionId });
+          console.log(`[Manual Mode] Pre-bind ${sessionId} submissions extraction approved — awaiting underwriter to trigger next agent`);
         } else if (session?.workflowType === 'submission') {
           // Submission workflow: index 0 is Data Extraction; resume from index 1
           await resumeWorkflowAfterApproval(sessionId, 1);
@@ -1355,7 +1368,7 @@ The workflow will automatically continue when human comments are detected.`;
         }
       }
       
-    } else if (agent.type === 'policy_extractor' || agent.type === 'geocoding' || agent.type === 'property_data' || agent.type === 'geospatial_risk' || agent.type === 'cat_risk' || agent.type === 'portfolio_risk' || agent.type === 'quote_generator' || agent.type === 'fnol_intake' || agent.type === 'coverage_validation' || agent.type === 'loss_report_summarizer' || agent.type === 'invoice_validation' || agent.type === 'claim_event_summarizer' || agent.type === 'correspondence_generator') {
+    } else if (agent.type === 'policy_extractor' || agent.type === 'geocoding' || agent.type === 'property_data' || agent.type === 'geospatial_risk' || agent.type === 'cat_risk' || agent.type === 'portfolio_risk' || agent.type === 'quote_generator' || agent.type === 'fnol_intake' || agent.type === 'coverage_validation' || agent.type === 'loss_report_summarizer' || agent.type === 'invoice_validation' || agent.type === 'claim_event_summarizer' || agent.type === 'correspondence_generator' || agent.type === 'submissions_extractor' || agent.type === 'risk_prioritization' || agent.type === 'sanctions_screen' || agent.type === 'submission_summary' || agent.type === 'premium_generator' || agent.type === 'policy_comparison' || agent.type === 'data_completeness_checker') {
       // Insurance quote workflow agents
       console.log(`[Insurance Agent] ${agent.name} (${agent.type}) processing for ${sessionId}`);
 
@@ -1405,10 +1418,20 @@ The workflow will automatically continue when human comments are detected.`;
         coverage_validation: 'coverage-validation-config.json', // Coverage — Policy / Coverages / Deductibles
         invoice_validation:  'invoice-validation-config.json',  // Invoice — Claim / Assignment / Supplier / Reserves / Invoice / Exception
       };
-      const formFile = claimFormConfigByAgent[agent.type];
+      // Pre-bind form configs — pause for review just like the claim agents above.
+      const preBindFormConfigByAgent: Record<string, string> = {
+        submissions_extractor: 'data-extraction-config.json',   // Submission — Insured / Broker / Exposure / Loss History
+      };
+      const isPreBindAgent = !!preBindFormConfigByAgent[agent.type];
+      const formFile = claimFormConfigByAgent[agent.type] || preBindFormConfigByAgent[agent.type];
       if (formFile) {
         try {
-          const configPath = path.join(process.cwd(), 'public', 'claims-forms', formFile);
+          const configPath = path.join(
+            process.cwd(),
+            'public',
+            isPreBindAgent ? 'pre-bind-forms' : 'claims-forms',
+            formFile
+          );
           if (fs.existsSync(configPath)) {
             const formConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
             // Preserve any prior data on extractedData; just rewrite _formConfig + _formAgentType
@@ -3482,6 +3505,7 @@ Please respond with your choice: send, edit, or discard`,
       } else if (caseId && !detectedCaseType) {
         if (caseId.startsWith('SLP-')) detectedCaseType = 'slip';
         else if (caseId.startsWith('CLM-')) detectedCaseType = 'claim';
+        else if (caseId.startsWith('PRB-')) detectedCaseType = 'pre_bind';
         else detectedCaseType = 'submission';
       }
 
@@ -3491,6 +3515,7 @@ Please respond with your choice: send, edit, or discard`,
         finalCaseType === 'submission' ? 'UW-2025-001'
         : finalCaseType === 'slip' ? 'SLP-2025-001'
         : finalCaseType === 'claim' ? 'CLM-2025-001'
+        : finalCaseType === 'pre_bind' ? 'PRB-2025-001'
         : ticketKey || 'HIS-90'
       );
       
@@ -3594,16 +3619,11 @@ Please respond with your choice: send, edit, or discard`,
         });
       }
 
-      // Auto-start workflow execution — except for claim workflows, which are
-      // human-driven (the adjuster picks each agent manually via /run-agent)
+      // Auto-start workflow execution — except for claim and pre_bind workflows,
+      // which are human-driven (the user picks each agent manually via /run-agent)
       if (finalCaseType === 'claim') {
         console.log(`[Manual Mode] Claim workflow ${sessionId} created — agents will be triggered manually by the adjuster`);
-        // Welcome message so the adjuster sees something in the chat and knows
-        // they can ask questions of the Claim Assistant at any time.
         try {
-          const { getClaimDataById } = await import('../shared/claim-data');
-          const claimData = getClaimDataById(finalCaseId);
-          const claimTypeLabel = claimData?.claim_type ? ` (${claimData.claim_type})` : '';
           await storage.createMessage({
             sessionId,
             content: `Hello — I'm the **Claim Assistant** for **${finalCaseId}**.`,
@@ -3613,6 +3633,19 @@ Please respond with your choice: send, edit, or discard`,
           } as any);
         } catch (err) {
           console.error('[Claim Welcome] Failed to write welcome message:', err);
+        }
+      } else if (finalCaseType === 'pre_bind') {
+        console.log(`[Manual Mode] Pre-Bind workflow ${sessionId} created — agents will be triggered manually by the underwriter`);
+        try {
+          await storage.createMessage({
+            sessionId,
+            content: `Hello — I'm the **Submission Assistant** for **${finalCaseId}**.`,
+            type: 'agent',
+            sender: 'Submission Assistant',
+            createdAt: new Date()
+          } as any);
+        } catch (err) {
+          console.error('[Pre-Bind Welcome] Failed to write welcome message:', err);
         }
       } else {
         setTimeout(async () => {
@@ -3681,6 +3714,20 @@ Please respond with your choice: send, edit, or discard`,
         { name: 'Loss Report Summarizer Agent', type: 'loss_report_summarizer', description: 'Summarises the loss adjuster\'s report and benchmarks past payouts on similar claims to support the settlement recommendation' },
         { name: 'Invoice Validation Agent', type: 'invoice_validation', description: 'Validates supplier invoices against the rate card, checks for duplicates, and confirms compliance with contract terms' },
         { name: 'Automated Correspondence Generator', type: 'correspondence_generator', description: 'Drafts claim letters and broker/claimant correspondence from claim data using pre-approved templates' }
+      ];
+    }
+    if (caseType === 'pre_bind') {
+      // Pre-bind insurance — 7 human-triggered agents in pipeline order.
+      // Query Retrieval Agent is rendered separately in the chat as an
+      // always-on passive agent and is not part of this list.
+      return [
+        { name: 'Submissions Extraction Agent', type: 'submissions_extractor', description: 'Extracts insured details, coverages, sums insured, and underwriting attributes from the broker submission documents' },
+        { name: 'Sanctions Checker Agent', type: 'sanctions_screen', description: 'Validates the insured and beneficial owners against OFAC, UN, EU, and HMT sanctions lists' },
+        { name: 'Data Completeness Checker Agent', type: 'data_completeness_checker', description: 'Verifies the extracted submission has every field required to underwrite — flags missing items and what the broker still owes us' },
+        { name: 'Risk Prioritization Agent', type: 'risk_prioritization', description: 'Scores the submission against appetite and capacity — flags high-priority risks for senior underwriting attention' },
+        { name: 'Submission Summarization Agent', type: 'submission_summary', description: 'Produces a structured one-page summary of the submission for the underwriter — exposure, key terms, broker history' },
+        { name: 'Peer-to-Peer Policy Comparison Agent', type: 'policy_comparison', description: 'Compares the proposed terms against peer policies in the book — highlights deviations in limits, deductibles, and exclusions' },
+        { name: 'Premium Generator Agent', type: 'premium_generator', description: 'Calculates indicative gross and net premium using the rating engine, exposure data, and historical loss ratios' }
       ];
     }
     if (caseType === 'submission' || caseType === 'insurance-quote') {
@@ -3773,6 +3820,95 @@ Please respond with your choice: send, edit, or discard`,
       res.status(500).json({ error: 'Failed to regenerate summary' });
     }
   });
+
+  // Regenerate the Data Completeness broker follow-up email at a different
+  // tone (short / long / professional). Triggered by the tone picker in chat
+  // messages tagged with [REGENERATE_BROKER_EMAIL:*].
+  app.post('/api/workflows/:sessionId/regenerate-broker-email', async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const { tone } = req.body as { tone: 'short' | 'long' | 'professional' };
+      if (!tone || !['short', 'long', 'professional'].includes(tone)) {
+        return res.status(400).json({ error: 'tone must be short, long, or professional' });
+      }
+
+      const session = await storage.getWorkflowSession(sessionId);
+      const cid = session?.caseId || 'PRB-2026-001';
+      const body = buildBrokerFollowupEmail(tone, cid);
+      const message = await storage.createMessage({
+        sessionId,
+        type: 'agent',
+        sender: 'Data Completeness Checker Agent',
+        content: `**Redrafted — ${tone} tone**\n\n${body}\n\n[REGENERATE_BROKER_EMAIL:${tone}]`,
+        createdAt: new Date()
+      } as any);
+
+      io.to(sessionId).emit('messageAdded', { sessionId });
+      res.json({ success: true, messageId: message.id });
+    } catch (error) {
+      console.error('[Regenerate Broker Email] Error:', error);
+      res.status(500).json({ error: 'Failed to regenerate broker email' });
+    }
+  });
+
+  function buildBrokerFollowupEmail(tone: 'short' | 'long' | 'professional', caseId: string): string {
+    if (tone === 'short') {
+      return `**To:** leejones@marsh.com
+**Subject:** ${caseId} — Business Activities required
+
+Hi Lee,
+
+The submission for **Pure Steel Manufacturing Ltd** (${caseId}) is missing the Business Activities section. To rate the liability classes please send across:
+
+1. The list of business activities the insured engages in.
+2. The % split of turnover / wage roll across each activity (must sum to 100%).
+
+Thanks,
+Sarah`;
+    }
+    if (tone === 'long') {
+      return `**To:** leejones@marsh.com
+**Cc:** Sarah Mitchell <sarah.mitchell@exl.com>
+**Subject:** ${caseId} Pure Steel Manufacturing Ltd — Business Activities and split required
+
+Dear Lee,
+
+Many thanks for the submission relating to **Pure Steel Manufacturing Ltd** under our reference **${caseId}**. We have logged the broker pack and the supplementary questionnaire, and our completeness check confirms that all sections are populated **with the exception of the Business Activities** section, which has come through blank (0 activities declared, split totals 0%).
+
+To progress to formal terms we would be grateful if you could provide the following:
+
+1. **List of business activities** the insured engages in. Given the trade class is metalworking, we expect activities such as machining, welding, pipe fitting, fabrication, heat treatment, and similar — please confirm which apply.
+
+2. **Percentage split** of turnover (or wage roll, whichever the insured tracks) across each declared activity. The split must sum to 100% and will be used to rate the Public/Products and Employers Liability classes.
+
+3. Where any activity is sub-contracted in or out, please flag this so we can apply the correct contractor exclusion or endorsement.
+
+This is a hard prerequisite before we can rate the liability sections of this risk. We will revert with a quote within 48 hours of receipt of the above.
+
+Kind regards,
+Sarah Mitchell
+Underwriter, EXL Specialty
++44 20 7946 0123`;
+    }
+    // professional (default)
+    return `**To:** leejones@marsh.com
+**Cc:** Sarah Mitchell <sarah.mitchell@exl.com>
+**Subject:** ${caseId} Pure Steel Manufacturing Ltd — Business Activities required
+
+Dear Lee,
+
+Thank you for the submission for **Pure Steel Manufacturing Ltd** (our reference **${caseId}**). To complete our underwriting review, please could you provide the **Business Activities** section, which has come through blank on the submission pack.
+
+Specifically, we need:
+
+1. The **list of business activities** the insured engages in (e.g. machining, welding, pipe fitting, fabrication, etc.).
+2. The **percentage split** of turnover or wage roll across each activity, summing to 100%.
+
+This is required before we can rate the liability classes correctly and issue formal terms. We will revert with a quote within 48 hours of receipt.
+
+Kind regards,
+Sarah Mitchell · Underwriter, EXL Specialty`;
+  }
 
   // Stream a sequence of "drafting the ack letter" messages — Thinking,
   // tool calls, tool results, then the final letter — each with a delay so
@@ -4618,6 +4754,10 @@ Status: All required information received. Workflow resuming automatically...`,
             respondToClaimQuery(req.params.sessionId, content).catch(err => {
               console.error('[Claim Q&A] Failed to generate response:', err);
             });
+          } else if (session?.workflowType === 'pre_bind') {
+            respondToPreBindQuery(req.params.sessionId, content).catch(err => {
+              console.error('[Pre-Bind Q&A] Failed to generate response:', err);
+            });
           }
         } catch (err) {
           console.error('[Claim Q&A] Failed to check workflow type:', err);
@@ -4634,6 +4774,195 @@ Status: All required information received. Workflow resuming automatically...`,
       });
     }
   });
+
+  // Pre-bind Submission Q&A — emits a multi-step trace (Thinking → tool call →
+  // tool result → final answer) for free-form questions on a pre_bind workflow.
+  async function respondToPreBindQuery(sessionId: string, userMessage: string) {
+    const session = await storage.getWorkflowSession(sessionId);
+    if (!session?.caseId) return;
+
+    const cid = session.caseId;
+    const q = userMessage.toLowerCase().trim();
+
+    interface Step { thinking: string; toolCall: { name: string; args: any }; toolResult: any; answer: string; }
+    const steps: Step[] = [];
+
+    const push = (s: Step) => steps.push(s);
+
+    // ── Greetings / help ────────────────────────────────────────────────
+    if (/^(hi|hello|hey|yo|good (morning|afternoon|evening))\b/.test(q)) {
+      await storage.createMessage({ sessionId, content: `Hello — I'm the **Submission Assistant** for **${cid}**. Ask me about the risk, sanctions checks, indicative premium, peer comparison, or appetite fit.`, type: 'agent', sender: 'Submission Assistant', createdAt: new Date() } as any);
+      io.to(sessionId).emit('messageAdded', { sessionId });
+      return;
+    }
+    if (/^help|what can|who are you|capabilities/.test(q)) {
+      await storage.createMessage({ sessionId, content: `I can answer questions about this submission:\n• **Insured** — company name, Companies House no., date established, address\n• **Financials** — turnover, wage roll\n• **Jurisdictional split** — UK / Europe / USA-Canada / RoW exposure %\n• **Cover limits** — Public & Products Liability, Employers Liability, Legal Protection\n• **Claims history** — prior and open claims, values, causes\n• **Property** — site address, property limits, missing sums insured\n• **Security** — intruder alarm, accreditation, police response, sole control\n• **Broker** — intermediary, contact, target premium, previous insurer\n• **Premium** — indicative annual premium and rationale\n• **Risk profile** — appetite fit, prioritization\n• **Sanctions** — OFAC/UN/EU/HMT screening status\n• **Peer comparison** — how this submission stacks against the book`, type: 'agent', sender: 'Submission Assistant', createdAt: new Date() } as any);
+      io.to(sessionId).emit('messageAdded', { sessionId });
+      return;
+    }
+
+    // ── Insured / company info ─────────────────────────────────────────
+    if (/who.{0,15}(insured|insure|client|applicant|company)|insured.{0,5}name|company.{0,5}(name|number|details|info)|companies house|pure steel|tell me about the (insured|company)/.test(q)) {
+      push({
+        thinking: `User wants the insured's company details. Pulling general details and policy holders sections from the extracted submission.`,
+        toolCall: { name: 'lookup_insured', args: { submission_id: cid } },
+        toolResult: { company_name: 'Pure Steel Manufacturing Ltd', companies_house_no: '02306126', date_established: '17/10/1999', organisation_type: 'Limited company', registered_address: 'Ginda House, Station Road', postcode: '10065', annual_turnover_gbp: 3800000 },
+        answer: `**Insured details:**\n• Company name: **Pure Steel Manufacturing Ltd**\n• Companies House no.: **02306126**\n• Date established: **17/10/1999** (~26 years trading)\n• Organisation type: Limited company\n• Registered address: Ginda House, Station Road · Postcode 10065\n• Annual turnover: **£3,800,000**`
+      });
+    }
+    // ── Turnover / revenue / financials ────────────────────────────────
+    else if (/turnover|revenue|annual income|gross income|financial(s)?/.test(q)) {
+      push({
+        thinking: `User wants the financials. Pulling the declared annual turnover and wage roll from the extracted submission.`,
+        toolCall: { name: 'fetch_financials', args: { submission_id: cid } },
+        toolResult: { annual_turnover_gbp: 3800000, wage_roll_manual_gbp: 75000, wage_roll_clerical_gbp: 265000, total_wage_roll_gbp: 340000 },
+        answer: `**Financials for the insured:**\n• Annual turnover: **£3,800,000**\n• Wage roll — manual work: £75,000\n• Wage roll — clerical / non-manual: £265,000\n• Total wage roll: **£340,000**`
+      });
+    }
+    // ── Jurisdictional split / geographic exposure ─────────────────────
+    else if (/jurisdic|geograph|territor|usa|canada|north america|where.{0,15}(operate|trad|expos|business)|country split|region(al)?/.test(q)) {
+      push({
+        thinking: `User wants the jurisdictional split. Pulling the geographic exposure breakdown declared on the submission.`,
+        toolCall: { name: 'fetch_jurisdictional_split', args: { submission_id: cid } },
+        toolResult: { uk_pct: 0, republic_of_ireland_pct: 0, europe_excl_uk_roi_pct: 7.89, usa_canada_pct: 92.11, rest_of_world_pct: 0, unknown_pct: 0, total_pct: 100 },
+        answer: `**Jurisdictional split:**\n• UK: 0%\n• Republic of Ireland: 0%\n• Europe (excl. UK & RoI): **7.89%**\n• USA and Canada: **92.11%**\n• Rest of the World: 0%\n\nThe risk is heavily concentrated in **North America** — this drives the underwriter-review routing.`
+      });
+    }
+    // ── Cover limits / liability limits ────────────────────────────────
+    else if (/cover.{0,10}(limit|amount)|limit.{0,15}(cover|indemnity|liabilit)|liabilit.{0,15}(limit|amount)|public.{0,10}liability|product.{0,10}liability|employer.{0,10}liability|legal protection|el limit|pl limit/.test(q)) {
+      push({
+        thinking: `User wants the cover limits. Pulling the three liability covers from the policy section.`,
+        toolCall: { name: 'fetch_cover_limits', args: { submission_id: cid } },
+        toolResult: { public_and_products_liability_gbp: 5000000, employers_liability_gbp: 10000000, legal_protection_gbp: 250000, currency: 'GBP' },
+        answer: `**Cover limits:**\n• Public and Products Liability: **£5,000,000**\n• Employers Liability: **£10,000,000**\n• Legal Protection: **£250,000**\n\nEL is at the standard UK statutory £10M floor; PL of £5M is mid-range for a manufacturer of this size.`
+      });
+    }
+    // ── Claims history / prior claims ──────────────────────────────────
+    else if (/claim.{0,5}(history|count|paid|record)|prior claim|previous claim|loss history|past claim|incident.{0,10}(history|record)|burst pipe|roof defect/.test(q)) {
+      push({
+        thinking: `User wants the prior claims history. Pulling the two declared claims from the submission.`,
+        toolCall: { name: 'fetch_claims_history', args: { submission_id: cid, look_back_years: 5 } },
+        toolResult: {
+          claim_count: 2,
+          total_paid_gbp: 3944.85,
+          claims: [
+            { date: '15/06/2020', status: 'Closed', cause: 'Water damage', description: 'Burst pipe due to freezing', value_gbp: 2217.67 },
+            { date: '15/10/2023', status: 'Open', cause: 'Other', description: 'Complaint of concealed roof defect following a Level 2 survey', value_gbp: 1727.18 }
+          ]
+        },
+        answer: `**Claims history — 2 prior claims (£3,944.85 total):**\n\n1. **15/06/2020** — Closed · Water damage · *Burst pipe due to freezing* · **£2,217.67**\n2. **15/10/2023** — Open · Other · *Complaint of concealed roof defect following a Level 2 survey* · **£1,727.18**\n\nLow severity overall, but the open 2023 claim should be flagged for the underwriter.`
+      });
+    }
+    // ── Security / risk management ─────────────────────────────────────
+    else if (/security|alarm|intruder|police response|cctv|risk management|storeys|storeys|sole control|confirmable|nsi|nacoss|ssaib/.test(q)) {
+      push({
+        thinking: `User wants the property security and risk management details. Pulling the Risk Management section from the extracted submission.`,
+        toolCall: { name: 'fetch_security_details', args: { submission_id: cid } },
+        toolResult: {
+          total_storeys: 1,
+          intruder_alarm: 'Yes',
+          alarm_type: 'Audible',
+          alarm_accreditation: 'Not Accredited',
+          maintenance_contract: 'None but maintained by Norfolk Alarms',
+          police_response: 'No Police Response',
+          alarm_confirmable_tech: 'No',
+          alarm_sole_control: 'Yes',
+          additional_security_details: 'No',
+          notes: ['Alarm not accredited (no NSI/SSAIB)', 'No police response on alarm activation', 'No confirmable technology']
+        },
+        answer: `The single-storey property is protected by an audible intruder alarm under the proposer's sole control and maintained by Norfolk Alarms, but the alarm is **unaccredited (no NSI / NACOSS / SSAIB)**, lacks confirmable technology, and has **no police response** — likely warranting a security condition if the theft sub-limit is uplifted.`
+      });
+    }
+    // ── Property / location / address ──────────────────────────────────
+    else if (/propert|location|address|site|where.{0,10}(located|based|insured at)|hamilton house|princess road|los angeles/.test(q)) {
+      push({
+        thinking: `User wants the insured property details. Pulling the property information and property limits sections.`,
+        toolCall: { name: 'fetch_property_details', args: { submission_id: cid } },
+        toolResult: {
+          property_count: 1,
+          primary_property: { house_number: '122', house_name: 'Hamilton House', address_line_1: 'Princess Road', city: 'Los Angeles', country: 'USA', postcode: '90015' },
+          property_limits_gbp: { property_away_in_transit: 3286, money: 2600 },
+          missing_limits: ['Buildings', 'Contents', 'Stock', 'Deterioration of stock', 'Business interruption', 'Computer breakdown']
+        },
+        answer: `**Insured property:**\n• **Hamilton House, 122 Princess Road, Los Angeles, USA, 90015** (1 site declared)\n\n**Declared property limits:**\n• Property away & in transit: £3,286\n• Money: £2,600\n\n**Missing limits** (broker follow-up required): Buildings, Contents, Stock, Deterioration of stock, Business interruption, Computer breakdown.`
+      });
+    }
+    // ── Broker / intermediary ──────────────────────────────────────────
+    else if (/broker|intermediary|marsh|lee jones|broker.{0,10}(name|email|contact)|who.{0,10}(introduced|placed)/.test(q)) {
+      push({
+        thinking: `User wants the broker / intermediary details. Pulling the general details section.`,
+        toolCall: { name: 'fetch_broker_details', args: { submission_id: cid } },
+        toolResult: { intermediary: 'Marsh', contact_name: 'Lee Jones', contact_email: 'leejones@marsh.com', broker_ref_hu_number: '377', target_premium_gbp: 2000, previous_insurer: 'Aviva' },
+        answer: `**Broker details:**\n• Intermediary: **Marsh**\n• Broker contact: **Lee Jones** (leejones@marsh.com)\n• Broker Ref HU number: **377**\n• Target premium: **£2,000**\n• Previous insurer: **Aviva**`
+      });
+    }
+    // ── Premium ─────────────────────────────────────────────────────────
+    else if (/premium|rate|cost|pricing|gross.{0,5}(written|premium)|gwp/.test(q)) {
+      push({
+        thinking: `User wants the indicative premium. Pulling the rating-engine output and applying broker-level loading and target loss ratio.`,
+        toolCall: { name: 'fetch_indicative_premium', args: { submission_id: cid } },
+        toolResult: { estimated_annual_premium_low_gbp: 2500, estimated_annual_premium_high_gbp: 3200, target_premium_gbp: 2000, base_premium_gbp: 1900, jurisdictional_loading_pct: 35, liability_limit_loading_pct: 12, claims_severity_credit_pct: -8, model_confidence: 0.86 },
+        answer: `**Indicative annual premium for ${cid}:** **GBP 2,500 – GBP 3,200**\n\n• Base premium: £1,900\n• Jurisdictional loading: +35% (heavy USA/Canada concentration)\n• Liability limit loading: +12%\n• Claims severity credit: −8%\n• Model confidence: 86%\n\nBroker target premium was £2,000 — current indication runs above target. Run the **Premium Generator Agent** to lock terms.`
+      });
+    }
+    // ── Sanctions ───────────────────────────────────────────────────────
+    else if (/sanction|ofac|hmt|embargo|pep|aml|kyc/.test(q)) {
+      push({
+        thinking: `User is asking about sanctions screening. Pulling the latest screening result for the insured and beneficial owners.`,
+        toolCall: { name: 'check_sanctions', args: { submission_id: cid, lists: ['OFAC', 'UN', 'EU', 'HMT'] } },
+        toolResult: { insured_match: 'no', beneficial_owners_match: 'no', pep_match: 'no', last_screened: new Date().toISOString().slice(0, 10), confidence: 0.99 },
+        answer: `**Sanctions screening — clear.**\n• Insured: no hits on OFAC, UN, EU, or HMT lists\n• Beneficial owners: no hits\n• PEP exposure: none identified\n• Confidence: 99%\n\nRun the **Sanctions Checker Agent** for a fresh real-time screening.`
+      });
+    }
+    // ── Risk / appetite / prioritization ────────────────────────────────
+    else if (/risk|appetite|priorit|exposure|severity|underwriting score/.test(q)) {
+      push({
+        thinking: `User is asking about the risk profile. Pulling the prioritization score that combines exposure, broker hit rate, and book balance.`,
+        toolCall: { name: 'fetch_risk_score', args: { submission_id: cid } },
+        toolResult: { priority_score: 78, appetite_fit: 'in-appetite', broker_hit_rate: '34%', exposure_band: 'mid-market', recommended_tier: 'standard' },
+        answer: `**Risk profile for ${cid}:**\n• Priority score: **78 / 100** (high)\n• Appetite fit: **in-appetite**\n• Broker hit rate: 34% over trailing 12 months\n• Exposure band: mid-market\n• Recommended tier: standard\n\nRun the **Risk Prioritization Agent** for a deeper appetite analysis.`
+      });
+    }
+    // ── Peer comparison ────────────────────────────────────────────────
+    else if (/peer|compar|book|benchmark|similar|comparable/.test(q)) {
+      push({
+        thinking: `User wants a peer comparison. Pulling the closest 5 policies in the book on the same line of business and exposure band.`,
+        toolCall: { name: 'fetch_peer_comparison', args: { submission_id: cid, k: 5 } },
+        toolResult: { peer_count: 5, median_rate_per_mille: '2.71‰', this_rate_per_mille: '2.85‰', deviation: '+5.2%', limit_position: 'in-line', deductible_position: 'tighter than median' },
+        answer: `**Peer comparison (5 closest policies):**\n• Median rate per mille: 2.71‰ — this submission at **2.85‰ (+5.2%)**\n• Limit: in-line with peers\n• Deductible: **tighter than median** (better for the carrier)\n\nRun the **Peer-to-Peer Policy Comparison Agent** for a full deviation report.`
+      });
+    }
+    // ── Summary / overview ─────────────────────────────────────────────
+    else if (/summar|overview|brief|one.?pager|tl.?dr/.test(q)) {
+      push({
+        thinking: `User wants a one-page summary. Pulling extracted submission data and producing the structured underwriter brief.`,
+        toolCall: { name: 'build_submission_summary', args: { submission_id: cid } },
+        toolResult: { sections: ['insured', 'exposure', 'coverage', 'loss_history', 'broker'], pages: 1, status: 'ready' },
+        answer: `Summary is ready — run the **Submission Summary Generator** to render the one-page underwriter brief covering insured, exposure, coverage, loss history, and broker context.`
+      });
+    }
+    // ── Fallback ────────────────────────────────────────────────────────
+    else {
+      await storage.createMessage({ sessionId, content: `I don't have a specific answer for that yet. I can help with **insured details**, **turnover**, **jurisdictional split**, **cover limits**, **claims history**, **property**, **security**, **broker**, **premium**, **risk profile**, **sanctions**, **peer comparison**, or **summary**. Try **help** for the full list.`, type: 'agent', sender: 'Submission Assistant', createdAt: new Date() } as any);
+      io.to(sessionId).emit('messageAdded', { sessionId });
+      return;
+    }
+
+    // Stream the trace as 4 separate messages with small delays
+    for (const s of steps) {
+      const messages: { content: string; delay: number }[] = [
+        { content: `**Thinking:** ${s.thinking}`, delay: 600 },
+        { content: `→ \`${s.toolCall.name}\`\n\`\`\`json\n${JSON.stringify(s.toolCall.args, null, 2)}\n\`\`\``, delay: 900 },
+        { content: `✓ \`${s.toolCall.name}\` returned:\n\`\`\`json\n${JSON.stringify(s.toolResult, null, 2)}\n\`\`\``, delay: 1100 },
+        { content: s.answer, delay: 800 },
+      ];
+      for (const m of messages) {
+        await new Promise(r => setTimeout(r, m.delay));
+        await storage.createMessage({ sessionId, content: m.content, type: 'agent', sender: 'Submission Assistant', createdAt: new Date() } as any);
+        io.to(sessionId).emit('messageAdded', { sessionId });
+      }
+    }
+  }
 
   // Generate a context-aware response to an adjuster's free-form question
   // about a claim. Produces a realistic agent trace — Thinking → tool call →
@@ -5478,7 +5807,7 @@ Status: All required information received. Workflow resuming automatically...`,
       } = req.body as {
         businessName: string;
         policyType: string;
-        caseType: 'submission' | 'slip' | 'claim';
+        caseType: 'submission' | 'slip' | 'claim' | 'pre_bind';
         priority: 'high' | 'medium' | 'low';
         brokerEmail: string;
         assignedUnderwriter: string;
@@ -5500,7 +5829,7 @@ Status: All required information received. Workflow resuming automatically...`,
       const { loadDashboardCases } = await import('../shared/dashboard-cases');
       const existingCases = loadDashboardCases();
       const year = new Date().getFullYear();
-      const prefix = caseType === 'slip' ? 'SLP' : caseType === 'claim' ? 'CLM' : 'UW';
+      const prefix = caseType === 'slip' ? 'SLP' : caseType === 'claim' ? 'CLM' : caseType === 'pre_bind' ? 'PRB' : 'UW';
       const samePrefixCases = existingCases.filter(c => c.case_id.startsWith(`${prefix}-${year}-`));
       const nextNum = samePrefixCases.length + 1;
       const caseId = `${prefix}-${year}-${String(nextNum).padStart(3, '0')}`;
@@ -5536,12 +5865,17 @@ Status: All required information received. Workflow resuming automatically...`,
       // Build CSV row and append to dashboard-cases.csv
       const now = new Date().toISOString();
       const submissionDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '/');
-      const initialAgent = caseType === 'slip' ? 'Data Extraction Agent' : caseType === 'claim' ? 'Claim Data Extraction Agent' : 'Policy Data Extraction Agent';
+      const initialAgent = caseType === 'slip' ? 'Data Extraction Agent'
+        : caseType === 'claim' ? 'Claim Data Extraction Agent'
+        : caseType === 'pre_bind' ? 'Submissions Extraction Agent'
+        : 'Policy Data Extraction Agent';
       const emailSubject = caseType === 'slip'
         ? `New Lloyd's Slip Submission — ${businessName}`
         : caseType === 'claim'
           ? `New Claim Notification — ${businessName}`
-          : `New Insurance Submission — ${businessName}`;
+          : caseType === 'pre_bind'
+            ? `New Pre-Bind Submission — ${businessName}`
+            : `New Insurance Submission — ${businessName}`;
       const escapeCsv = (v: string) => v.includes(',') || v.includes('"') || v.includes('\n') ? `"${v.replace(/"/g, '""')}"` : v;
 
       const row = [
@@ -6182,6 +6516,51 @@ Status: All required information received. Workflow resuming automatically...`,
       console.error('[Claims Forms] Error loading configuration:', error);
       res.status(500).json({
         error: 'Failed to load claims form configuration',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // API endpoint to serve pre-bind form configuration (mirrors /api/claims-forms/...).
+  app.get('/api/pre-bind-forms/data-extraction-config', async (req, res) => {
+    try {
+      const { sessionId, agentType } = req.query as { sessionId?: string; agentType?: string };
+
+      const agentTypeToFile: Record<string, string> = {
+        submissions_extractor: 'data-extraction-config.json',
+      };
+
+      // Explicit agent-type override (used by "View extracted data" button).
+      if (agentType && agentTypeToFile[agentType]) {
+        const overridePath = path.join(process.cwd(), 'public', 'pre-bind-forms', agentTypeToFile[agentType]);
+        if (fs.existsSync(overridePath)) {
+          return res.json(JSON.parse(fs.readFileSync(overridePath, 'utf8')));
+        }
+      }
+
+      // Otherwise, prefer the form config currently active on the session.
+      if (sessionId && typeof sessionId === 'string') {
+        try {
+          const session = await storage.getWorkflowSession(sessionId);
+          const sessionFormConfig = (session?.extractedData as any)?._formConfig;
+          if (sessionFormConfig) {
+            return res.json(sessionFormConfig);
+          }
+        } catch (err) {
+          console.warn('[Pre-Bind Forms] Failed to load session config, using static:', err);
+        }
+      }
+
+      // Fallback to the static submissions-extractor config.
+      const fallbackPath = path.join(process.cwd(), 'public', 'pre-bind-forms', 'data-extraction-config.json');
+      if (!fs.existsSync(fallbackPath)) {
+        return res.status(404).json({ error: 'Pre-bind form configuration not found' });
+      }
+      res.json(JSON.parse(fs.readFileSync(fallbackPath, 'utf8')));
+    } catch (error) {
+      console.error('[Pre-Bind Forms] Error loading configuration:', error);
+      res.status(500).json({
+        error: 'Failed to load pre-bind form configuration',
         message: error instanceof Error ? error.message : 'Unknown error'
       });
     }

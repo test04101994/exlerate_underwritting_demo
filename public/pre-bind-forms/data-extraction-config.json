@@ -1,0 +1,138 @@
+{
+  "form_title": "Submission Extraction — Pre-Bind Review",
+  "form_subtitle": "Review and approve the submission data extracted from the broker pack before risk prioritization and pricing",
+  "confidence_threshold": { "high": 0.90, "medium": 0.75, "low": 0.0 },
+  "sections": [
+    {
+      "id": "general_details",
+      "title": "General Details",
+      "fields": [
+        { "id": "broker_ref_hu_number", "label": "Broker Ref HU Number",   "value": "377",                   "confidence": 0.97, "type": "text",   "required": true,  "source": { "page": 1, "bbox": [146, 700, 220, 712] } },
+        { "id": "intermediary_name",    "label": "Intermediary Name",      "value": "Marsh",                 "confidence": 0.99, "type": "select", "required": true,  "options": ["Marsh", "Aon", "Gallagher", "WTW", "Lockton", "Howden"], "source": { "page": 1, "bbox": [146, 680, 280, 692] } },
+        { "id": "broker_contact_name",  "label": "Broker Contact Name",    "value": "Lee Jones",             "confidence": 0.96, "type": "text",   "required": true,  "source": { "page": 1, "bbox": [146, 660, 280, 672] } },
+        { "id": "broker_email",         "label": "Broker Email",           "value": "leejones@marsh.com",    "confidence": 0.99, "type": "text",   "required": true,  "source": { "page": 1, "bbox": [146, 640, 380, 652] } },
+        { "id": "underwriter_email",    "label": "Underwriter Email",      "value": "",                      "confidence": 0.00, "type": "text",   "required": false, "source": { "page": 1, "bbox": [146, 620, 380, 632] } },
+        { "id": "target_premium",       "label": "Target Premium",         "value": "2000.0",                "confidence": 0.94, "type": "text",   "required": true,  "source": { "page": 1, "bbox": [146, 600, 240, 612] } },
+        { "id": "previous_insurer",     "label": "Previous Insurer",       "value": "Aviva",                 "confidence": 0.95, "type": "select", "required": false, "options": ["Aviva", "AXA", "Allianz", "RSA", "Zurich", "Hiscox", "Beazley", "None"], "source": { "page": 1, "bbox": [146, 580, 280, 592] } },
+        { "id": "quote_effective_date", "label": "Quote Effective Date",   "value": "31/05/2026",            "confidence": 0.98, "type": "text",   "required": true,  "source": { "page": 1, "bbox": [146, 560, 240, 572] } },
+        { "id": "due_date_quote_deadline","label": "Due Date/Quote Deadline","value": "12/05/2025",          "confidence": 0.96, "type": "text",   "required": true,  "source": { "page": 1, "bbox": [146, 540, 240, 552] } },
+        { "id": "business_description", "label": "Business Description",   "value": "and Pipe Fitting in a variety of Grade including nickel alloys for corrosion heat resisting and other application", "confidence": 0.91, "type": "textarea", "required": true,  "source": { "page": 1, "bbox": [146, 500, 540, 532] } },
+        { "id": "primary_trade",        "label": "Primary Trade",          "value": "Metalworking",          "confidence": 0.95, "type": "select", "required": true,  "options": ["Metalworking", "Construction", "Manufacturing", "Logistics & Warehousing", "Retail", "Hospitality", "Professional Services", "Healthcare", "Education", "Other"], "source": { "page": 1, "bbox": [146, 480, 320, 492] } },
+        { "id": "source",               "label": "Source",                 "value": "Key value long description inferencing", "confidence": 0.92, "type": "text", "required": false, "source": { "page": 1, "bbox": [146, 460, 420, 472] } },
+        { "id": "previous_decline",     "label": "Proposer has previously had insurance declined/cancelled?", "value": "No", "confidence": 0.97, "type": "select", "required": true,  "options": ["Yes", "No"], "source": { "page": 1, "bbox": [146, 440, 200, 452] } },
+        { "id": "previous_convictions", "label": "Proposer has convictions in the past?", "value": "No",     "confidence": 0.97, "type": "select", "required": true,  "options": ["Yes", "No"], "source": { "page": 1, "bbox": [146, 420, 200, 432] } },
+        { "id": "director_disqualified","label": "Directors, partners, board members disqualified from acting as a director of a ltd company or LLP", "value": "No", "confidence": 0.96, "type": "select", "required": true,  "options": ["Yes", "No"], "source": { "page": 1, "bbox": [146, 400, 200, 412] } },
+        { "id": "insolvency_history",   "label": "Within the past 10 years, have any of your partners, directors or other board members, or any entities been the subject of an insolvency process?", "value": "No", "confidence": 0.95, "type": "select", "required": true,  "options": ["Yes", "No"], "source": { "page": 1, "bbox": [146, 380, 200, 392] } }
+      ]
+    },
+    {
+      "id": "policy_holders",
+      "title": "Policy Holders",
+      "fields": [
+        { "id": "company_name",            "label": "Company Name",             "value": "Pure Steel Manufacturing Ltd",          "confidence": 0.99, "type": "text",   "required": true,  "source": { "page": 2, "bbox": [146, 700, 380, 712] } },
+        { "id": "company_number",          "label": "Company Number",           "value": "02306126",                              "confidence": 0.98, "type": "text",   "required": true,  "source": { "page": 2, "bbox": [146, 680, 240, 692] } },
+        { "id": "company_date_established","label": "Company Date Established", "value": "17/10/1999",                            "confidence": 0.97, "type": "text",   "required": true,  "source": { "page": 2, "bbox": [146, 660, 240, 672] } },
+        { "id": "company_website",         "label": "Company Website",          "value": "www.puresteelmanufacturingltd.com",     "confidence": 0.95, "type": "text",   "required": false, "source": { "page": 2, "bbox": [146, 640, 420, 652] } },
+        { "id": "organisation_type",       "label": "Organisation Type",        "value": "Limited company",                       "confidence": 0.99, "type": "select", "required": true,  "options": ["Limited company", "PLC", "LLP", "Partnership", "Sole trader", "Charity", "Other"], "source": { "page": 2, "bbox": [146, 620, 320, 632] } },
+        { "id": "turnover",                "label": "Turnover",                 "value": "3800000",                               "confidence": 0.96, "type": "text",   "required": true,  "source": { "page": 2, "bbox": [146, 600, 280, 612] } },
+        { "id": "ph_house_number",         "label": "House Number",             "value": "78",                                    "confidence": 0.98, "type": "text",   "required": true,  "source": { "page": 2, "bbox": [146, 580, 200, 592] } },
+        { "id": "ph_house_name",           "label": "House Name",               "value": "Ginda House",                           "confidence": 0.94, "type": "text",   "required": false, "source": { "page": 2, "bbox": [220, 580, 360, 592] } },
+        { "id": "ph_address_line_1",       "label": "Address Line 1",           "value": "Station Road",                          "confidence": 0.95, "type": "text",   "required": true,  "source": { "page": 2, "bbox": [146, 560, 320, 572] } },
+        { "id": "ph_postcode",             "label": "Postcode",                 "value": "10065",                                 "confidence": 0.97, "type": "text",   "required": true,  "source": { "page": 2, "bbox": [146, 540, 240, 552] } }
+      ]
+    },
+    {
+      "id": "covers",
+      "title": "Covers",
+      "fields": [
+        { "id": "cover_public_products_liability", "label": "Public and Products Liability — Limit of Indemnity (£)", "value": "5000000",  "confidence": 0.98, "type": "text", "required": true,  "source": { "page": 3, "bbox": [146, 700, 320, 712] } },
+        { "id": "cover_legal_protection",          "label": "Legal Protection — Limit of Indemnity (£)",             "value": "250000",   "confidence": 0.97, "type": "text", "required": true,  "source": { "page": 3, "bbox": [146, 680, 320, 692] } },
+        { "id": "cover_employers_liability",       "label": "Employers Liability — Limit of Indemnity (£)",          "value": "10000000", "confidence": 0.99, "type": "text", "required": true,  "source": { "page": 3, "bbox": [146, 660, 320, 672] } }
+      ]
+    },
+    {
+      "id": "jurisdictional_splits",
+      "title": "Jurisdictional Splits",
+      "fields": [
+        { "id": "juris_uk",          "label": "UK %",                                       "value": "0",     "confidence": 0.99, "type": "text", "required": true, "source": { "page": 3, "bbox": [146, 620, 200, 632] } },
+        { "id": "juris_roi",         "label": "Republic of Ireland %",                      "value": "0",     "confidence": 0.99, "type": "text", "required": true, "source": { "page": 3, "bbox": [146, 600, 200, 612] } },
+        { "id": "juris_europe",      "label": "Europe (excl UK and Republic of Ireland) %", "value": "7.89",  "confidence": 0.96, "type": "text", "required": true, "source": { "page": 3, "bbox": [146, 580, 200, 592] } },
+        { "id": "juris_usa_canada",  "label": "USA and Canada %",                           "value": "92.11", "confidence": 0.97, "type": "text", "required": true, "source": { "page": 3, "bbox": [146, 560, 200, 572] } },
+        { "id": "juris_row",         "label": "Rest of the World %",                        "value": "0",     "confidence": 0.99, "type": "text", "required": true, "source": { "page": 3, "bbox": [146, 540, 200, 552] } },
+        { "id": "juris_unknown",     "label": "Unknown %",                                  "value": "0",     "confidence": 0.99, "type": "text", "required": false, "source": { "page": 3, "bbox": [146, 520, 200, 532] } }
+      ]
+    },
+    {
+      "id": "wage_roll",
+      "title": "Wage Roll",
+      "fields": [
+        { "id": "wage_manual",   "label": "Manual Work — Wage Roll (£)",            "value": "75000",  "confidence": 0.95, "type": "text", "required": true, "source": { "page": 3, "bbox": [146, 480, 280, 492] } },
+        { "id": "wage_clerical", "label": "Clerical / Non-Manual — Wage Roll (£)",  "value": "265000", "confidence": 0.95, "type": "text", "required": true, "source": { "page": 3, "bbox": [146, 460, 280, 472] } }
+      ]
+    },
+    {
+      "id": "claim_1",
+      "title": "Claim 1",
+      "fields": [
+        { "id": "claim1_date",        "label": "Claim Date",        "value": "15/06/2020",                  "confidence": 0.99, "type": "text",     "required": true, "source": { "page": 4, "bbox": [146, 700, 240, 712] } },
+        { "id": "claim1_status",      "label": "Claim Status",      "value": "Closed",                      "confidence": 0.99, "type": "select",   "required": true, "options": ["Open", "Closed", "In Review", "Subrogated"], "source": { "page": 4, "bbox": [146, 680, 240, 692] } },
+        { "id": "claim1_description", "label": "Claim Description", "value": "Burst pipe due to freezing",  "confidence": 0.94, "type": "textarea", "required": true, "source": { "page": 4, "bbox": [146, 640, 420, 672] } },
+        { "id": "claim1_value",       "label": "Claim Value (£)",   "value": "2217.67",                     "confidence": 0.97, "type": "text",     "required": true, "source": { "page": 4, "bbox": [146, 620, 240, 632] } },
+        { "id": "claim1_cause",       "label": "Claim Cause",       "value": "Water damage",                "confidence": 0.95, "type": "select",   "required": true, "options": ["Water damage", "Fire", "Theft", "Storm Damage", "Liability", "Subsidence", "Accidental Damage", "Other"], "source": { "page": 4, "bbox": [146, 600, 280, 612] } }
+      ]
+    },
+    {
+      "id": "claim_2",
+      "title": "Claim 2",
+      "fields": [
+        { "id": "claim2_date",        "label": "Claim Date",        "value": "15/10/2023",                                                          "confidence": 0.99, "type": "text",     "required": true, "source": { "page": 4, "bbox": [146, 560, 240, 572] } },
+        { "id": "claim2_status",      "label": "Claim Status",      "value": "Open",                                                                "confidence": 0.99, "type": "select",   "required": true, "options": ["Open", "Closed", "In Review", "Subrogated"], "source": { "page": 4, "bbox": [146, 540, 240, 552] } },
+        { "id": "claim2_description", "label": "Claim Description", "value": "Complaint of concealed roof defect following a Level 2 survey",       "confidence": 0.92, "type": "textarea", "required": true, "source": { "page": 4, "bbox": [146, 500, 540, 532] } },
+        { "id": "claim2_value",       "label": "Claim Value (£)",   "value": "1727.18",                                                             "confidence": 0.97, "type": "text",     "required": true, "source": { "page": 4, "bbox": [146, 480, 240, 492] } },
+        { "id": "claim2_cause",       "label": "Claim Cause",       "value": "Other",                                                               "confidence": 0.90, "type": "select",   "required": true, "options": ["Water damage", "Fire", "Theft", "Storm Damage", "Liability", "Subsidence", "Accidental Damage", "Other"], "source": { "page": 4, "bbox": [146, 460, 280, 472] } }
+      ]
+    },
+    {
+      "id": "property_information",
+      "title": "Property Information",
+      "fields": [
+        { "id": "property_order",         "label": "Property Order",   "value": "1",               "confidence": 0.99, "type": "text", "required": true, "source": { "page": 5, "bbox": [146, 700, 200, 712] } },
+        { "id": "property_house_number",  "label": "House Number",     "value": "122",             "confidence": 0.98, "type": "text", "required": true, "source": { "page": 5, "bbox": [146, 680, 200, 692] } },
+        { "id": "property_house_name",    "label": "House Name",       "value": "Hamilton House",  "confidence": 0.94, "type": "text", "required": false, "source": { "page": 5, "bbox": [220, 680, 380, 692] } },
+        { "id": "property_address_line1", "label": "Address Line 1",   "value": "Princess Road",   "confidence": 0.95, "type": "text", "required": true, "source": { "page": 5, "bbox": [146, 660, 320, 672] } },
+        { "id": "property_city",          "label": "City",             "value": "Los Angeles",     "confidence": 0.97, "type": "text", "required": true, "source": { "page": 5, "bbox": [146, 640, 280, 652] } },
+        { "id": "property_country",       "label": "Country",          "value": "USA",             "confidence": 0.99, "type": "text", "required": true, "source": { "page": 5, "bbox": [146, 620, 240, 632] } },
+        { "id": "property_postcode",      "label": "Postcode",         "value": "90015",           "confidence": 0.97, "type": "text", "required": true, "source": { "page": 5, "bbox": [146, 600, 240, 612] } }
+      ]
+    },
+    {
+      "id": "property_limits",
+      "title": "Property Limits / Sum Insured",
+      "fields": [
+        { "id": "plimit_buildings",                "label": "Buildings — Limit of Indemnity (£)",                "value": "",        "confidence": 0.00, "type": "text", "required": false, "source": { "page": 5, "bbox": [146, 560, 320, 572] } },
+        { "id": "plimit_contents",                 "label": "Contents — Limit of Indemnity (£)",                 "value": "",        "confidence": 0.00, "type": "text", "required": false, "source": { "page": 5, "bbox": [146, 540, 320, 552] } },
+        { "id": "plimit_stock",                    "label": "Stock — Limit of Indemnity (£)",                    "value": "",        "confidence": 0.00, "type": "text", "required": false, "source": { "page": 5, "bbox": [146, 520, 320, 532] } },
+        { "id": "plimit_deterioration_of_stock",   "label": "Deterioration of Stock — Limit of Indemnity (£)",   "value": "",        "confidence": 0.00, "type": "text", "required": false, "source": { "page": 5, "bbox": [146, 500, 320, 512] } },
+        { "id": "plimit_business_interruption",   "label": "Business Interruption — Limit of Indemnity (£)",     "value": "",        "confidence": 0.00, "type": "text", "required": false, "source": { "page": 5, "bbox": [146, 480, 320, 492] } },
+        { "id": "plimit_property_away_in_transit", "label": "Property Away & In Transit — Limit of Indemnity (£)", "value": "3286.0", "confidence": 0.94, "type": "text", "required": true,  "source": { "page": 5, "bbox": [146, 460, 320, 472] } },
+        { "id": "plimit_money",                    "label": "Money — Limit of Indemnity (£)",                    "value": "2600.0",  "confidence": 0.95, "type": "text", "required": true,  "source": { "page": 5, "bbox": [146, 440, 320, 452] } },
+        { "id": "plimit_computer_breakdown",       "label": "Computer Breakdown — Limit of Indemnity (£)",       "value": "",        "confidence": 0.00, "type": "text", "required": false, "source": { "page": 5, "bbox": [146, 420, 320, 432] } }
+      ]
+    },
+    {
+      "id": "risk_management",
+      "title": "Risk Management",
+      "fields": [
+        { "id": "total_storeys",              "label": "Total number of storeys",                 "value": "1",                                  "confidence": 0.99, "type": "text",   "required": true,  "source": { "page": 6, "bbox": [146, 700, 200, 712] } },
+        { "id": "intruder_alarm",             "label": "Intruder alarm",                          "value": "Yes",                                "confidence": 0.99, "type": "select", "required": true,  "options": ["Yes", "No"], "source": { "page": 6, "bbox": [146, 680, 200, 692] } },
+        { "id": "alarm_type",                 "label": "Alarm type",                              "value": "Audible",                            "confidence": 0.97, "type": "select", "required": true,  "options": ["Audible", "Silent", "Audible + Silent", "Monitored"], "source": { "page": 6, "bbox": [146, 660, 240, 672] } },
+        { "id": "alarm_accreditation",        "label": "Accreditation of intruder alarm",         "value": "Not Accredited",                     "confidence": 0.96, "type": "select", "required": true,  "options": ["NSI NACOSS Gold", "NSI NACOSS Silver", "SSAIB", "Not Accredited"], "source": { "page": 6, "bbox": [146, 640, 280, 652] } },
+        { "id": "maintenance_contract",       "label": "Maintenance contract accreditation",      "value": "None but maintained by Norfolk Alarms","confidence": 0.92, "type": "text",   "required": true,  "source": { "page": 6, "bbox": [146, 620, 420, 632] } },
+        { "id": "police_response",            "label": "Police response",                         "value": "No Police Response",                 "confidence": 0.95, "type": "select", "required": true,  "options": ["URN — Police Response", "Keyholder Response", "No Police Response"], "source": { "page": 6, "bbox": [146, 600, 280, 612] } },
+        { "id": "alarm_confirmable_tech",     "label": "Does the alarm incorporate confirmable technology?","value": "No",                       "confidence": 0.93, "type": "select", "required": true,  "options": ["Yes", "No"], "source": { "page": 6, "bbox": [146, 580, 200, 592] } },
+        { "id": "alarm_sole_control",         "label": "Under the sole control of proposer",      "value": "Yes",                                "confidence": 0.97, "type": "select", "required": true,  "options": ["Yes", "No"], "source": { "page": 6, "bbox": [146, 560, 200, 572] } },
+        { "id": "additional_security_details","label": "Additional security details declared",    "value": "No",                                 "confidence": 0.91, "type": "select", "required": false, "options": ["Yes", "No"], "source": { "page": 6, "bbox": [146, 540, 200, 552] } }
+      ]
+    }
+  ]
+}

@@ -28,7 +28,7 @@ export function WorkflowSidebar({ session, agents, workflowStatus, onRefresh, on
   const [shuffleOrder, setShuffleOrder] = useState<number[] | null>(null);
   const [runningAgentId, setRunningAgentId] = useState<number | null>(null);
 
-  const isManualMode = session?.workflowType === 'claim';
+  const isManualMode = session?.workflowType === 'claim' || session?.workflowType === 'pre_bind';
 
   useEffect(() => {
     if (!agents || agents.length <= 1) {
@@ -159,13 +159,15 @@ export function WorkflowSidebar({ session, agents, workflowStatus, onRefresh, on
                     || agent.type === 'coverage_validation'
                     || agent.type === 'invoice_validation'
                     || agent.type === 'claim_extractor'
+                    || agent.type === 'submissions_extractor'
                     || agent.name.includes('Data Extraction')
+                    || agent.name.includes('Submissions Extraction')
                     || agent.name.includes('FNOL')
                     || agent.name.includes('Coverage Validation')
                     || agent.name.includes('Invoice Validation');
 
                   const handleViewData = () => {
-                    if (session?.sessionId?.startsWith('JIR-') || session?.workflowType === 'submission' || session?.workflowType === 'slip' || session?.workflowType === 'claim') {
+                    if (session?.sessionId?.startsWith('JIR-') || session?.workflowType === 'submission' || session?.workflowType === 'slip' || session?.workflowType === 'claim' || session?.workflowType === 'pre_bind') {
                       // Pass agent.type so the form endpoint can serve the matching
                       // static config (FNOL vs Coverage Validation) regardless of
                       // which form the session is currently paused on.
@@ -265,10 +267,10 @@ export function WorkflowSidebar({ session, agents, workflowStatus, onRefresh, on
               </div>
             )}
 
-            {/* Claim Q&A Assistant — passive agent that triggers automatically
-                whenever the adjuster types in the chat. Sits at the bottom of
+            {/* Q&A Assistant — passive agent that triggers automatically
+                whenever the user types in the chat. Sits at the bottom of
                 the registry and uses the same chrome as runnable agents but
-                has no Run button. */}
+                has no Run button. Label depends on workflow type. */}
             {isManualMode && (
               <div className="rounded-lg p-3 border border-border bg-card">
                 <div className="flex items-center gap-2 mb-1.5">
@@ -279,14 +281,16 @@ export function WorkflowSidebar({ session, agents, workflowStatus, onRefresh, on
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium truncate text-foreground">
-                        Claim Q&amp;A Assistant
+                        {session?.workflowType === 'pre_bind' ? 'Query Retrieval Agent' : 'Claim Q&A Assistant'}
                       </span>
                       <span className="text-[10px] font-medium text-green-500 flex-shrink-0 pl-2">Live</span>
                     </div>
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Triggers automatically when you type in the chat. Ask anything about this claim — loss details, coverage, fraud risk, reserves, or recommended next steps.
+                  {session?.workflowType === 'pre_bind'
+                    ? 'Triggers automatically when you type in the chat. Ask anything about this submission — risk profile, sanctions, premium, peer comparison, or appetite fit.'
+                    : 'Triggers automatically when you type in the chat. Ask anything about this claim — loss details, coverage, fraud risk, reserves, or recommended next steps.'}
                 </p>
               </div>
             )}

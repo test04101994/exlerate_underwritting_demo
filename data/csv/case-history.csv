@@ -20752,3 +20752,453 @@ Status: completed
 Progress: 100%
 Confidence: 0.80
 Output: undefined",completed,medium,2026-04-29T08:11:45.188Z,2026-04-29T08:11:45.216Z,2026-04-29T08:11:45.216Z
+PRB-2026-001,PRE-1778227614546-gts94k4y,system_event,System,system,Workflow Started,Test pre-bind workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 6",completed,medium,2026-05-08T08:06:54.547Z,2026-05-08T08:06:54.567Z,2026-05-08T08:06:54.567Z
+PRB-2026-001,PRE-1778227663386-btw7cmox,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 6",completed,medium,2026-05-08T08:07:43.386Z,2026-05-08T08:07:43.401Z,2026-05-08T08:07:43.401Z
+PRB-2026-001,PRE-1778227848418-dkfwtm3w,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 6",completed,medium,2026-05-08T08:10:48.418Z,2026-05-08T08:10:48.448Z,2026-05-08T08:10:48.448Z
+PRB-2026-001,PRE-1778228014684-yfzre72g,system_event,System,system,Workflow Started,Test pre-bind run workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 6",completed,medium,2026-05-08T08:13:34.686Z,2026-05-08T08:13:34.724Z,2026-05-08T08:13:34.724Z
+PRB-2026-001,PRE-1778228026802-40rad6ds,system_event,System,system,Workflow Started,Test pre-bind run workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 6",completed,medium,2026-05-08T08:13:46.802Z,2026-05-08T08:13:46.826Z,2026-05-08T08:13:46.826Z
+PRB-2026-001,PRE-1778228026802-40rad6ds,agent_execution,Premium Generator,agent,Premium Generator Started,Agent processing started for premium_generator,"Agent Type: premium_generator
+Status: started
+Progress: 0%",completed,medium,2026-05-08T08:13:47.364Z,2026-05-08T08:13:47.394Z,2026-05-08T08:13:47.394Z
+PRB-2026-001,PRE-1778228049478-om8spcwc,system_event,System,system,Workflow Started,Test workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 6",completed,medium,2026-05-08T08:14:09.478Z,2026-05-08T08:14:09.501Z,2026-05-08T08:14:09.501Z
+PRB-2026-001,PRE-1778228049478-om8spcwc,agent_execution,Premium Generator,agent,Premium Generator Started,Agent processing started for premium_generator,"Agent Type: premium_generator
+Status: started
+Progress: 0%",completed,medium,2026-05-08T08:14:10.201Z,2026-05-08T08:14:10.249Z,2026-05-08T08:14:10.249Z
+PRB-2026-001-archived-1778228049424,PRE-1778228026802-40rad6ds,agent_execution,Premium Generator,agent,Premium Generator Completed,Agent successfully completed processing,"Agent: Premium Generator
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Premium Generator"",""status"":""completed"",""confidence"":0.95,""summary"":""Premium Generator completed successfully with AI processing""}",completed,medium,2026-05-08T08:14:15.766Z,2026-05-08T08:14:15.812Z,2026-05-08T08:14:15.812Z
+PRB-2026-001,PRE-1778228049478-om8spcwc,agent_execution,Premium Generator,agent,Premium Generator Completed,Agent successfully completed processing,"Agent: Premium Generator
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Premium Generator"",""status"":""completed"",""confidence"":0.95,""summary"":""Premium Generator completed successfully with AI processing""}",completed,medium,2026-05-08T08:14:38.666Z,2026-05-08T08:14:38.710Z,2026-05-08T08:14:38.710Z
+PRB-2026-001,PRE-1778228980996-q92kal9h,system_event,System,system,Workflow Started,Verify reversed workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T08:29:40.996Z,2026-05-08T08:29:41.016Z,2026-05-08T08:29:41.016Z
+PRB-2026-001,PRE-1778228988653-c3hlhn7h,system_event,System,system,Workflow Started,Verify reversed workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T08:29:48.653Z,2026-05-08T08:29:48.840Z,2026-05-08T08:29:48.840Z
+PRB-2026-001,PRE-1778228988653-c3hlhn7h,agent_execution,Data Completeness Checker Agent,agent,Data Completeness Checker Agent Started,Agent processing started for data_completeness_checker,"Agent Type: data_completeness_checker
+Status: started
+Progress: 0%",completed,medium,2026-05-08T08:29:59.965Z,2026-05-08T08:30:00.062Z,2026-05-08T08:30:00.062Z
+PRB-2026-001,PRE-1778229008080-gz6zwyy7,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T08:30:08.080Z,2026-05-08T08:30:08.096Z,2026-05-08T08:30:08.096Z
+PRB-2026-001-archived-1778229008062,PRE-1778228988653-c3hlhn7h,agent_execution,Data Completeness Checker Agent,agent,Data Completeness Checker Agent Completed,Agent successfully completed processing,"Agent: Data Completeness Checker Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Data Completeness Checker Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Data Completeness Checker Agent completed successfully with AI processing""}",completed,medium,2026-05-08T08:30:32.958Z,2026-05-08T08:30:33.002Z,2026-05-08T08:30:33.002Z
+PRB-2026-001,PRE-1778229189743-ydw3rdf9,system_event,System,system,Workflow Started,Verify final order workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T08:33:09.743Z,2026-05-08T08:33:09.810Z,2026-05-08T08:33:09.810Z
+PRB-2026-001,PRE-1778229387248-q5m0yw5g,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T08:36:27.248Z,2026-05-08T08:36:27.260Z,2026-05-08T08:36:27.260Z
+PRB-2026-001,PRE-1778229387248-q5m0yw5g,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Started,Agent processing started for submissions_extractor,"Agent Type: submissions_extractor
+Status: started
+Progress: 0%",completed,medium,2026-05-08T08:36:51.849Z,2026-05-08T08:36:51.867Z,2026-05-08T08:36:51.867Z
+PRB-2026-001,PRE-1778229387248-q5m0yw5g,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Completed,Agent successfully completed processing,"Agent: Submissions Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Submissions Extraction Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Submissions Extraction Agent completed successfully with AI processing""}",completed,medium,2026-05-08T08:37:26.103Z,2026-05-08T08:37:26.130Z,2026-05-08T08:37:26.130Z
+PRB-2026-001,PRE-1778229387248-q5m0yw5g,agent_execution,Data Completeness Checker Agent,agent,Data Completeness Checker Agent Started,Agent processing started for data_completeness_checker,"Agent Type: data_completeness_checker
+Status: started
+Progress: 0%",completed,medium,2026-05-08T08:37:34.085Z,2026-05-08T08:37:34.100Z,2026-05-08T08:37:34.100Z
+PRB-2026-001,PRE-1778229387248-q5m0yw5g,agent_execution,Data Completeness Checker Agent,agent,Data Completeness Checker Agent Completed,Agent successfully completed processing,"Agent: Data Completeness Checker Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Data Completeness Checker Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Data Completeness Checker Agent completed successfully with AI processing""}",completed,medium,2026-05-08T08:38:06.823Z,2026-05-08T08:38:06.860Z,2026-05-08T08:38:06.860Z
+PRB-2026-001,PRE-1778229715743-3ddp5ppd,system_event,System,system,Workflow Started,Verify DCC email workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T08:41:55.743Z,2026-05-08T08:41:55.755Z,2026-05-08T08:41:55.755Z
+PRB-2026-001,PRE-1778229715743-3ddp5ppd,agent_execution,Data Completeness Checker Agent,agent,Data Completeness Checker Agent Started,Agent processing started for data_completeness_checker,"Agent Type: data_completeness_checker
+Status: started
+Progress: 0%",completed,medium,2026-05-08T08:41:56.238Z,2026-05-08T08:41:56.277Z,2026-05-08T08:41:56.277Z
+PRB-2026-001,PRE-1778229722306-0z0scwit,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T08:42:02.306Z,2026-05-08T08:42:02.320Z,2026-05-08T08:42:02.320Z
+PRB-2026-001,PRE-1778229722306-0z0scwit,agent_execution,Data Completeness Checker Agent,agent,Data Completeness Checker Agent Started,Agent processing started for data_completeness_checker,"Agent Type: data_completeness_checker
+Status: started
+Progress: 0%",completed,medium,2026-05-08T08:42:05.146Z,2026-05-08T08:42:05.166Z,2026-05-08T08:42:05.166Z
+PRB-2026-001-archived-1778229722293,PRE-1778229715743-3ddp5ppd,agent_execution,Data Completeness Checker Agent,agent,Data Completeness Checker Agent Completed,Agent successfully completed processing,"Agent: Data Completeness Checker Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Data Completeness Checker Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Data Completeness Checker Agent completed successfully with AI processing""}",completed,medium,2026-05-08T08:42:51.586Z,2026-05-08T08:42:51.616Z,2026-05-08T08:42:51.616Z
+PRB-2026-001,PRE-1778229722306-0z0scwit,agent_execution,Data Completeness Checker Agent,agent,Data Completeness Checker Agent Completed,Agent successfully completed processing,"Agent: Data Completeness Checker Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Data Completeness Checker Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Data Completeness Checker Agent completed successfully with AI processing""}",completed,medium,2026-05-08T08:43:00.455Z,2026-05-08T08:43:00.507Z,2026-05-08T08:43:00.507Z
+PRB-2026-001,PRE-1778229891320-ipmzgz9d,system_event,System,system,Workflow Started,Verify clean email workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T08:44:51.320Z,2026-05-08T08:44:51.335Z,2026-05-08T08:44:51.335Z
+PRB-2026-001-archived-1778229891303,PRE-1778229722306-0z0scwit,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Started,Agent processing started for submissions_extractor,"Agent Type: submissions_extractor
+Status: started
+Progress: 0%",completed,medium,2026-05-08T08:59:05.211Z,2026-05-08T08:59:05.228Z,2026-05-08T08:59:05.228Z
+PRB-2026-001-archived-1778229891303,PRE-1778229722306-0z0scwit,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Completed,Agent successfully completed processing,"Agent: Submissions Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Submissions Extraction Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Submissions Extraction Agent completed successfully with AI processing""}",completed,medium,2026-05-08T08:59:39.525Z,2026-05-08T08:59:39.554Z,2026-05-08T08:59:39.554Z
+PRB-2026-001,PRE-1778230997597-d4dzwhnr,system_event,System,system,Workflow Started,Verify SE form workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:03:17.597Z,2026-05-08T09:03:17.609Z,2026-05-08T09:03:17.609Z
+PRB-2026-001,PRE-1778230997597-d4dzwhnr,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Started,Agent processing started for submissions_extractor,"Agent Type: submissions_extractor
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:03:17.974Z,2026-05-08T09:03:17.991Z,2026-05-08T09:03:17.991Z
+PRB-2026-001,PRE-1778230997597-d4dzwhnr,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 0/7",completed,medium,2026-05-08T09:03:52.272Z,2026-05-08T09:03:52.292Z,2026-05-08T09:03:52.292Z
+PRB-2026-001,PRE-1778230997597-d4dzwhnr,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Completed,Agent successfully completed processing,"Agent: Submissions Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-05-08T09:03:52.307Z,2026-05-08T09:03:52.340Z,2026-05-08T09:03:52.340Z
+PRB-2026-001,PRE-1778231150566-3cd1xypb,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:05:50.566Z,2026-05-08T09:05:50.585Z,2026-05-08T09:05:50.585Z
+PRB-2026-001,PRE-1778231150566-3cd1xypb,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Started,Agent processing started for submissions_extractor,"Agent Type: submissions_extractor
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:05:52.155Z,2026-05-08T09:05:52.188Z,2026-05-08T09:05:52.188Z
+PRB-2026-001,PRE-1778231150566-3cd1xypb,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 0/7",completed,medium,2026-05-08T09:06:26.522Z,2026-05-08T09:06:26.553Z,2026-05-08T09:06:26.553Z
+PRB-2026-001,PRE-1778231150566-3cd1xypb,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Completed,Agent successfully completed processing,"Agent: Submissions Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-05-08T09:06:26.574Z,2026-05-08T09:06:26.628Z,2026-05-08T09:06:26.628Z
+PRB-2026-001,PRE-1778231150566-3cd1xypb,system_event,System,system,Workflow Status Changed,Status changed from pending_data_extraction to running,"Previous Status: pending_data_extraction
+New Status: running
+Step: 0/7",completed,medium,2026-05-08T09:07:12.438Z,2026-05-08T09:07:12.515Z,2026-05-08T09:07:12.515Z
+PRB-2026-001,PRE-1778231150566-3cd1xypb,agent_execution,Sanctions Checker Agent,agent,Sanctions Checker Agent Started,Agent processing started for sanctions_screen,"Agent Type: sanctions_screen
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:07:12.645Z,2026-05-08T09:07:12.678Z,2026-05-08T09:07:12.678Z
+PRB-2026-001,PRE-1778231150566-3cd1xypb,agent_execution,Sanctions Checker Agent,agent,Sanctions Checker Agent Completed,Agent successfully completed processing,"Agent: Sanctions Checker Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Sanctions Checker Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Sanctions Checker Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:07:41.204Z,2026-05-08T09:07:41.296Z,2026-05-08T09:07:41.296Z
+PRB-2026-001,PRE-1778231150566-3cd1xypb,agent_execution,Risk Prioritization Agent,agent,Risk Prioritization Agent Started,Agent processing started for risk_prioritization,"Agent Type: risk_prioritization
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:07:56.859Z,2026-05-08T09:07:56.891Z,2026-05-08T09:07:56.891Z
+PRB-2026-001,PRE-1778231320540-aqkulgl1,system_event,System,system,Workflow Started,Verify form auto workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:08:40.541Z,2026-05-08T09:08:40.579Z,2026-05-08T09:08:40.579Z
+PRB-2026-001,PRE-1778231320540-aqkulgl1,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Started,Agent processing started for submissions_extractor,"Agent Type: submissions_extractor
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:08:41.414Z,2026-05-08T09:08:41.545Z,2026-05-08T09:08:41.545Z
+PRB-2026-001,PRE-1778231320540-aqkulgl1,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 0/7",completed,medium,2026-05-08T09:09:18.102Z,2026-05-08T09:09:18.117Z,2026-05-08T09:09:18.117Z
+PRB-2026-001,PRE-1778231320540-aqkulgl1,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Completed,Agent successfully completed processing,"Agent: Submissions Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-05-08T09:09:18.126Z,2026-05-08T09:09:18.156Z,2026-05-08T09:09:18.156Z
+PRB-2026-001,PRE-1778231412398-lpod3mz7,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:10:12.400Z,2026-05-08T09:10:12.507Z,2026-05-08T09:10:12.507Z
+PRB-2026-001,PRE-1778231412398-lpod3mz7,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Started,Agent processing started for submissions_extractor,"Agent Type: submissions_extractor
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:10:15.317Z,2026-05-08T09:10:15.443Z,2026-05-08T09:10:15.443Z
+PRB-2026-001,PRE-1778231412398-lpod3mz7,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 0/7",completed,medium,2026-05-08T09:10:50.059Z,2026-05-08T09:10:50.114Z,2026-05-08T09:10:50.114Z
+PRB-2026-001,PRE-1778231412398-lpod3mz7,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Completed,Agent successfully completed processing,"Agent: Submissions Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-05-08T09:10:50.153Z,2026-05-08T09:10:50.273Z,2026-05-08T09:10:50.273Z
+PRB-2026-001,PRE-1778231736837-awj1hq1p,system_event,System,system,Workflow Started,Verify expanded form workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:15:36.839Z,2026-05-08T09:15:36.936Z,2026-05-08T09:15:36.936Z
+PRB-2026-001,PRE-1778231736837-awj1hq1p,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Started,Agent processing started for submissions_extractor,"Agent Type: submissions_extractor
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:15:48.829Z,2026-05-08T09:15:49.022Z,2026-05-08T09:15:49.022Z
+PRB-2026-001,PRE-1778231736837-awj1hq1p,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 0/7",completed,medium,2026-05-08T09:16:29.934Z,2026-05-08T09:16:29.977Z,2026-05-08T09:16:29.977Z
+PRB-2026-001,PRE-1778231736837-awj1hq1p,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Completed,Agent successfully completed processing,"Agent: Submissions Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-05-08T09:16:30.007Z,2026-05-08T09:16:30.119Z,2026-05-08T09:16:30.119Z
+PRB-2026-001,PRE-1778232211601-1wwxazdc,system_event,System,system,Workflow Started,Verify full sections workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:23:31.601Z,2026-05-08T09:23:31.625Z,2026-05-08T09:23:31.625Z
+PRB-2026-001,PRE-1778232211601-1wwxazdc,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Started,Agent processing started for submissions_extractor,"Agent Type: submissions_extractor
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:23:32.192Z,2026-05-08T09:23:32.225Z,2026-05-08T09:23:32.225Z
+PRB-2026-001,PRE-1778232211601-1wwxazdc,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 0/7",completed,medium,2026-05-08T09:24:06.574Z,2026-05-08T09:24:06.593Z,2026-05-08T09:24:06.593Z
+PRB-2026-001,PRE-1778232211601-1wwxazdc,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Completed,Agent successfully completed processing,"Agent: Submissions Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-05-08T09:24:06.604Z,2026-05-08T09:24:06.647Z,2026-05-08T09:24:06.647Z
+PRB-2026-001,PRE-1778232622914-9zmythao,system_event,System,system,Workflow Started,Verify summary workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:30:22.915Z,2026-05-08T09:30:23.038Z,2026-05-08T09:30:23.038Z
+PRB-2026-001,PRE-1778232622914-9zmythao,agent_execution,Submission Summarization Agent,agent,Submission Summarization Agent Started,Agent processing started for submission_summary,"Agent Type: submission_summary
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:30:25.343Z,2026-05-08T09:30:25.495Z,2026-05-08T09:30:25.495Z
+PRB-2026-001,PRE-1778232622914-9zmythao,agent_execution,Submission Summarization Agent,agent,Submission Summarization Agent Completed,Agent successfully completed processing,"Agent: Submission Summarization Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Submission Summarization Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Submission Summarization Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:30:56.395Z,2026-05-08T09:30:56.439Z,2026-05-08T09:30:56.439Z
+PRB-2026-001,PRE-1778232792321-xsfgokjh,system_event,System,system,Workflow Started,Verify RP workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:33:12.322Z,2026-05-08T09:33:12.349Z,2026-05-08T09:33:12.349Z
+PRB-2026-001,PRE-1778232792321-xsfgokjh,agent_execution,Risk Prioritization Agent,agent,Risk Prioritization Agent Started,Agent processing started for risk_prioritization,"Agent Type: risk_prioritization
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:33:13.055Z,2026-05-08T09:33:13.100Z,2026-05-08T09:33:13.100Z
+PRB-2026-001,PRE-1778232810663-xd0got6n,system_event,System,system,Workflow Started,Verify RP workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:33:30.663Z,2026-05-08T09:33:30.676Z,2026-05-08T09:33:30.676Z
+PRB-2026-001,PRE-1778232810663-xd0got6n,agent_execution,Risk Prioritization Agent,agent,Risk Prioritization Agent Started,Agent processing started for risk_prioritization,"Agent Type: risk_prioritization
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:33:31.039Z,2026-05-08T09:33:31.061Z,2026-05-08T09:33:31.061Z
+PRB-2026-001-archived-1778232810649,PRE-1778232792321-xsfgokjh,agent_execution,Risk Prioritization Agent,agent,Risk Prioritization Agent Completed,Agent successfully completed processing,"Agent: Risk Prioritization Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Risk Prioritization Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Risk Prioritization Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:33:47.265Z,2026-05-08T09:33:47.284Z,2026-05-08T09:33:47.284Z
+PRB-2026-001,PRE-1778232810663-xd0got6n,agent_execution,Risk Prioritization Agent,agent,Risk Prioritization Agent Completed,Agent successfully completed processing,"Agent: Risk Prioritization Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Risk Prioritization Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Risk Prioritization Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:34:05.208Z,2026-05-08T09:34:05.248Z,2026-05-08T09:34:05.248Z
+PRB-2026-001,PRE-1778233029112-vgd1beb3,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:37:09.112Z,2026-05-08T09:37:09.126Z,2026-05-08T09:37:09.126Z
+PRB-2026-001,PRE-1778233029112-vgd1beb3,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Started,Agent processing started for submissions_extractor,"Agent Type: submissions_extractor
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:37:14.398Z,2026-05-08T09:37:14.441Z,2026-05-08T09:37:14.441Z
+PRB-2026-001,PRE-1778233039467-z8zcufz7,system_event,System,system,Workflow Started,Verify PG+P2P workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:37:19.467Z,2026-05-08T09:37:19.538Z,2026-05-08T09:37:19.538Z
+PRB-2026-001,PRE-1778233039467-z8zcufz7,agent_execution,Premium Generator Agent,agent,Premium Generator Agent Started,Agent processing started for premium_generator,"Agent Type: premium_generator
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:37:20.445Z,2026-05-08T09:37:20.495Z,2026-05-08T09:37:20.495Z
+PRB-2026-001,PRE-1778233039467-z8zcufz7,agent_execution,Peer-to-Peer Policy Comparison Agent,agent,Peer-to-Peer Policy Comparison Agent Started,Agent processing started for policy_comparison,"Agent Type: policy_comparison
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:37:31.587Z,2026-05-08T09:37:31.791Z,2026-05-08T09:37:31.791Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 0/7",completed,medium,2026-05-08T09:37:48.777Z,2026-05-08T09:37:48.787Z,2026-05-08T09:37:48.787Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Completed,Agent successfully completed processing,"Agent: Submissions Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-05-08T09:37:48.796Z,2026-05-08T09:37:48.819Z,2026-05-08T09:37:48.819Z
+PRB-2026-001,PRE-1778233039467-z8zcufz7,agent_execution,Premium Generator Agent,agent,Premium Generator Agent Completed,Agent successfully completed processing,"Agent: Premium Generator Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Premium Generator Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Premium Generator Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:37:54.264Z,2026-05-08T09:37:54.289Z,2026-05-08T09:37:54.289Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,system_event,System,system,Workflow Status Changed,Status changed from pending_data_extraction to running,"Previous Status: pending_data_extraction
+New Status: running
+Step: 1/7",completed,medium,2026-05-08T09:38:06.606Z,2026-05-08T09:38:06.638Z,2026-05-08T09:38:06.638Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,agent_execution,Sanctions Checker Agent,agent,Sanctions Checker Agent Started,Agent processing started for sanctions_screen,"Agent Type: sanctions_screen
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:38:07.661Z,2026-05-08T09:38:07.695Z,2026-05-08T09:38:07.695Z
+PRB-2026-001,PRE-1778233039467-z8zcufz7,agent_execution,Peer-to-Peer Policy Comparison Agent,agent,Peer-to-Peer Policy Comparison Agent Completed,Agent successfully completed processing,"Agent: Peer-to-Peer Policy Comparison Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Peer-to-Peer Policy Comparison Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Peer-to-Peer Policy Comparison Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:38:14.019Z,2026-05-08T09:38:14.034Z,2026-05-08T09:38:14.034Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,agent_execution,Sanctions Checker Agent,agent,Sanctions Checker Agent Completed,Agent successfully completed processing,"Agent: Sanctions Checker Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Sanctions Checker Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Sanctions Checker Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:38:35.982Z,2026-05-08T09:38:36.011Z,2026-05-08T09:38:36.011Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,agent_execution,Data Completeness Checker Agent,agent,Data Completeness Checker Agent Started,Agent processing started for data_completeness_checker,"Agent Type: data_completeness_checker
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:38:36.047Z,2026-05-08T09:38:36.080Z,2026-05-08T09:38:36.080Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,agent_execution,Data Completeness Checker Agent,agent,Data Completeness Checker Agent Completed,Agent successfully completed processing,"Agent: Data Completeness Checker Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Data Completeness Checker Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Data Completeness Checker Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:39:31.345Z,2026-05-08T09:39:31.389Z,2026-05-08T09:39:31.389Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,agent_execution,Risk Prioritization Agent,agent,Risk Prioritization Agent Started,Agent processing started for risk_prioritization,"Agent Type: risk_prioritization
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:39:31.461Z,2026-05-08T09:39:31.487Z,2026-05-08T09:39:31.487Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,agent_execution,Risk Prioritization Agent,agent,Risk Prioritization Agent Completed,Agent successfully completed processing,"Agent: Risk Prioritization Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Risk Prioritization Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Risk Prioritization Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:40:05.554Z,2026-05-08T09:40:05.580Z,2026-05-08T09:40:05.580Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,agent_execution,Submission Summarization Agent,agent,Submission Summarization Agent Started,Agent processing started for submission_summary,"Agent Type: submission_summary
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:40:05.624Z,2026-05-08T09:40:05.647Z,2026-05-08T09:40:05.647Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,agent_execution,Submission Summarization Agent,agent,Submission Summarization Agent Completed,Agent successfully completed processing,"Agent: Submission Summarization Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Submission Summarization Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Submission Summarization Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:40:36.293Z,2026-05-08T09:40:36.332Z,2026-05-08T09:40:36.332Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,agent_execution,Peer-to-Peer Policy Comparison Agent,agent,Peer-to-Peer Policy Comparison Agent Started,Agent processing started for policy_comparison,"Agent Type: policy_comparison
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:40:36.389Z,2026-05-08T09:40:36.412Z,2026-05-08T09:40:36.412Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,agent_execution,Peer-to-Peer Policy Comparison Agent,agent,Peer-to-Peer Policy Comparison Agent Completed,Agent successfully completed processing,"Agent: Peer-to-Peer Policy Comparison Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Peer-to-Peer Policy Comparison Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Peer-to-Peer Policy Comparison Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:41:18.576Z,2026-05-08T09:41:18.603Z,2026-05-08T09:41:18.603Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,agent_execution,Premium Generator Agent,agent,Premium Generator Agent Started,Agent processing started for premium_generator,"Agent Type: premium_generator
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:41:18.649Z,2026-05-08T09:41:18.679Z,2026-05-08T09:41:18.679Z
+PRB-2026-001,PRE-1778233322346-w6tvv27v,system_event,System,system,Workflow Started,Verify approval workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:42:02.347Z,2026-05-08T09:42:02.363Z,2026-05-08T09:42:02.363Z
+PRB-2026-001,PRE-1778233322346-w6tvv27v,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Started,Agent processing started for submissions_extractor,"Agent Type: submissions_extractor
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:42:02.741Z,2026-05-08T09:42:02.762Z,2026-05-08T09:42:02.762Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Started,Agent processing started for submissions_extractor,"Agent Type: submissions_extractor
+Status: started
+Progress: 38%",completed,medium,2026-05-08T09:42:11.528Z,2026-05-08T09:42:11.546Z,2026-05-08T09:42:11.546Z
+PRB-2026-001,PRE-1778233322346-w6tvv27v,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 1/7",completed,medium,2026-05-08T09:42:36.994Z,2026-05-08T09:42:37.004Z,2026-05-08T09:42:37.004Z
+PRB-2026-001-archived-1778233039444,PRE-1778233029112-vgd1beb3,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Completed,Agent successfully completed processing,"Agent: Submissions Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-05-08T09:42:37.013Z,2026-05-08T09:42:37.037Z,2026-05-08T09:42:37.037Z
+PRB-2026-001,PRE-1778233490412-m6m130ex,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:44:50.413Z,2026-05-08T09:44:50.441Z,2026-05-08T09:44:50.441Z
+PRB-2026-001,PRE-1778233490412-m6m130ex,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Started,Agent processing started for submissions_extractor,"Agent Type: submissions_extractor
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:44:52.863Z,2026-05-08T09:44:52.880Z,2026-05-08T09:44:52.880Z
+PRB-2026-001,PRE-1778233490412-m6m130ex,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 0/7",completed,medium,2026-05-08T09:45:27.095Z,2026-05-08T09:45:27.106Z,2026-05-08T09:45:27.106Z
+PRB-2026-001,PRE-1778233490412-m6m130ex,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Completed,Agent successfully completed processing,"Agent: Submissions Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-05-08T09:45:27.114Z,2026-05-08T09:45:27.132Z,2026-05-08T09:45:27.132Z
+PRB-2026-001,PRE-1778233490412-m6m130ex,system_event,System,system,Workflow Status Changed,Status changed from pending_data_extraction to running,"Previous Status: pending_data_extraction
+New Status: running
+Step: 1/7",completed,medium,2026-05-08T09:46:07.257Z,2026-05-08T09:46:07.278Z,2026-05-08T09:46:07.278Z
+PRB-2026-001,PRE-1778233490412-m6m130ex,agent_execution,Sanctions Checker Agent,agent,Sanctions Checker Agent Started,Agent processing started for sanctions_screen,"Agent Type: sanctions_screen
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:47:23.091Z,2026-05-08T09:47:23.107Z,2026-05-08T09:47:23.107Z
+PRB-2026-001,PRE-1778233659941-nofdu9sg,system_event,System,system,Workflow Started,Verify SE clean workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:47:39.941Z,2026-05-08T09:47:39.952Z,2026-05-08T09:47:39.952Z
+PRB-2026-001,PRE-1778233659941-nofdu9sg,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Started,Agent processing started for submissions_extractor,"Agent Type: submissions_extractor
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:47:40.261Z,2026-05-08T09:47:40.276Z,2026-05-08T09:47:40.276Z
+PRB-2026-001-archived-1778233659933,PRE-1778233490412-m6m130ex,agent_execution,Sanctions Checker Agent,agent,Sanctions Checker Agent Completed,Agent successfully completed processing,"Agent: Sanctions Checker Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Sanctions Checker Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Sanctions Checker Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:47:51.420Z,2026-05-08T09:47:51.437Z,2026-05-08T09:47:51.437Z
+PRB-2026-001-archived-1778233659933,PRE-1778233490412-m6m130ex,agent_execution,Risk Prioritization Agent,agent,Risk Prioritization Agent Started,Agent processing started for risk_prioritization,"Agent Type: risk_prioritization
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:47:57.432Z,2026-05-08T09:47:57.464Z,2026-05-08T09:47:57.464Z
+PRB-2026-001,PRE-1778233659941-nofdu9sg,system_event,System,system,Workflow Status Changed,Status changed from running to pending_data_extraction,"Previous Status: running
+New Status: pending_data_extraction
+Step: 0/7",completed,medium,2026-05-08T09:48:07.926Z,2026-05-08T09:48:07.935Z,2026-05-08T09:48:07.935Z
+PRB-2026-001,PRE-1778233659941-nofdu9sg,agent_execution,Submissions Extraction Agent,agent,Submissions Extraction Agent Completed,Agent successfully completed processing,"Agent: Submissions Extraction Agent
+Status: completed
+Progress: 100%
+Confidence: 0.80
+Output: undefined",completed,medium,2026-05-08T09:48:07.943Z,2026-05-08T09:48:07.965Z,2026-05-08T09:48:07.965Z
+PRB-2026-001-archived-1778233659933,PRE-1778233490412-m6m130ex,agent_execution,Risk Prioritization Agent,agent,Risk Prioritization Agent Completed,Agent successfully completed processing,"Agent: Risk Prioritization Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Risk Prioritization Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Risk Prioritization Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:48:31.561Z,2026-05-08T09:48:31.624Z,2026-05-08T09:48:31.624Z
+PRB-2026-001-archived-1778233659933,PRE-1778233490412-m6m130ex,agent_execution,Submission Summarization Agent,agent,Submission Summarization Agent Started,Agent processing started for submission_summary,"Agent Type: submission_summary
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:48:37.489Z,2026-05-08T09:48:37.505Z,2026-05-08T09:48:37.505Z
+PRB-2026-001-archived-1778233659933,PRE-1778233490412-m6m130ex,agent_execution,Submission Summarization Agent,agent,Submission Summarization Agent Completed,Agent successfully completed processing,"Agent: Submission Summarization Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Submission Summarization Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Submission Summarization Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:49:08.191Z,2026-05-08T09:49:08.210Z,2026-05-08T09:49:08.210Z
+PRB-2026-001-archived-1778233659933,PRE-1778233490412-m6m130ex,agent_execution,Premium Generator Agent,agent,Premium Generator Agent Started,Agent processing started for premium_generator,"Agent Type: premium_generator
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:49:29.035Z,2026-05-08T09:49:29.062Z,2026-05-08T09:49:29.062Z
+PRB-2026-001-archived-1778233659933,PRE-1778233490412-m6m130ex,agent_execution,Premium Generator Agent,agent,Premium Generator Agent Completed,Agent successfully completed processing,"Agent: Premium Generator Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Premium Generator Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Premium Generator Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:50:02.791Z,2026-05-08T09:50:02.821Z,2026-05-08T09:50:02.821Z
+PRB-2026-001-archived-1778233659933,PRE-1778233490412-m6m130ex,agent_execution,Peer-to-Peer Policy Comparison Agent,agent,Peer-to-Peer Policy Comparison Agent Started,Agent processing started for policy_comparison,"Agent Type: policy_comparison
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:50:29.606Z,2026-05-08T09:50:29.622Z,2026-05-08T09:50:29.622Z
+PRB-2026-001,PRE-1778234018686-15g8gl1e,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:53:38.686Z,2026-05-08T09:53:38.702Z,2026-05-08T09:53:38.702Z
+PRB-2026-001,PRE-1778234018686-15g8gl1e,agent_execution,Peer-to-Peer Policy Comparison Agent,agent,Peer-to-Peer Policy Comparison Agent Started,Agent processing started for policy_comparison,"Agent Type: policy_comparison
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:54:00.900Z,2026-05-08T09:54:00.924Z,2026-05-08T09:54:00.924Z
+PRB-2026-001,PRE-1778234018686-15g8gl1e,agent_execution,Peer-to-Peer Policy Comparison Agent,agent,Peer-to-Peer Policy Comparison Agent Completed,Agent successfully completed processing,"Agent: Peer-to-Peer Policy Comparison Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Peer-to-Peer Policy Comparison Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Peer-to-Peer Policy Comparison Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:54:43.139Z,2026-05-08T09:54:43.263Z,2026-05-08T09:54:43.263Z
+PRB-2026-001,PRE-1778234211299-qybrc51m,system_event,System,system,Workflow Started,Verify DCC business activities workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:56:51.299Z,2026-05-08T09:56:51.310Z,2026-05-08T09:56:51.310Z
+PRB-2026-001,PRE-1778234211299-qybrc51m,agent_execution,Data Completeness Checker Agent,agent,Data Completeness Checker Agent Started,Agent processing started for data_completeness_checker,"Agent Type: data_completeness_checker
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:56:51.598Z,2026-05-08T09:56:51.616Z,2026-05-08T09:56:51.616Z
+PRB-2026-001-archived-1778234211288,PRE-1778234018686-15g8gl1e,agent_execution,Data Completeness Checker Agent,agent,Data Completeness Checker Agent Started,Agent processing started for data_completeness_checker,"Agent Type: data_completeness_checker
+Status: started
+Progress: 38%",completed,medium,2026-05-08T09:57:03.205Z,2026-05-08T09:57:03.231Z,2026-05-08T09:57:03.231Z
+PRB-2026-001-archived-1778234211288,PRE-1778234018686-15g8gl1e,agent_execution,Data Completeness Checker Agent,agent,Data Completeness Checker Agent Completed,Agent successfully completed processing,"Agent: Data Completeness Checker Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Data Completeness Checker Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Data Completeness Checker Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:57:55.999Z,2026-05-08T09:57:56.016Z,2026-05-08T09:57:56.016Z
+PRB-2026-001,PRE-1778234287448-vje9by8c,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T09:58:07.449Z,2026-05-08T09:58:07.464Z,2026-05-08T09:58:07.464Z
+PRB-2026-001,PRE-1778234287448-vje9by8c,agent_execution,Data Completeness Checker Agent,agent,Data Completeness Checker Agent Started,Agent processing started for data_completeness_checker,"Agent Type: data_completeness_checker
+Status: started
+Progress: 0%",completed,medium,2026-05-08T09:58:10.125Z,2026-05-08T09:58:10.151Z,2026-05-08T09:58:10.151Z
+PRB-2026-001,PRE-1778234287448-vje9by8c,agent_execution,Data Completeness Checker Agent,agent,Data Completeness Checker Agent Completed,Agent successfully completed processing,"Agent: Data Completeness Checker Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Data Completeness Checker Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Data Completeness Checker Agent completed successfully with AI processing""}",completed,medium,2026-05-08T09:59:14.532Z,2026-05-08T09:59:14.553Z,2026-05-08T09:59:14.553Z
+PRB-2026-001,PRE-1778234852306-a7pcu6s9,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T10:07:32.308Z,2026-05-08T10:07:32.332Z,2026-05-08T10:07:32.332Z
+PRB-2026-001,PRE-1778234867269-vdfjyi3d,system_event,System,system,Workflow Started,Verify chips workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T10:07:47.269Z,2026-05-08T10:07:47.283Z,2026-05-08T10:07:47.283Z
+PRB-2026-001,PRE-1778234910978-ibdng7cn,system_event,System,system,Workflow Started,Verify chips workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T10:08:30.978Z,2026-05-08T10:08:30.995Z,2026-05-08T10:08:30.995Z
+PRB-2026-001,PRE-1778235235342-31rxr72g,system_event,System,system,Workflow Started,Verify security workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T10:13:55.342Z,2026-05-08T10:13:55.356Z,2026-05-08T10:13:55.356Z
+PRB-2026-001,PRE-1778235674109-xtxvkltp,system_event,System,system,Workflow Started,Verify security narrative workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T10:21:14.110Z,2026-05-08T10:21:14.131Z,2026-05-08T10:21:14.131Z

@@ -157,6 +157,61 @@ function RegenerateSummaryPicker({ sessionId, currentLength }: { sessionId?: str
   );
 }
 
+// ---------- regenerate broker email picker ----------
+// Renders Short / Long / Professional buttons. Clicking one POSTs to the backend,
+// which appends a fresh broker follow-up email at the requested tone.
+function RegenerateBrokerEmailPicker({ sessionId, currentTone }: { sessionId?: string; currentTone: 'short' | 'long' | 'professional' }) {
+  const [busy, setBusy] = useState<'short' | 'long' | 'professional' | null>(null);
+  const onPick = async (tone: 'short' | 'long' | 'professional') => {
+    if (!sessionId || busy) return;
+    setBusy(tone);
+    try {
+      await fetch(`/api/workflows/${sessionId}/regenerate-broker-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tone }),
+      });
+    } catch (e) {
+      console.error('[Regenerate Broker Email] failed:', e);
+    } finally {
+      setTimeout(() => setBusy(null), 800);
+    }
+  };
+  const opts: Array<{ key: 'short' | 'long' | 'professional'; label: string; sub: string }> = [
+    { key: 'short', label: 'Short', sub: 'brisk · ~3 lines' },
+    { key: 'long', label: 'Long', sub: 'detailed · with rationale' },
+    { key: 'professional', label: 'Professional', sub: 'formal · default' },
+  ];
+  return (
+    <div className="mt-3 mb-1 px-3 py-2.5 rounded-lg border border-border bg-muted/30">
+      <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-2">Redraft email — pick a tone</div>
+      <div className="flex flex-wrap gap-1.5">
+        {opts.map(o => {
+          const isActive = o.key === currentTone;
+          const isBusy = busy === o.key;
+          return (
+            <button
+              key={o.key}
+              type="button"
+              disabled={!!busy}
+              onClick={() => onPick(o.key)}
+              className={`group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/20'
+                  : 'bg-card border border-border text-foreground hover:border-blue-400 hover:text-blue-700 hover:bg-blue-50/60 dark:hover:bg-blue-950/30 dark:hover:text-blue-300'
+              } ${busy ? 'cursor-not-allowed opacity-70' : ''}`}
+            >
+              <span>{o.label}</span>
+              <span className={`text-[10px] ${isActive ? 'opacity-80' : 'text-muted-foreground'}`}>· {o.sub}</span>
+              {isBusy && <span className="ml-1 w-2 h-2 rounded-full bg-current animate-ping" />}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ---------- markdown table block renderer ----------
 // Detects pipe-style markdown tables in chat messages and renders them as styled HTML tables.
 // Pattern: a header row `| col | col |` followed by a separator `|---|---|` and one or more data rows.
@@ -447,6 +502,23 @@ const FormattedMessageContent = ({ content, sessionId }: { content: string; sess
       <>
         {before && <div className="mb-3">{formatText(before)}</div>}
         <RegenerateSummaryPicker sessionId={sessionId} currentLength={currentLength as 'short' | 'medium' | 'long'} />
+        {after && <div className="mt-3">{formatText(after)}</div>}
+      </>
+    );
+  }
+
+  // Regenerate-broker-email marker: [REGENERATE_BROKER_EMAIL:short|long|professional]
+  // Renders three tone buttons; clicking one POSTs to /regenerate-broker-email
+  // which appends a fresh draft of the broker follow-up email.
+  const brokerEmailMatch = content.match(/\[REGENERATE_BROKER_EMAIL:(short|long|professional)\]/);
+  if (brokerEmailMatch) {
+    const [full, currentTone] = brokerEmailMatch;
+    const before = content.slice(0, content.indexOf(full));
+    const after = content.slice(content.indexOf(full) + full.length);
+    return (
+      <>
+        {before && <div className="mb-3">{formatText(before)}</div>}
+        <RegenerateBrokerEmailPicker sessionId={sessionId} currentTone={currentTone as 'short' | 'long' | 'professional'} />
         {after && <div className="mt-3">{formatText(after)}</div>}
       </>
     );
@@ -851,12 +923,44 @@ export function ChatInterface({
             </div>
           </div>
         )}
+
+        {/* Suggested questions for pre-bind workflows — clicking sends to the
+            Submission Assistant (Query Retrieval Agent) which produces a Q&A trace. */}
+        {workflowType === 'pre_bind' && (
+          <div className="mb-2.5">
+            <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1.5">Try asking</div>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                'What is the insured\'s turnover?',
+                'What is the jurisdictional split?',
+                'What are the cover limits?',
+                'Show me the prior claims history.',
+                'Where is the insured property located?',
+                'What are the security details for the property?',
+                'Who is the broker on this submission?',
+                'What is the indicative premium?',
+              ].map(q => (
+                <button
+                  key={q}
+                  type="button"
+                  onClick={() => onSendMessage(q)}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-border bg-card text-xs text-foreground hover:border-blue-400 hover:bg-blue-50/60 hover:text-blue-700 dark:hover:bg-blue-950/30 dark:hover:text-blue-300 transition-colors"
+                >
+                  <HelpCircle className="h-3 w-3" />
+                  <span>{q}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="flex items-center space-x-2">
           <Input
             type="text"
             placeholder={workflowType === 'claim'
               ? 'Ask the Claim Assistant anything (e.g. "What\'s the loss amount?", "Any fraud risk?")'
-              : 'Type your message or give instructions to agents...'}
+              : workflowType === 'pre_bind'
+                ? 'Ask the Submission Assistant anything (e.g. "What\'s the turnover?", "Show me the cover limits")'
+                : 'Type your message or give instructions to agents...'}
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
             onKeyPress={handleKey}
