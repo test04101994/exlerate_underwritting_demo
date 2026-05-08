@@ -977,7 +977,9 @@ Status: **draft ready for adjuster review and send**.`
       delayMs: 0,
       message: `**Decision:** Underwriter Review
 
-**Justification:** Submission requires manual review due to significant USA/Canada exposure (92.11%), high liability limits, manufacturing risk profile, and presence of prior/open claims. Additionally, multiple property coverage sections contain incomplete sum insured information requiring underwriting clarification.`
+**Justification:** Submission requires manual review due to significant USA/Canada exposure (92.11%), high liability limits, manufacturing risk profile, and presence of prior/open claims. Additionally, multiple property coverage sections contain incomplete sum insured information requiring underwriting clarification.
+
+[ACCEPT_REJECT_DECISION:risk_prioritization]`
     }
   ],
 

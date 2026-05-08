@@ -3821,6 +3821,41 @@ Please respond with your choice: send, edit, or discard`,
     }
   });
 
+  // Accept / reject the Risk Prioritization Agent's decision. Triggered by the
+  // Accept / Reject buttons in chat messages tagged with [ACCEPT_REJECT_DECISION:*].
+  app.post('/api/workflows/:sessionId/decision-response', async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const { decisionAgent, action, note } = req.body as { decisionAgent: string; action: 'accept' | 'reject'; note?: string };
+      if (!decisionAgent || !['accept', 'reject'].includes(action)) {
+        return res.status(400).json({ error: 'decisionAgent and action (accept|reject) are required' });
+      }
+
+      const agentLabel = decisionAgent === 'risk_prioritization'
+        ? 'Risk Prioritization Agent'
+        : decisionAgent;
+      const decisionLabel = decisionAgent === 'risk_prioritization' ? 'Underwriter Review' : 'decision';
+
+      const content = action === 'accept'
+        ? `✅ **Decision accepted** — ${agentLabel} routing of "${decisionLabel}" confirmed by underwriter${note ? ` · note: _${note}_` : ''}.`
+        : `❌ **Decision rejected** — ${agentLabel} routing of "${decisionLabel}" overridden by underwriter${note ? ` · reason: _${note}_` : ''}. Workflow will continue under manual control.`;
+
+      const message = await storage.createMessage({
+        sessionId,
+        type: 'system',
+        sender: 'System',
+        content,
+        createdAt: new Date()
+      } as any);
+
+      io.to(sessionId).emit('messageAdded', { sessionId });
+      res.json({ success: true, messageId: message.id });
+    } catch (error) {
+      console.error('[Decision Response] Error:', error);
+      res.status(500).json({ error: 'Failed to record decision response' });
+    }
+  });
+
   // Regenerate the Data Completeness broker follow-up email at a different
   // tone (short / long / professional). Triggered by the tone picker in chat
   // messages tagged with [REGENERATE_BROKER_EMAIL:*].

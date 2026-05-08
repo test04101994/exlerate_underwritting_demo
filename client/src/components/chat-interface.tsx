@@ -157,6 +157,55 @@ function RegenerateSummaryPicker({ sessionId, currentLength }: { sessionId?: str
   );
 }
 
+// ---------- accept / reject decision picker ----------
+// Renders Accept / Reject buttons for an agent's recommended decision (e.g.
+// Risk Prioritization → "Underwriter Review"). Clicking POSTs the response
+// to /decision-response which appends a confirmation message in chat.
+function AcceptRejectDecisionPicker({ sessionId, decisionAgent }: { sessionId?: string; decisionAgent: string }) {
+  const [done, setDone] = useState<'accept' | 'reject' | null>(null);
+  const onPick = async (action: 'accept' | 'reject') => {
+    if (!sessionId || done) return;
+    setDone(action);
+    try {
+      await fetch(`/api/workflows/${sessionId}/decision-response`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decisionAgent, action }),
+      });
+    } catch (e) {
+      console.error('[Decision Response] failed:', e);
+    }
+  };
+  if (done) {
+    return (
+      <div className="mt-3 mb-1 px-3 py-2 rounded-lg border border-border bg-muted/30 text-xs text-muted-foreground">
+        {done === 'accept' ? '✅ Decision accepted — confirmation posted in chat below.' : '❌ Decision rejected — override posted in chat below.'}
+      </div>
+    );
+  }
+  return (
+    <div className="mt-3 mb-1 px-3 py-2.5 rounded-lg border border-border bg-muted/30">
+      <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-2">Accept the routing, or override?</div>
+      <div className="flex flex-wrap gap-1.5">
+        <button
+          type="button"
+          onClick={() => onPick('accept')}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-green-600 text-white shadow-sm shadow-green-600/20 hover:bg-green-700 hover:shadow-md transition-all"
+        >
+          <span>✓ Accept decision</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => onPick('reject')}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-card border border-destructive/40 text-destructive hover:bg-destructive/10 transition-all"
+        >
+          <span>✕ Reject / override</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ---------- regenerate broker email picker ----------
 // Renders Short / Long / Professional buttons. Clicking one POSTs to the backend,
 // which appends a fresh broker follow-up email at the requested tone.
@@ -502,6 +551,23 @@ const FormattedMessageContent = ({ content, sessionId }: { content: string; sess
       <>
         {before && <div className="mb-3">{formatText(before)}</div>}
         <RegenerateSummaryPicker sessionId={sessionId} currentLength={currentLength as 'short' | 'medium' | 'long'} />
+        {after && <div className="mt-3">{formatText(after)}</div>}
+      </>
+    );
+  }
+
+  // Accept-reject-decision marker: [ACCEPT_REJECT_DECISION:<decision_agent>]
+  // Renders Accept / Reject buttons for an agent-recommended decision (e.g. the
+  // Risk Prioritization Agent's "Underwriter Review" routing).
+  const decisionMatch = content.match(/\[ACCEPT_REJECT_DECISION:([a-z_]+)\]/);
+  if (decisionMatch) {
+    const [full, decisionAgent] = decisionMatch;
+    const before = content.slice(0, content.indexOf(full));
+    const after = content.slice(content.indexOf(full) + full.length);
+    return (
+      <>
+        {before && <div className="mb-3">{formatText(before)}</div>}
+        <AcceptRejectDecisionPicker sessionId={sessionId} decisionAgent={decisionAgent} />
         {after && <div className="mt-3">{formatText(after)}</div>}
       </>
     );

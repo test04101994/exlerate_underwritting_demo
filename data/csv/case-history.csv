@@ -21205,3 +21205,25 @@ Total Steps: 7",completed,medium,2026-05-08T10:21:14.110Z,2026-05-08T10:21:14.13
 PRB-2026-001,PRE-1778236174174-kbreydxj,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
 Case ID: PRB-2026-001
 Total Steps: 7",completed,medium,2026-05-08T10:29:34.174Z,2026-05-08T10:29:34.190Z,2026-05-08T10:29:34.190Z
+PRB-2026-001,PRE-1778237836139-raiilx0l,system_event,System,system,Workflow Started,Verify decision workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T10:57:16.140Z,2026-05-08T10:57:16.154Z,2026-05-08T10:57:16.154Z
+PRB-2026-001,PRE-1778237836139-raiilx0l,agent_execution,Risk Prioritization Agent,agent,Risk Prioritization Agent Started,Agent processing started for risk_prioritization,"Agent Type: risk_prioritization
+Status: started
+Progress: 0%",completed,medium,2026-05-08T10:57:16.549Z,2026-05-08T10:57:16.571Z,2026-05-08T10:57:16.571Z
+PRB-2026-001,PRE-1778237836139-raiilx0l,agent_execution,Risk Prioritization Agent,agent,Risk Prioritization Agent Completed,Agent successfully completed processing,"Agent: Risk Prioritization Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Risk Prioritization Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Risk Prioritization Agent completed successfully with AI processing""}",completed,medium,2026-05-08T10:57:50.718Z,2026-05-08T10:57:50.765Z,2026-05-08T10:57:50.765Z
+PRB-2026-001,PRE-1778237931143-o08say8f,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T10:58:51.144Z,2026-05-08T10:58:51.159Z,2026-05-08T10:58:51.159Z
+PRB-2026-001,PRE-1778237931143-o08say8f,agent_execution,Risk Prioritization Agent,agent,Risk Prioritization Agent Started,Agent processing started for risk_prioritization,"Agent Type: risk_prioritization
+Status: started
+Progress: 0%",completed,medium,2026-05-08T10:58:53.643Z,2026-05-08T10:58:53.662Z,2026-05-08T10:58:53.662Z
+PRB-2026-001,PRE-1778237931143-o08say8f,agent_execution,Risk Prioritization Agent,agent,Risk Prioritization Agent Completed,Agent successfully completed processing,"Agent: Risk Prioritization Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Risk Prioritization Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Risk Prioritization Agent completed successfully with AI processing""}",completed,medium,2026-05-08T10:59:27.760Z,2026-05-08T10:59:27.780Z,2026-05-08T10:59:27.780Z
