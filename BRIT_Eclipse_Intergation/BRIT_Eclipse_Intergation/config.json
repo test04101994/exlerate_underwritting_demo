@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "endpoint": "https://dev.example.com/health",
+    "wsdl": "https://dev.example.com/eclipse?wsdl",
+    "pfx": "certs/dev.pfx",
+    "password": "changeme"
+  },
+  "uat": {
+    "endpoint": "https://uat.example.com/health",
+    "wsdl": "https://uat.example.com/eclipse?wsdl",
+    "pfx": "certs/uat.pfx",
+    "password": "changeme"
+  },
+  "prod": {
+    "endpoint": "https://prod.example.com/health",
+    "wsdl": "https://prod.example.com/eclipse?wsdl",
+    "pfx": "certs/prod.pfx",
+    "password": "changeme"
+  }
+}

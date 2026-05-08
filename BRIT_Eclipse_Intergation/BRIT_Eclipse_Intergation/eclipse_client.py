@@ -1,0 +1,168 @@
+#!/usr/bin/env python3
+"""
+Eclipse SOAP client.
+
+Loads the per-environment WSDL over mutual TLS using a PFX-format client
+certificate, and exposes a configured ``zeep.Client`` for invoking SOAP
+operations.
+
+Usage:
+    python eclipse_client.py            # defaults to dev
+    python eclipse_client.py dev
+    python eclipse_client.py uat
+    python eclipse_client.py prod
+
+Exit codes:
+    0  success
+    1  invalid command-line arguments
+    2  PFX load failed (bad path, wrong password, corrupt file)
+    3  WSDL load failed (network, mTLS handshake, parse error)
+"""
+
+import atexit
+import json
+import logging
+import os
+import sys
+import tempfile
+
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.serialization import NoEncryption, pkcs12
+from requests import Session
+from zeep import Client
+from zeep.transports import Transport
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    stream=sys.stdout,
+)
+log = logging.getLogger("eclipse")
+
+
+def pfx_to_pem(pfx_path, password):
+    """Convert a PKCS#12 (.pfx) bundle into separate PEM cert and key files.
+
+    The PEM files are written to the OS temp directory and registered for
+    deletion at interpreter exit via ``atexit``.
+
+    Args:
+        pfx_path: Filesystem path to the .pfx file.
+        password: Password used to decrypt the PFX bundle.
+
+    Returns:
+        Tuple ``(cert_pem_path, key_pem_path)`` suitable for
+        ``requests.Session.cert``.
+    """
+    with open(pfx_path, "rb") as f:
+        key, cert, extra = pkcs12.load_key_and_certificates(f.read(), password.encode())
+
+    cert_pem = cert.public_bytes(serialization.Encoding.PEM)
+    for c in extra or []:
+        cert_pem += c.public_bytes(serialization.Encoding.PEM)
+
+    key_pem = key.private_bytes(
+        serialization.Encoding.PEM,
+        serialization.PrivateFormat.TraditionalOpenSSL,
+        NoEncryption(),
+    )
+
+    cf = tempfile.NamedTemporaryFile(delete=False, suffix=".pem")
+    kf = tempfile.NamedTemporaryFile(delete=False, suffix=".pem")
+    cf.write(cert_pem); cf.close()
+    kf.write(key_pem); kf.close()
+    atexit.register(lambda: os.path.exists(cf.name) and os.remove(cf.name))
+    atexit.register(lambda: os.path.exists(kf.name) and os.remove(kf.name))
+    return cf.name, kf.name
+
+
+def load_config(env):
+    """Read ``config.json`` and return the section for the given environment.
+
+    The ``pfx`` value is rewritten to an absolute path so the caller does
+    not need to know the script's working directory.
+
+    Args:
+        env: One of ``"dev"``, ``"uat"``, ``"prod"``.
+
+    Returns:
+        Dict with keys ``endpoint``, ``wsdl``, ``pfx``, ``password``.
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(here, "config.json")) as f:
+        cfg = json.load(f)[env]
+    cfg["pfx"] = os.path.join(here, cfg["pfx"])
+    return cfg
+
+
+def build_client(env):
+    """Construct a ``zeep.Client`` configured with mTLS for ``env``.
+
+    Validates the PFX up front (exits with code 2 on failure), then fetches
+    and parses the WSDL over the same mTLS-bound session (exits with code 3
+    on failure). On success returns a ready-to-use SOAP client.
+
+    Args:
+        env: One of ``"dev"``, ``"uat"``, ``"prod"``.
+
+    Returns:
+        A ``zeep.Client`` whose transport carries the client certificate.
+    """
+    cfg = load_config(env)
+
+    try:
+        cert, key = pfx_to_pem(cfg["pfx"], cfg["password"])
+    except Exception as e:
+        log.exception("PFX load failed (bad path, password, or corrupted file): %s", e)
+        sys.exit(2)
+    log.info("PFX loaded successfully")
+
+    session = Session()
+    session.cert = (cert, key)
+    session.verify = True
+
+    transport = Transport(session=session, timeout=15, operation_timeout=30)
+
+    try:
+        client = Client(cfg["wsdl"], transport=transport)
+    except Exception as e:
+        log.exception("WSDL load failed (network, TLS, or WSDL parse error): %s", e)
+        sys.exit(3)
+    log.info("WSDL loaded successfully")
+
+    return client
+
+
+def main():
+    """Entry point: parse the env argument and build the client.
+
+    Defaults to ``dev`` when no argument is supplied. Exits with code 1
+    if an unrecognised environment is passed.
+    """
+    if len(sys.argv) == 1:
+        env = "dev"
+        log.info("No environment supplied — defaulting to 'dev'")
+    elif len(sys.argv) == 2 and sys.argv[1] in ("dev", "uat", "prod"):
+        env = sys.argv[1]
+    else:
+        log.error("Usage: python eclipse_client.py [dev|uat|prod]  (default: dev)")
+        sys.exit(1)
+
+    cfg = load_config(env)
+
+    log.info("Environment : %s", env)
+    log.info("WSDL        : %s", cfg["wsdl"])
+    log.info("PFX         : %s", cfg["pfx"])
+
+    client = build_client(env)
+    log.info("Service     : %s", client.service)
+
+    # Replace with the real operation and arguments once known.
+    # result = client.service.SomeOperation(arg1="...", arg2="...")
+    # log.info("Result: %s", result)
+
+
+if __name__ == "__main__":
+    main()
