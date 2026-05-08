@@ -508,4 +508,5 @@ PRE-1778234852306-a7pcu6s9,Pre-Bind Submission — PRB-2026-001,pre_bind,running
 PRE-1778234867269-vdfjyi3d,Verify chips,pre_bind,running,0,7,PRB-2026-001-archived-1778234910964,2026-05-08T10:07:47.269Z,2026-05-08T10:08:30.964Z,{},{}
 PRE-1778234910978-ibdng7cn,Verify chips,pre_bind,running,0,7,PRB-2026-001-archived-1778235235322,2026-05-08T10:08:30.978Z,2026-05-08T10:13:55.322Z,{},{}
 PRE-1778235235342-31rxr72g,Verify security,pre_bind,running,0,7,PRB-2026-001-archived-1778235674074,2026-05-08T10:13:55.342Z,2026-05-08T10:21:14.074Z,{},{}
-PRE-1778235674109-xtxvkltp,Verify security narrative,pre_bind,running,0,7,PRB-2026-001,2026-05-08T10:21:14.110Z,2026-05-08T10:21:14.110Z,{},{}
+PRE-1778235674109-xtxvkltp,Verify security narrative,pre_bind,running,0,7,PRB-2026-001-archived-1778236174162,2026-05-08T10:21:14.110Z,2026-05-08T10:29:34.162Z,{},{}
+PRE-1778236174174-kbreydxj,Pre-Bind Submission — PRB-2026-001,pre_bind,running,0,7,PRB-2026-001,2026-05-08T10:29:34.174Z,2026-05-08T10:29:34.174Z,{},{}

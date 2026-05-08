@@ -5968,11 +5968,14 @@ Status: All required information received. Workflow resuming automatically...`,
       // Route to the right shared defaults folder per workflow type
       const isSubmissionWorkflow = workflowType === 'submission' || caseId.startsWith('SUB-') || caseId.startsWith('UW-');
       const isClaimWorkflow = workflowType === 'claim' || caseId.startsWith('CLM-');
+      const isPreBindWorkflow = workflowType === 'pre_bind' || caseId.startsWith('PRB-');
       let filePath = isClaimWorkflow
         ? path.join(process.cwd(), 'assets/documents/documents/_claim_defaults', fileName)
         : isSubmissionWorkflow
           ? path.join(process.cwd(), 'assets/documents/documents/_submission_defaults', fileName)
-          : path.join(process.cwd(), 'assets/documents/documents', caseId, fileName);
+          : isPreBindWorkflow
+            ? path.join(process.cwd(), 'assets/documents/documents/_pre_bind_defaults', fileName)
+            : path.join(process.cwd(), 'assets/documents/documents', caseId, fileName);
       
       // Check if file exists
       if (!fs.existsSync(filePath)) {

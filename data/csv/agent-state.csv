@@ -3580,3 +3580,10 @@ PRE-1778235674109-xtxvkltp,4,Risk Prioritization Agent,risk_prioritization,pendi
 PRE-1778235674109-xtxvkltp,5,Submission Summarization Agent,submission_summary,pending,0,{},2026-05-08T10:21:14.250Z,2026-05-08T10:21:14.250Z
 PRE-1778235674109-xtxvkltp,6,Peer-to-Peer Policy Comparison Agent,policy_comparison,pending,0,{},2026-05-08T10:21:14.280Z,2026-05-08T10:21:14.280Z
 PRE-1778235674109-xtxvkltp,7,Premium Generator Agent,premium_generator,pending,0,{},2026-05-08T10:21:14.309Z,2026-05-08T10:21:14.309Z
+PRE-1778236174174-kbreydxj,8,Submissions Extraction Agent,submissions_extractor,pending,0,{},2026-05-08T10:29:34.199Z,2026-05-08T10:29:34.199Z
+PRE-1778236174174-kbreydxj,9,Sanctions Checker Agent,sanctions_screen,pending,0,{},2026-05-08T10:29:34.226Z,2026-05-08T10:29:34.226Z
+PRE-1778236174174-kbreydxj,10,Data Completeness Checker Agent,data_completeness_checker,pending,0,{},2026-05-08T10:29:34.244Z,2026-05-08T10:29:34.244Z
+PRE-1778236174174-kbreydxj,11,Risk Prioritization Agent,risk_prioritization,pending,0,{},2026-05-08T10:29:34.275Z,2026-05-08T10:29:34.275Z
+PRE-1778236174174-kbreydxj,12,Submission Summarization Agent,submission_summary,pending,0,{},2026-05-08T10:29:34.294Z,2026-05-08T10:29:34.294Z
+PRE-1778236174174-kbreydxj,13,Peer-to-Peer Policy Comparison Agent,policy_comparison,pending,0,{},2026-05-08T10:29:34.326Z,2026-05-08T10:29:34.326Z
+PRE-1778236174174-kbreydxj,14,Premium Generator Agent,premium_generator,pending,0,{},2026-05-08T10:29:34.343Z,2026-05-08T10:29:34.343Z

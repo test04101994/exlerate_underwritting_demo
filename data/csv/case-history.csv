@@ -21202,3 +21202,6 @@ Total Steps: 7",completed,medium,2026-05-08T10:13:55.342Z,2026-05-08T10:13:55.35
 PRB-2026-001,PRE-1778235674109-xtxvkltp,system_event,System,system,Workflow Started,Verify security narrative workflow initiated,"Workflow Type: pre_bind
 Case ID: PRB-2026-001
 Total Steps: 7",completed,medium,2026-05-08T10:21:14.110Z,2026-05-08T10:21:14.131Z,2026-05-08T10:21:14.131Z
+PRB-2026-001,PRE-1778236174174-kbreydxj,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-08T10:29:34.174Z,2026-05-08T10:29:34.190Z,2026-05-08T10:29:34.190Z
