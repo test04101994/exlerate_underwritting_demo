@@ -208,6 +208,52 @@ def build_client(env):
     return client
 
 
+def inspect_type(client, type_name):
+    """Log the field structure of a complex type defined in the WSDL.
+
+    Helpful when the operation signature mentions a type like
+    ``ns4:SecurityToken`` and you need to know what fields to populate
+    without external documentation.
+
+    Args:
+        client: A constructed ``zeep.Client``.
+        type_name: Type name to look up, e.g. ``"ns4:SecurityToken"`` or the
+            local name ``"SecurityToken"``.
+    """
+    try:
+        t = client.get_type(type_name)
+    except Exception as e:
+        log.warning("Type %s not found: %s", type_name, e)
+        return
+    log.info("Type %s -> %s", type_name, t)
+    log.info("  Signature: %s", t.signature())
+
+
+def try_operation(client, operation_name, **kwargs):
+    """Invoke a SOAP operation and log either the result or the server error.
+
+    Wraps the call so a SOAP fault doesn't kill the script — instead the
+    fault code, fault string, and detail are logged so you can adjust
+    arguments and try again.
+
+    Args:
+        client: A constructed ``zeep.Client``.
+        operation_name: Name of the operation, e.g. ``"GetPolicy"``.
+        **kwargs: Arguments passed straight through to the SOAP call.
+    """
+    op = getattr(client.service, operation_name, None)
+    if op is None:
+        log.error("Operation %s not found on client.service", operation_name)
+        return None
+    try:
+        result = op(**kwargs)
+        log.info("%s returned: %s", operation_name, result)
+        return result
+    except Exception as e:
+        log.exception("%s raised: %s", operation_name, e)
+        return None
+
+
 def list_operations(client):
     """Log every SOAP operation the WSDL exposes, with its argument signature.
 
@@ -261,8 +307,25 @@ def main():
 
     list_operations(client)
 
-    # Replace with the real operation and arguments once known.
-    # result = client.service.SomeOperation(arg1="...", arg2="...")
+    # Recon: print the SecurityToken type structure so we know what
+    # fields to fill in (and which are required).
+    inspect_type(client, "ns4:SecurityToken")
+    inspect_type(client, "ns1:Policy")
+
+    # Probe: call GetPolicy with a minimal payload and see what the server
+    # says. Outcomes:
+    #   - returns data       → mTLS alone is enough; SecurityToken is a no-op.
+    #   - "Token required"   → need real auth credentials from BRIT.
+    #   - "Policy not found" → auth worked! Just need a real PolicyId.
+    #   - anything else      → log tells us what to adjust.
+    SecurityToken = client.get_type("ns4:SecurityToken")
+    Policy = client.get_type("ns1:Policy")
+    try_operation(
+        client,
+        "GetPolicy",
+        Policy=Policy(),  # empty Policy — we expect server to reject and tell us why
+        SecurityToken=SecurityToken(),  # empty token — same idea
+    )
     # log.info("Result: %s", result)
 
 
