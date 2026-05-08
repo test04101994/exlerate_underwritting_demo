@@ -12,6 +12,12 @@ Usage:
     python eclipse_client.py uat
     python eclipse_client.py prod
 
+Environment variables:
+    ECLIPSE_INSECURE=1  Process-wide TLS verification kill-switch. Disables
+                        cert checks for the requests session AND for lxml's
+                        libxml2-driven WSDL/XSD imports. Debug-only — never
+                        ship with this set.
+
 Exit codes:
     0  success
     1  invalid command-line arguments
@@ -23,8 +29,19 @@ import atexit
 import json
 import logging
 import os
+import ssl
 import sys
 import tempfile
+
+# Debug-only: when ECLIPSE_INSECURE=1 is set, disable TLS verification for
+# every Python TLS client in this process — including libxml2 used by lxml
+# (and therefore zeep) when it resolves XSD imports outside our requests
+# session. This is a much bigger hammer than ``session.verify = False`` and
+# must NEVER be used outside local debugging. Patch must run before any
+# library captures the default SSL context, so it sits above all other
+# imports below.
+if os.environ.get("ECLIPSE_INSECURE") == "1":
+    ssl._create_default_https_context = ssl._create_unverified_context
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import NoEncryption, pkcs12
@@ -173,6 +190,9 @@ def main():
     else:
         log.error("Usage: python eclipse_client.py [dev|uat|prod]  (default: dev)")
         sys.exit(1)
+
+    if os.environ.get("ECLIPSE_INSECURE") == "1":
+        log.warning("ECLIPSE_INSECURE=1 — process-wide TLS verification disabled (debug only).")
 
     cfg = load_config(env)
 
