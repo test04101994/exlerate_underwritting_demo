@@ -94,7 +94,31 @@ def load_config(env):
     with open(os.path.join(here, "config.json")) as f:
         cfg = json.load(f)[env]
     cfg["pfx"] = os.path.join(here, cfg["pfx"])
+    if cfg.get("ca_bundle"):
+        cfg["ca_bundle"] = os.path.join(here, cfg["ca_bundle"])
     return cfg
+
+
+def resolve_verify(cfg):
+    """Translate the config's TLS-verification fields into a ``requests`` value.
+
+    Returns one of:
+        * ``False`` if ``verify_tls`` is explicitly false (verification off).
+        * A path string if ``ca_bundle`` is set (verify against that bundle).
+        * ``True`` otherwise (verify against the system trust store).
+
+    When verification is disabled, urllib3's ``InsecureRequestWarning`` is
+    suppressed and a ``WARNING`` log line is emitted so the operator notices.
+    """
+    if cfg.get("verify_tls") is False:
+        from urllib3 import disable_warnings
+        from urllib3.exceptions import InsecureRequestWarning
+        disable_warnings(InsecureRequestWarning)
+        log.warning("TLS verification DISABLED — connection is not authenticated. Use only for debugging.")
+        return False
+    if cfg.get("ca_bundle"):
+        return cfg["ca_bundle"]
+    return True
 
 
 def build_client(env):
@@ -121,7 +145,7 @@ def build_client(env):
 
     session = Session()
     session.cert = (cert, key)
-    session.verify = True
+    session.verify = resolve_verify(cfg)
 
     transport = Transport(session=session, timeout=15, operation_timeout=30)
 

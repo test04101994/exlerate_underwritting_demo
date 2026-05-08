@@ -3,18 +3,24 @@
     "endpoint": "https://dev.example.com/health",
     "wsdl": "https://dev.example.com/eclipse?wsdl",
     "pfx": "certs/dev.pfx",
-    "password": "changeme"
+    "password": "changeme",
+    "ca_bundle": null,
+    "verify_tls": false
   },
   "uat": {
     "endpoint": "https://uat.example.com/health",
     "wsdl": "https://uat.example.com/eclipse?wsdl",
     "pfx": "certs/uat.pfx",
-    "password": "changeme"
+    "password": "changeme",
+    "ca_bundle": null,
+    "verify_tls": true
   },
   "prod": {
     "endpoint": "https://prod.example.com/health",
     "wsdl": "https://prod.example.com/eclipse?wsdl",
     "pfx": "certs/prod.pfx",
-    "password": "changeme"
+    "password": "changeme",
+    "ca_bundle": null,
+    "verify_tls": true
   }
 }
