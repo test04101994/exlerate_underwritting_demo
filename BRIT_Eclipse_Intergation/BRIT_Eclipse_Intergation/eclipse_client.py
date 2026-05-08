@@ -194,7 +194,9 @@ def build_client(env):
         session.trust_env = False
         session.mount("https://", InsecureAdapter())
 
-    transport = Transport(session=session, timeout=15, operation_timeout=30)
+    # timeout      = WSDL/XSD fetch read timeout (cold-start WCF can be slow).
+    # operation_timeout = SOAP-call read timeout once the client is built.
+    transport = Transport(session=session, timeout=60, operation_timeout=60)
 
     try:
         client = Client(cfg["wsdl"], transport=transport)
@@ -204,6 +206,27 @@ def build_client(env):
     log.info("WSDL loaded successfully")
 
     return client
+
+
+def list_operations(client):
+    """Log every SOAP operation the WSDL exposes, with its argument signature.
+
+    Useful as a connectivity-confirmation step: if this prints operations,
+    the WSDL was fetched, parsed, and the binding is intact end-to-end.
+
+    Args:
+        client: A constructed ``zeep.Client``.
+    """
+    count = 0
+    for service in client.wsdl.services.values():
+        log.info("Service: %s", service.name)
+        for port in service.ports.values():
+            log.info("  Port: %s @ %s", port.name, port.binding_options.get("address", "?"))
+            for op in port.binding._operations.values():
+                sig = op.input.signature(schema=client.wsdl.types) if op.input else ""
+                log.info("    Operation: %s(%s)", op.name, sig)
+                count += 1
+    log.info("Total operations exposed: %d", count)
 
 
 def main():
@@ -232,6 +255,8 @@ def main():
 
     client = build_client(env)
     log.info("Service     : %s", client.service)
+
+    list_operations(client)
 
     # Replace with the real operation and arguments once known.
     # result = client.service.SomeOperation(arg1="...", arg2="...")
