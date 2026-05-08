@@ -223,7 +223,10 @@ def list_operations(client):
         for port in service.ports.values():
             log.info("  Port: %s @ %s", port.name, port.binding_options.get("address", "?"))
             for op in port.binding._operations.values():
-                sig = op.input.signature(schema=client.wsdl.types) if op.input else ""
+                try:
+                    sig = op.input.signature() if op.input else ""
+                except Exception:
+                    sig = "<signature unavailable>"
                 log.info("    Operation: %s(%s)", op.name, sig)
                 count += 1
     log.info("Total operations exposed: %d", count)
