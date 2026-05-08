@@ -46,8 +46,29 @@ if os.environ.get("ECLIPSE_INSECURE") == "1":
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import NoEncryption, pkcs12
 from requests import Session
+from requests.adapters import HTTPAdapter
 from zeep import Client
 from zeep.transports import Transport
+
+
+class InsecureAdapter(HTTPAdapter):
+    """HTTPS adapter that forces an unverified TLS context.
+
+    Used as a hard override when ``verify_tls`` is false — bypasses any
+    ``REQUESTS_CA_BUNDLE`` / ``CURL_CA_BUNDLE`` / ``SSL_CERT_FILE`` env vars
+    that ``requests`` would otherwise honour and which would silently
+    override ``session.verify = False``.
+    """
+
+    def init_poolmanager(self, *args, **kwargs):
+        ctx = ssl._create_unverified_context()
+        kwargs["ssl_context"] = ctx
+        return super().init_poolmanager(*args, **kwargs)
+
+    def proxy_manager_for(self, *args, **kwargs):
+        ctx = ssl._create_unverified_context()
+        kwargs["ssl_context"] = ctx
+        return super().proxy_manager_for(*args, **kwargs)
 
 
 logging.basicConfig(
@@ -163,6 +184,15 @@ def build_client(env):
     session = Session()
     session.cert = (cert, key)
     session.verify = resolve_verify(cfg)
+
+    if session.verify is False:
+        # Two layers of defence so a corporate REQUESTS_CA_BUNDLE / CURL_CA_BUNDLE
+        # / SSL_CERT_FILE env var cannot silently re-enable verification:
+        # 1. trust_env=False stops requests from reading those env vars at all.
+        # 2. InsecureAdapter forces an unverified SSL context inside urllib3,
+        #    which is the layer that actually performs the handshake.
+        session.trust_env = False
+        session.mount("https://", InsecureAdapter())
 
     transport = Transport(session=session, timeout=15, operation_timeout=30)
 
