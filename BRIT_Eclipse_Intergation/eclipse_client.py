@@ -62,6 +62,10 @@ except ImportError as _xmlsec_err:
 
 
 if _HAS_XMLSEC:
+    from datetime import datetime, timedelta, timezone
+    from lxml import etree
+    from zeep import ns as _zeep_ns
+    from zeep.wsse import utils as _wsse_utils
 
     class WcfSignature(BinarySignature):
         """WSSE signature tuned for WCF interop.
@@ -70,12 +74,20 @@ if _HAS_XMLSEC:
           * Uses RSA-SHA256 / SHA-256 instead of the deprecated RSA-SHA1.
             Modern WCF services reject SHA-1 signatures by default.
           * Inherits from ``BinarySignature`` so the X.509 cert ships as a
-            ``BinarySecurityToken`` element referenced by ``SecurityTokenReference``
+            ``BinarySecurityToken`` referenced by ``SecurityTokenReference``
             (the WCF-standard placement) rather than embedded in ``KeyInfo``.
+          * Injects a ``wsu:Timestamp`` into the WSSE Security header before
+            signing. WCF's default security policy requires the message to
+            carry a Timestamp and for that Timestamp to be one of the signed
+            references. Zeep's internal ``_sign_envelope_with_key`` discovers
+            the Timestamp at sign time and automatically adds it to the
+            signed elements alongside the Body.
           * Overrides ``verify`` to a no-op: BRIT signs the request but does
             not sign the response, and zeep's default ``verify`` crashes
             with ``'NoneType' has no attribute 'find'`` on unsigned replies.
         """
+
+        TIMESTAMP_TTL_SECONDS = 300  # 5-minute validity window
 
         def __init__(self, key_file, certfile, password=None):
             super().__init__(
@@ -85,6 +97,27 @@ if _HAS_XMLSEC:
                 signature_method=xmlsec.Transform.RSA_SHA256,
                 digest_method=xmlsec.Transform.SHA256,
             )
+
+        def apply(self, envelope, headers):
+            self._inject_timestamp(envelope)
+            return super().apply(envelope, headers)
+
+        def _inject_timestamp(self, envelope):
+            security = _wsse_utils.get_security_header(envelope)
+            wsu_q = lambda name: etree.QName(_zeep_ns.WSU, name)
+
+            # Replace any existing Timestamp so consecutive calls don't pile up.
+            for existing in security.findall(wsu_q("Timestamp")):
+                security.remove(existing)
+
+            now = datetime.now(timezone.utc).replace(microsecond=0)
+            expires_at = now + timedelta(seconds=self.TIMESTAMP_TTL_SECONDS)
+            fmt = "%Y-%m-%dT%H:%M:%SZ"
+
+            timestamp = etree.SubElement(security, wsu_q("Timestamp"))
+            _wsse_utils.ensure_id(timestamp)
+            etree.SubElement(timestamp, wsu_q("Created")).text = now.strftime(fmt)
+            etree.SubElement(timestamp, wsu_q("Expires")).text = expires_at.strftime(fmt)
 
         def verify(self, envelope):
             return envelope
@@ -264,6 +297,49 @@ def build_client(env):
     log.info("WSDL loaded successfully")
 
     return client
+
+
+def dump_wsdl_policies(env):
+    """Fetch the raw WSDL and log every WS-Policy assertion it contains.
+
+    WCF services declare their exact WS-Security expectations (which
+    elements to sign, signing algorithm, token reference style,
+    timestamp requirements, etc.) inside ``<wsp:Policy>`` elements in
+    the WSDL. Zeep parses these for transport but doesn't surface them
+    in a friendly way. Dumping the raw XML lets us read them directly.
+    """
+    cfg = load_config(env)
+    cert, key = pfx_to_pem(cfg["pfx"], cfg["password"])
+
+    session = Session()
+    session.cert = (cert, key)
+    session.verify = resolve_verify(cfg)
+    if session.verify is False:
+        session.trust_env = False
+        session.mount("https://", InsecureAdapter())
+
+    r = session.get(cfg["wsdl"], timeout=60)
+    r.raise_for_status()
+
+    from lxml import etree
+    root = etree.fromstring(r.content)
+
+    # WS-Policy and WS-SecurityPolicy namespaces
+    namespaces = {
+        "wsp":  "http://schemas.xmlsoap.org/ws/2004/09/policy",
+        "wsp2": "http://www.w3.org/ns/ws-policy",
+        "sp":   "http://schemas.xmlsoap.org/ws/2005/07/securitypolicy",
+        "sp2":  "http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702",
+    }
+
+    found = False
+    for prefix in ("wsp", "wsp2"):
+        for policy in root.iter("{%s}Policy" % namespaces[prefix]):
+            found = True
+            log.info("--- Policy ---")
+            log.info("%s", etree.tostring(policy, pretty_print=True).decode())
+    if not found:
+        log.warning("No <wsp:Policy> elements found in WSDL — service may declare policy elsewhere.")
 
 
 def inspect_required_fields(client, type_name):
@@ -446,6 +522,10 @@ def main():
     log.info("Service     : %s", client.service)
 
     list_operations(client)
+
+    # Recon: dump the WSDL's WS-Policy assertions so we can see exactly
+    # which elements the server requires signed, which algorithms, etc.
+    dump_wsdl_policies(env)
 
     # Recon: print the SecurityToken type structure so we know what
     # fields to fill in (and which are required).
