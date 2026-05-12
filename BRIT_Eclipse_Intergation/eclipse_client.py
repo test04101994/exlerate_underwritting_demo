@@ -51,32 +51,45 @@ from zeep import Client
 from zeep.transports import Transport
 
 try:
-    from zeep.wsse.signature import Signature
+    import xmlsec
+    from zeep.wsse.signature import BinarySignature
     _HAS_XMLSEC = True
 except ImportError as _xmlsec_err:
-    Signature = None
+    xmlsec = None
+    BinarySignature = None
     _HAS_XMLSEC = False
     _XMLSEC_IMPORT_ERROR = _xmlsec_err
 
 
 if _HAS_XMLSEC:
 
-    class SigningOnlySignature(Signature):
-        """WSSE Signature that signs outgoing messages but does NOT verify
-        the server's response signature.
+    class WcfSignature(BinarySignature):
+        """WSSE signature tuned for WCF interop.
 
-        BRIT's WCF service signs the request (so we must sign too), but
-        does not sign its responses. Zeep's default ``Signature`` class
-        always attempts response verification and crashes with
-        ``'NoneType' object has no attribute 'find'`` when no signature
-        element is present on the reply. Overriding ``verify`` to a no-op
-        keeps outgoing signing intact while accepting unsigned replies.
+        Differences vs. zeep's defaults:
+          * Uses RSA-SHA256 / SHA-256 instead of the deprecated RSA-SHA1.
+            Modern WCF services reject SHA-1 signatures by default.
+          * Inherits from ``BinarySignature`` so the X.509 cert ships as a
+            ``BinarySecurityToken`` element referenced by ``SecurityTokenReference``
+            (the WCF-standard placement) rather than embedded in ``KeyInfo``.
+          * Overrides ``verify`` to a no-op: BRIT signs the request but does
+            not sign the response, and zeep's default ``verify`` crashes
+            with ``'NoneType' has no attribute 'find'`` on unsigned replies.
         """
+
+        def __init__(self, key_file, certfile, password=None):
+            super().__init__(
+                key_file=key_file,
+                certfile=certfile,
+                password=password,
+                signature_method=xmlsec.Transform.RSA_SHA256,
+                digest_method=xmlsec.Transform.SHA256,
+            )
 
         def verify(self, envelope):
             return envelope
 else:
-    SigningOnlySignature = None
+    WcfSignature = None
 
 
 class InsecureAdapter(HTTPAdapter):
@@ -240,8 +253,8 @@ def build_client(env):
                 _XMLSEC_IMPORT_ERROR,
             )
             sys.exit(4)
-        wsse = SigningOnlySignature(key_file=key, certfile=cert)
-        log.info("WS-Security signature enabled (sign outgoing, skip response verification)")
+        wsse = WcfSignature(key_file=key, certfile=cert)
+        log.info("WS-Security signature enabled (BinarySecurityToken, RSA-SHA256, sign outgoing only)")
 
     try:
         client = Client(cfg["wsdl"], transport=transport, wsse=wsse)
