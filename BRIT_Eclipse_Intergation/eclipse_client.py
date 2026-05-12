@@ -300,14 +300,25 @@ def build_client(env):
 
 
 def dump_wsdl_policies(env):
-    """Fetch the raw WSDL and log every WS-Policy assertion it contains.
+    """Fetch the WSDL (plus any imports it references) and log every
+    WS-Policy assertion found.
 
-    WCF services declare their exact WS-Security expectations (which
-    elements to sign, signing algorithm, token reference style,
-    timestamp requirements, etc.) inside ``<wsp:Policy>`` elements in
-    the WSDL. Zeep parses these for transport but doesn't surface them
-    in a friendly way. Dumping the raw XML lets us read them directly.
+    WCF splits a service's WSDL across several documents — the root URL
+    (``?wsdl``) typically contains only services/bindings, and policy
+    assertions live in imported documents (``?wsdl=wsdl0``,
+    ``?wsdl=wsdl1``, etc.). This helper recursively follows
+    ``wsdl:import`` and ``xsd:import`` references so policies in any
+    imported file are surfaced.
+
+    For diagnostics it also prints, per document:
+      * URL fetched and response size
+      * Every distinct namespace declared in the document
+      * Every element whose local name contains "Policy" (catches both
+        ``wsp:Policy`` and ``wsp:PolicyReference``)
     """
+    from lxml import etree
+    from urllib.parse import urljoin
+
     cfg = load_config(env)
     cert, key = pfx_to_pem(cfg["pfx"], cfg["password"])
 
@@ -318,28 +329,70 @@ def dump_wsdl_policies(env):
         session.trust_env = False
         session.mount("https://", InsecureAdapter())
 
-    r = session.get(cfg["wsdl"], timeout=60)
-    r.raise_for_status()
+    visited = set()
+    queue = [cfg["wsdl"]]
+    total_policies = 0
 
-    from lxml import etree
-    root = etree.fromstring(r.content)
+    while queue:
+        url = queue.pop(0)
+        if url in visited:
+            continue
+        visited.add(url)
 
-    # WS-Policy and WS-SecurityPolicy namespaces
-    namespaces = {
-        "wsp":  "http://schemas.xmlsoap.org/ws/2004/09/policy",
-        "wsp2": "http://www.w3.org/ns/ws-policy",
-        "sp":   "http://schemas.xmlsoap.org/ws/2005/07/securitypolicy",
-        "sp2":  "http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702",
-    }
+        log.info("==== Fetching %s ====", url)
+        try:
+            r = session.get(url, timeout=60)
+            r.raise_for_status()
+        except Exception as e:
+            log.warning("Failed to fetch %s: %s", url, e)
+            continue
+        log.info("  Response size: %d bytes", len(r.content))
 
-    found = False
-    for prefix in ("wsp", "wsp2"):
-        for policy in root.iter("{%s}Policy" % namespaces[prefix]):
-            found = True
-            log.info("--- Policy ---")
-            log.info("%s", etree.tostring(policy, pretty_print=True).decode())
-    if not found:
-        log.warning("No <wsp:Policy> elements found in WSDL — service may declare policy elsewhere.")
+        try:
+            root = etree.fromstring(r.content)
+        except Exception as e:
+            log.warning("  Could not parse XML: %s", e)
+            continue
+
+        # Distinct namespaces actually present in this document.
+        ns_used = set()
+        for el in root.iter():
+            if isinstance(el.tag, str) and el.tag.startswith("{"):
+                ns_used.add(el.tag.split("}", 1)[0][1:])
+        log.info("  Namespaces in document: %s", sorted(ns_used))
+
+        # Anything Policy-shaped, regardless of namespace.
+        policy_like = [
+            el for el in root.iter()
+            if isinstance(el.tag, str) and "Policy" in el.tag.split("}", 1)[-1]
+        ]
+        for el in policy_like:
+            local = el.tag.split("}", 1)[-1]
+            log.info("  --- Found <%s> ---", local)
+            log.info("%s", etree.tostring(el, pretty_print=True).decode())
+            total_policies += 1
+
+        # Queue up any imports so we descend into them.
+        for imp_tag in (
+            "{http://schemas.xmlsoap.org/wsdl/}import",
+            "{http://www.w3.org/2001/XMLSchema}import",
+            "{http://www.w3.org/2001/XMLSchema}include",
+        ):
+            for imp in root.iter(imp_tag):
+                loc = imp.get("location") or imp.get("schemaLocation")
+                if loc:
+                    queue.append(urljoin(url, loc))
+
+    if total_policies == 0:
+        log.warning(
+            "No <Policy> / <PolicyReference> elements found across %d "
+            "document(s). The service may publish policy via MEX "
+            "(Metadata Exchange) at <serviceurl>/mex instead of inline "
+            "WSDL — ask BRIT for the security policy spec.",
+            len(visited),
+        )
+    else:
+        log.info("Total Policy-shaped elements found: %d across %d documents", total_policies, len(visited))
 
 
 def inspect_required_fields(client, type_name):
