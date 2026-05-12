@@ -3595,7 +3595,7 @@ PRE-1778237836139-raiilx0l,5,Submission Summarization Agent,submission_summary,p
 PRE-1778237836139-raiilx0l,6,Peer-to-Peer Policy Comparison Agent,policy_comparison,pending,0,{},2026-05-08T10:57:16.296Z,2026-05-08T10:57:16.296Z
 PRE-1778237836139-raiilx0l,7,Premium Generator Agent,premium_generator,pending,0,{},2026-05-08T10:57:16.331Z,2026-05-08T10:57:16.331Z
 PRE-1778237931143-o08say8f,8,Submissions Extraction Agent,submissions_extractor,pending,0,{},2026-05-08T10:58:51.175Z,2026-05-08T10:58:51.175Z
-PRE-1778237931143-o08say8f,9,Sanctions Checker Agent,sanctions_screen,pending,0,{},2026-05-08T10:58:51.196Z,2026-05-08T10:58:51.196Z
+PRE-1778237931143-o08say8f,9,Sanctions Checker Agent,sanctions_screen,completed,100,"{""agent_name"":""Sanctions Checker Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Sanctions Checker Agent completed successfully with AI processing""}",2026-05-08T10:58:51.196Z,2026-05-08T17:20:14.415Z
 PRE-1778237931143-o08say8f,10,Data Completeness Checker Agent,data_completeness_checker,pending,0,{},2026-05-08T10:58:51.226Z,2026-05-08T10:58:51.226Z
 PRE-1778237931143-o08say8f,11,Risk Prioritization Agent,risk_prioritization,completed,100,"{""agent_name"":""Risk Prioritization Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Risk Prioritization Agent completed successfully with AI processing""}",2026-05-08T10:58:51.244Z,2026-05-08T10:59:27.760Z
 PRE-1778237931143-o08say8f,12,Submission Summarization Agent,submission_summary,pending,0,{},2026-05-08T10:58:51.279Z,2026-05-08T10:58:51.279Z
