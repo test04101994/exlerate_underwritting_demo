@@ -208,6 +208,42 @@ def build_client(env):
     return client
 
 
+def inspect_required_fields(client, type_name):
+    """Log each field of a complex type with its required/optional status.
+
+    Reads ``minOccurs`` and ``nillable`` from the underlying XSD via zeep's
+    type introspection. Convention:
+
+    * ``minOccurs >= 1`` and ``nillable=false`` -> **REQUIRED** (server will reject if missing).
+    * ``minOccurs = 0`` -> optional (can omit the field entirely).
+    * ``nillable=true`` -> may be present but explicitly null.
+
+    Args:
+        client: A constructed ``zeep.Client``.
+        type_name: Type name, e.g. ``"ns4:SecurityToken"``.
+    """
+    try:
+        t = client.get_type(type_name)
+    except Exception as e:
+        log.warning("Type %s not found: %s", type_name, e)
+        return
+    log.info("Field requirements for %s:", type_name)
+    for name, element in t.elements:
+        min_occurs = getattr(element, "min_occurs", "?")
+        max_occurs = getattr(element, "max_occurs", "?")
+        nillable = getattr(element, "nillable", False)
+        is_required = (min_occurs not in (0, "0")) and not nillable
+        status = "REQUIRED" if is_required else "optional"
+        log.info(
+            "  %-20s  %-30s  minOccurs=%s  nillable=%s  -> %s",
+            name,
+            getattr(element.type, "name", element.type),
+            min_occurs,
+            nillable,
+            status,
+        )
+
+
 def inspect_type(client, type_name):
     """Log the field structure of a complex type defined in the WSDL.
 
@@ -227,6 +263,36 @@ def inspect_type(client, type_name):
         return
     log.info("Type %s -> %s", type_name, t)
     log.info("  Signature: %s", t.signature())
+
+
+def build_security_token(client, env):
+    """Construct the per-env ``SecurityToken`` SOAP object from config.
+
+    The four fields (EclipseUserId, Id, IsExternal, Type) live in
+    ``config.json`` under each env's ``security_token`` block so dev/uat/prod
+    can carry different integration identities without code changes.
+
+    Args:
+        client: A constructed ``zeep.Client`` (used to resolve the type).
+        env: One of ``"dev"``, ``"uat"``, ``"prod"``.
+
+    Returns:
+        A ``SecurityToken`` instance ready to pass into any SOAP operation.
+    """
+    cfg = load_config(env)
+    token_cfg = cfg.get("security_token") or {}
+    SecurityToken = client.get_type("ns4:SecurityToken")
+    token = SecurityToken(
+        EclipseUserId=token_cfg.get("EclipseUserId", ""),
+        Id=token_cfg.get("Id", 0),
+        IsExternal=token_cfg.get("IsExternal", True),
+        Type=token_cfg.get("Type", "External"),
+    )
+    if not token_cfg.get("EclipseUserId"):
+        log.warning("security_token.EclipseUserId is empty in config — fill it in before real calls.")
+    log.info("SecurityToken: EclipseUserId=%r Id=%s IsExternal=%s Type=%r",
+             token.EclipseUserId, token.Id, token.IsExternal, token.Type)
+    return token
 
 
 def try_operation(client, operation_name, **kwargs):
@@ -310,7 +376,9 @@ def main():
     # Recon: print the SecurityToken type structure so we know what
     # fields to fill in (and which are required).
     inspect_type(client, "ns4:SecurityToken")
+    inspect_required_fields(client, "ns4:SecurityToken")
     inspect_type(client, "ns1:Policy")
+    inspect_required_fields(client, "ns1:Policy")
 
     # Probe: call GetPolicy with a minimal payload and see what the server
     # says. Outcomes:
@@ -318,13 +386,13 @@ def main():
     #   - "Token required"   → need real auth credentials from BRIT.
     #   - "Policy not found" → auth worked! Just need a real PolicyId.
     #   - anything else      → log tells us what to adjust.
-    SecurityToken = client.get_type("ns4:SecurityToken")
     Policy = client.get_type("ns1:Policy")
+    token = build_security_token(client, env)
     try_operation(
         client,
         "GetPolicy",
-        Policy=Policy(),  # empty Policy — we expect server to reject and tell us why
-        SecurityToken=SecurityToken(),  # empty token — same idea
+        Policy=Policy(Id=1),  # arbitrary Id — replace with a real test PolicyId from BRIT
+        SecurityToken=token,
     )
     # log.info("Result: %s", result)
 
