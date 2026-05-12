@@ -59,6 +59,26 @@ except ImportError as _xmlsec_err:
     _XMLSEC_IMPORT_ERROR = _xmlsec_err
 
 
+if _HAS_XMLSEC:
+
+    class SigningOnlySignature(Signature):
+        """WSSE Signature that signs outgoing messages but does NOT verify
+        the server's response signature.
+
+        BRIT's WCF service signs the request (so we must sign too), but
+        does not sign its responses. Zeep's default ``Signature`` class
+        always attempts response verification and crashes with
+        ``'NoneType' object has no attribute 'find'`` when no signature
+        element is present on the reply. Overriding ``verify`` to a no-op
+        keeps outgoing signing intact while accepting unsigned replies.
+        """
+
+        def verify(self, envelope):
+            return envelope
+else:
+    SigningOnlySignature = None
+
+
 class InsecureAdapter(HTTPAdapter):
     """HTTPS adapter that forces an unverified TLS context.
 
@@ -220,8 +240,8 @@ def build_client(env):
                 _XMLSEC_IMPORT_ERROR,
             )
             sys.exit(4)
-        wsse = Signature(key_file=key, certfile=cert)
-        log.info("WS-Security signature enabled (signing SOAP body with client cert)")
+        wsse = SigningOnlySignature(key_file=key, certfile=cert)
+        log.info("WS-Security signature enabled (sign outgoing, skip response verification)")
 
     try:
         client = Client(cfg["wsdl"], transport=transport, wsse=wsse)
@@ -336,6 +356,11 @@ def try_operation(client, operation_name, **kwargs):
     if op is None:
         log.error("Operation %s not found on client.service", operation_name)
         return None
+    # Capture the raw SOAP envelope on both sides — invaluable when the
+    # parsed response is opaque or when a fault leaves us guessing.
+    from zeep.plugins import HistoryPlugin
+    history = HistoryPlugin()
+    client.plugins = (client.plugins or []) + [history]
     try:
         result = op(**kwargs)
         log.info("%s returned: %s", operation_name, result)
@@ -343,6 +368,17 @@ def try_operation(client, operation_name, **kwargs):
     except Exception as e:
         log.exception("%s raised: %s", operation_name, e)
         return None
+    finally:
+        try:
+            from lxml import etree
+            if history.last_sent:
+                log.info("Last SOAP request:\n%s",
+                         etree.tostring(history.last_sent["envelope"], pretty_print=True).decode())
+            if history.last_received:
+                log.info("Last SOAP response:\n%s",
+                         etree.tostring(history.last_received["envelope"], pretty_print=True).decode())
+        except Exception:
+            pass
 
 
 def list_operations(client):
