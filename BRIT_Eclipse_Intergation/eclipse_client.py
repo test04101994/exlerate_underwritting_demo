@@ -333,6 +333,14 @@ def dump_wsdl_policies(env):
     queue = [cfg["wsdl"]]
     total_policies = 0
 
+    here = os.path.dirname(os.path.abspath(__file__))
+    dump_path = os.path.join(here, "wsdl_dump.txt")
+    dump_file = open(dump_path, "w")
+    log.info(">>> dump_wsdl_policies starting — writing full output to %s", dump_path)
+
+    def write(line):
+        dump_file.write(line + "\n")
+
     while queue:
         url = queue.pop(0)
         if url in visited:
@@ -340,13 +348,16 @@ def dump_wsdl_policies(env):
         visited.add(url)
 
         log.info("==== Fetching %s ====", url)
+        write("\n==== Fetching %s ====" % url)
         try:
             r = session.get(url, timeout=60)
             r.raise_for_status()
         except Exception as e:
             log.warning("Failed to fetch %s: %s", url, e)
+            write("FAILED: %s" % e)
             continue
         log.info("  Response size: %d bytes", len(r.content))
+        write("  Response size: %d bytes" % len(r.content))
 
         try:
             root = etree.fromstring(r.content)
@@ -360,6 +371,7 @@ def dump_wsdl_policies(env):
             if isinstance(el.tag, str) and el.tag.startswith("{"):
                 ns_used.add(el.tag.split("}", 1)[0][1:])
         log.info("  Namespaces in document: %s", sorted(ns_used))
+        write("  Namespaces in document: %s" % sorted(ns_used))
 
         # Anything Policy-shaped, regardless of namespace.
         policy_like = [
@@ -369,7 +381,10 @@ def dump_wsdl_policies(env):
         for el in policy_like:
             local = el.tag.split("}", 1)[-1]
             log.info("  --- Found <%s> ---", local)
-            log.info("%s", etree.tostring(el, pretty_print=True).decode())
+            write("  --- Found <%s> ---" % local)
+            xml = etree.tostring(el, pretty_print=True).decode()
+            log.info("%s", xml)
+            write(xml)
             total_policies += 1
 
         # Queue up any imports so we descend into them.
@@ -384,15 +399,21 @@ def dump_wsdl_policies(env):
                     queue.append(urljoin(url, loc))
 
     if total_policies == 0:
-        log.warning(
+        msg = (
             "No <Policy> / <PolicyReference> elements found across %d "
             "document(s). The service may publish policy via MEX "
             "(Metadata Exchange) at <serviceurl>/mex instead of inline "
-            "WSDL — ask BRIT for the security policy spec.",
-            len(visited),
+            "WSDL — ask BRIT for the security policy spec." % len(visited)
         )
+        log.warning(msg)
+        write(msg)
     else:
-        log.info("Total Policy-shaped elements found: %d across %d documents", total_policies, len(visited))
+        msg = "Total Policy-shaped elements found: %d across %d documents" % (total_policies, len(visited))
+        log.info(msg)
+        write(msg)
+
+    dump_file.close()
+    log.info(">>> Wrote WSDL dump to %s", dump_path)
 
 
 def inspect_required_fields(client, type_name):
