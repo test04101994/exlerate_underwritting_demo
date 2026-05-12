@@ -2,19 +2,10 @@
 """
 Simple connectivity tester.
 
-Performs a single HTTPS ``GET`` against the configured health endpoint
-using the per-environment PFX client certificate, to verify that the
-mutual-TLS handshake succeeds before attempting any real SOAP traffic.
-
 Usage:
-    python test_connectivity.py            # defaults to dev
     python test_connectivity.py dev
     python test_connectivity.py uat
     python test_connectivity.py prod
-
-Exit codes:
-    0  endpoint returned 2xx
-    1  any failure (bad args, PFX load, network, non-2xx response)
 """
 
 import json
@@ -32,22 +23,11 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-    stream=sys.stdout,
 )
 log = logging.getLogger("connectivity")
 
 
 def pfx_to_pem(pfx_path, password):
-    """Convert a PKCS#12 (.pfx) bundle into separate PEM cert and key files.
-
-    Args:
-        pfx_path: Filesystem path to the .pfx file.
-        password: Password used to decrypt the PFX bundle.
-
-    Returns:
-        Tuple ``(cert_pem_path, key_pem_path)``. The caller is responsible
-        for deleting both files when finished (see ``main``).
-    """
     with open(pfx_path, "rb") as f:
         key, cert, extra = pkcs12.load_key_and_certificates(f.read(), password.encode())
 
@@ -69,20 +49,11 @@ def pfx_to_pem(pfx_path, password):
 
 
 def main():
-    """Entry point: parse the env argument and run the connectivity probe.
-
-    Defaults to ``dev`` when no argument is supplied. Exits with code 1
-    on any failure, code 0 only if the endpoint returns a 2xx response.
-    """
-    if len(sys.argv) == 1:
-        env = "dev"
-        log.info("No environment supplied — defaulting to 'dev'")
-    elif len(sys.argv) == 2 and sys.argv[1] in ("dev", "uat", "prod"):
-        env = sys.argv[1]
-    else:
-        log.error("Usage: python test_connectivity.py [dev|uat|prod]  (default: dev)")
+    if len(sys.argv) != 2 or sys.argv[1] not in ("dev", "uat", "prod"):
+        log.error("Usage: python test_connectivity.py [dev|uat|prod]")
         sys.exit(1)
 
+    env = sys.argv[1]
     here = os.path.dirname(os.path.abspath(__file__))
 
     with open(os.path.join(here, "config.json")) as f:
