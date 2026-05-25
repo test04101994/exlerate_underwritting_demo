@@ -79,7 +79,9 @@
       "Bash(awk '/^  async function executeAgent/,/^  \\\\/\\\\/ Execute /' /Users/parasghai/Downloads/eewew/project-backup-2/server/routes.ts)",
       "Bash(curl -s \"http://localhost:3001/api/claims-forms/data-extraction-config?agentType=invoice_validation\")",
       "Bash(lsof -ti:3001)",
-      "Bash(xargs kill *)"
+      "Bash(xargs kill *)",
+      "Bash(awk 'BEGIN{FS=\",\";OFS=\",\"} NR==1{print $0\",risk_decision\"; next} {print $0\",\"}' /Users/parasghai/Downloads/eewew/project-backup-2/data/csv/dashboard-cases.csv)",
+      "Bash(mv /tmp/dashboard-cases.new.csv /Users/parasghai/Downloads/eewew/project-backup-2/data/csv/dashboard-cases.csv)"
     ]
   }
 }

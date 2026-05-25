@@ -21235,3 +21235,14 @@ Status: completed
 Progress: 100%
 Confidence: 0.85
 Output: {""agent_name"":""Sanctions Checker Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Sanctions Checker Agent completed successfully with AI processing""}",completed,medium,2026-05-08T17:20:14.415Z,2026-05-08T17:20:14.449Z,2026-05-08T17:20:14.449Z
+PRB-2026-001,PRE-1779713395427-av7crwam,system_event,System,system,Workflow Started,Pre-Bind Submission — PRB-2026-001 workflow initiated,"Workflow Type: pre_bind
+Case ID: PRB-2026-001
+Total Steps: 7",completed,medium,2026-05-25T12:49:55.427Z,2026-05-25T12:49:55.439Z,2026-05-25T12:49:55.439Z
+PRB-2026-001,PRE-1779713395427-av7crwam,agent_execution,Risk Prioritization Agent,agent,Risk Prioritization Agent Started,Agent processing started for risk_prioritization,"Agent Type: risk_prioritization
+Status: started
+Progress: 0%",completed,medium,2026-05-25T12:49:57.819Z,2026-05-25T12:49:57.846Z,2026-05-25T12:49:57.846Z
+PRB-2026-001,PRE-1779713395427-av7crwam,agent_execution,Risk Prioritization Agent,agent,Risk Prioritization Agent Completed,Agent successfully completed processing,"Agent: Risk Prioritization Agent
+Status: completed
+Progress: 100%
+Confidence: 0.85
+Output: {""agent_name"":""Risk Prioritization Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Risk Prioritization Agent completed successfully with AI processing""}",completed,medium,2026-05-25T12:50:31.975Z,2026-05-25T12:50:32.004Z,2026-05-25T12:50:32.004Z

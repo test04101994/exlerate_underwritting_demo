@@ -162,41 +162,125 @@ function RegenerateSummaryPicker({ sessionId, currentLength }: { sessionId?: str
 // Risk Prioritization → "Underwriter Review"). Clicking POSTs the response
 // to /decision-response which appends a confirmation message in chat.
 function AcceptRejectDecisionPicker({ sessionId, decisionAgent }: { sessionId?: string; decisionAgent: string }) {
-  const [done, setDone] = useState<'accept' | 'reject' | null>(null);
-  const onPick = async (action: 'accept' | 'reject') => {
-    if (!sessionId || done) return;
-    setDone(action);
+  type Override = 'Underwriter Review' | 'Decline' | 'Quote';
+  const [done, setDone] = useState<{ action: 'accept' | 'reject'; decision: string } | null>(null);
+  const [mode, setMode] = useState<'idle' | 'choosing'>('idle');
+  const [busy, setBusy] = useState(false);
+
+  const recommendedDecision = decisionAgent === 'risk_prioritization' ? 'Underwriter Review' : '';
+
+  const accept = async () => {
+    if (!sessionId || busy) return;
+    setBusy(true);
     try {
       await fetch(`/api/workflows/${sessionId}/decision-response`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ decisionAgent, action }),
+        body: JSON.stringify({ decisionAgent, action: 'accept' }),
       });
+      setDone({ action: 'accept', decision: recommendedDecision });
     } catch (e) {
-      console.error('[Decision Response] failed:', e);
+      console.error('[Decision Response] accept failed:', e);
+    } finally {
+      setBusy(false);
     }
   };
+
+  const reject = async (newDecision: Override) => {
+    if (!sessionId || busy) return;
+    setBusy(true);
+    try {
+      await fetch(`/api/workflows/${sessionId}/decision-response`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decisionAgent, action: 'reject', newDecision }),
+      });
+      setDone({ action: 'reject', decision: newDecision });
+    } catch (e) {
+      console.error('[Decision Response] reject failed:', e);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   if (done) {
     return (
       <div className="mt-3 mb-1 px-3 py-2 rounded-lg border border-border bg-muted/30 text-xs text-muted-foreground">
-        {done === 'accept' ? '✅ Decision accepted — confirmation posted in chat below.' : '❌ Decision rejected — override posted in chat below.'}
+        {done.action === 'accept'
+          ? <>✅ Accepted — routed as <strong>{done.decision}</strong>. Dashboard updated.</>
+          : <>❌ Overridden — routed as <strong>{done.decision}</strong>. Dashboard updated.</>}
       </div>
     );
   }
+
+  // Override picker — show 3 routing options, disable the agent's recommended one
+  if (mode === 'choosing') {
+    const overrideOptions: Array<{ key: Override; label: string; sub: string; tone: 'review' | 'decline' | 'quote'; emoji: string }> = [
+      { key: 'Underwriter Review', label: 'Underwriter Review', sub: 'Route for manual review', tone: 'review', emoji: '⚠️' },
+      { key: 'Decline', label: 'Decline', sub: 'Reject the submission', tone: 'decline', emoji: '✕' },
+      { key: 'Quote', label: 'Quote', sub: 'Proceed to quotation', tone: 'quote', emoji: '✓' },
+    ];
+    return (
+      <div className="mt-3 mb-1 p-4 rounded-xl border-2 border-blue-200 dark:border-blue-900 bg-blue-50/40 dark:bg-blue-950/20 shadow-sm">
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-sm font-semibold text-foreground">Override the routing — pick a new decision</div>
+          <button
+            type="button"
+            onClick={() => setMode('idle')}
+            disabled={busy}
+            className="text-xs text-muted-foreground hover:text-foreground hover:underline"
+          >
+            ← back
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+          {overrideOptions.map(o => {
+            const isRecommended = o.key === recommendedDecision;
+            const tone =
+              o.tone === 'decline'
+                ? 'bg-red-600 hover:bg-red-700 text-white shadow-sm shadow-red-600/30 hover:shadow-md hover:shadow-red-600/40 border-2 border-red-600'
+              : o.tone === 'quote'
+                ? 'bg-green-600 hover:bg-green-700 text-white shadow-sm shadow-green-600/30 hover:shadow-md hover:shadow-green-600/40 border-2 border-green-600'
+                : 'bg-amber-500 hover:bg-amber-600 text-white shadow-sm shadow-amber-500/30 hover:shadow-md hover:shadow-amber-500/40 border-2 border-amber-500';
+            return (
+              <button
+                key={o.key}
+                type="button"
+                disabled={busy || isRecommended}
+                onClick={() => reject(o.key)}
+                title={isRecommended ? "This is the agent's recommendation — use Accept above." : ''}
+                className={`group flex flex-col items-start gap-1 px-4 py-3 rounded-lg text-sm font-semibold transition-all text-left ${tone} ${isRecommended ? 'opacity-40 cursor-not-allowed grayscale' : 'hover:-translate-y-0.5 active:translate-y-0'} ${busy ? 'cursor-wait opacity-70' : ''}`}
+              >
+                <div className="flex items-center gap-1.5 text-sm">
+                  <span className="text-base leading-none">{o.emoji}</span>
+                  <span>{o.label}</span>
+                  {isRecommended && <span className="ml-1 text-[9px] uppercase tracking-wider font-bold bg-white/20 px-1.5 py-0.5 rounded">recommended</span>}
+                </div>
+                <span className="text-[11px] font-normal opacity-90">{o.sub}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-3 mb-1 px-3 py-2.5 rounded-lg border border-border bg-muted/30">
       <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-2">Accept the routing, or override?</div>
       <div className="flex flex-wrap gap-1.5">
         <button
           type="button"
-          onClick={() => onPick('accept')}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-green-600 text-white shadow-sm shadow-green-600/20 hover:bg-green-700 hover:shadow-md transition-all"
+          onClick={accept}
+          disabled={busy}
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-green-600 text-white shadow-sm shadow-green-600/20 hover:bg-green-700 hover:shadow-md transition-all ${busy ? 'cursor-wait opacity-70' : ''}`}
         >
           <span>✓ Accept decision</span>
         </button>
         <button
           type="button"
-          onClick={() => onPick('reject')}
+          onClick={() => setMode('choosing')}
+          disabled={busy}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-card border border-destructive/40 text-destructive hover:bg-destructive/10 transition-all"
         >
           <span>✕ Reject / override</span>

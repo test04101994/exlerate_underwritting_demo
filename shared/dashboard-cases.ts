@@ -1,9 +1,11 @@
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+
+export type RiskDecision = 'Underwriter Review' | 'Decline' | 'Quote' | '';
 
 export interface DashboardCase {
   case_id: string;
-  case_type: 'submission' | 'slip' | 'claim';
+  case_type: 'submission' | 'slip' | 'claim' | 'pre_bind';
   business_name: string;
   policy_type: string;
   submission_date: string;
@@ -19,6 +21,7 @@ export interface DashboardCase {
   email_subject: string;
   created_at: string;
   updated_at: string;
+  risk_decision?: RiskDecision;
 }
 
 // Function to parse CSV data
@@ -84,6 +87,49 @@ export function loadDashboardCases(): DashboardCase[] {
   } catch (error) {
     console.error('Error loading dashboard cases from CSV:', error);
     return [];
+  }
+}
+
+// Update the risk_decision column on a case in the CSV. Returns true on success.
+// Used by the Risk Prioritization Accept/Reject flow to persist the underwriter's
+// final routing (Underwriter Review / Decline / Quote) so the dashboard buckets
+// stay in sync with what was signed off.
+export function setCaseRiskDecision(caseId: string, decision: RiskDecision): boolean {
+  try {
+    const csvPath = join(process.cwd(), 'data/csv', 'dashboard-cases.csv');
+    const csvContent = readFileSync(csvPath, 'utf-8');
+    const lines = csvContent.split('\n');
+    if (lines.length < 2) return false;
+
+    const headers = parseCSVLine(lines[0]);
+    const decisionIdx = headers.indexOf('risk_decision');
+    if (decisionIdx === -1) return false;
+
+    let updated = false;
+    const escapeCsv = (v: string) => v.includes(',') || v.includes('"') || v.includes('\n') ? `"${v.replace(/"/g, '""')}"` : v;
+
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue;
+      const values = parseCSVLine(lines[i]);
+      if (values[0] === caseId) {
+        // Ensure the values array is at least as long as headers
+        while (values.length < headers.length) values.push('');
+        values[decisionIdx] = decision;
+        // Bump updated_at too so the dashboard reflects the change order
+        const updatedAtIdx = headers.indexOf('updated_at');
+        if (updatedAtIdx !== -1) values[updatedAtIdx] = new Date().toISOString();
+        lines[i] = values.map(v => escapeCsv(v ?? '')).join(',');
+        updated = true;
+        break;
+      }
+    }
+
+    if (!updated) return false;
+    writeFileSync(csvPath, lines.join('\n'), 'utf-8');
+    return true;
+  } catch (error) {
+    console.error('Error updating risk_decision on case:', error);
+    return false;
   }
 }
 

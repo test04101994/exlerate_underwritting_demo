@@ -3823,22 +3823,44 @@ Please respond with your choice: send, edit, or discard`,
 
   // Accept / reject the Risk Prioritization Agent's decision. Triggered by the
   // Accept / Reject buttons in chat messages tagged with [ACCEPT_REJECT_DECISION:*].
+  // On accept: persists the agent's recommended decision to the CSV.
+  // On reject: requires newDecision (Underwriter Review | Decline | Quote) and
+  // overwrites the CSV row, so the dashboard buckets stay in sync.
   app.post('/api/workflows/:sessionId/decision-response', async (req, res) => {
     try {
       const { sessionId } = req.params;
-      const { decisionAgent, action, note } = req.body as { decisionAgent: string; action: 'accept' | 'reject'; note?: string };
+      const { decisionAgent, action, newDecision, note } = req.body as {
+        decisionAgent: string;
+        action: 'accept' | 'reject';
+        newDecision?: 'Underwriter Review' | 'Decline' | 'Quote';
+        note?: string;
+      };
       if (!decisionAgent || !['accept', 'reject'].includes(action)) {
         return res.status(400).json({ error: 'decisionAgent and action (accept|reject) are required' });
       }
+      if (action === 'reject' && !newDecision) {
+        return res.status(400).json({ error: 'newDecision is required when action is reject' });
+      }
+
+      const session = await storage.getWorkflowSession(sessionId);
+      const caseId = session?.caseId;
 
       const agentLabel = decisionAgent === 'risk_prioritization'
         ? 'Risk Prioritization Agent'
         : decisionAgent;
-      const decisionLabel = decisionAgent === 'risk_prioritization' ? 'Underwriter Review' : 'decision';
+      const agentDefault = decisionAgent === 'risk_prioritization' ? 'Underwriter Review' : '';
+      const finalDecision = (action === 'accept' ? agentDefault : newDecision) as 'Underwriter Review' | 'Decline' | 'Quote' | '';
+
+      // Persist to the dashboard CSV so the bucket counts update
+      let persisted = false;
+      if (caseId && finalDecision) {
+        const { setCaseRiskDecision } = await import('../shared/dashboard-cases');
+        persisted = setCaseRiskDecision(caseId, finalDecision);
+      }
 
       const content = action === 'accept'
-        ? `✅ **Decision accepted** — ${agentLabel} routing of "${decisionLabel}" confirmed by underwriter${note ? ` · note: _${note}_` : ''}.`
-        : `❌ **Decision rejected** — ${agentLabel} routing of "${decisionLabel}" overridden by underwriter${note ? ` · reason: _${note}_` : ''}. Workflow will continue under manual control.`;
+        ? `✅ **Decision accepted** — ${agentLabel} routing of "${agentDefault}" confirmed by underwriter${note ? ` · note: _${note}_` : ''}.${persisted ? ` Dashboard updated.` : ''}`
+        : `❌ **Decision overridden** — underwriter routed this submission to "**${newDecision}**" instead of the recommended "${agentDefault}"${note ? ` · reason: _${note}_` : ''}.${persisted ? ` Dashboard updated.` : ''}`;
 
       const message = await storage.createMessage({
         sessionId,
@@ -3849,7 +3871,7 @@ Please respond with your choice: send, edit, or discard`,
       } as any);
 
       io.to(sessionId).emit('messageAdded', { sessionId });
-      res.json({ success: true, messageId: message.id });
+      res.json({ success: true, messageId: message.id, decision: finalDecision, persisted });
     } catch (error) {
       console.error('[Decision Response] Error:', error);
       res.status(500).json({ error: 'Failed to record decision response' });

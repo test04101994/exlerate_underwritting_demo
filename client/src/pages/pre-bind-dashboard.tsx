@@ -21,6 +21,8 @@ import {
   Calculator,
   GitCompare,
   ClipboardList,
+  AlertCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -128,6 +130,7 @@ export default function PreBindDashboard() {
         emailSubject: dc.email_subject,
         createdAt: dc.created_at,
         updatedAt: dc.updated_at,
+        riskDecision: (dc.risk_decision || '') as '' | 'Underwriter Review' | 'Decline' | 'Quote',
       }));
   }, [dashboardCases]);
 
@@ -169,7 +172,14 @@ export default function PreBindDashboard() {
     const screening = preBindCases.filter(c => ['Risk Prioritization', 'Sanctions Check'].includes(getPreBindStage(c.status, c.agentProgress))).length;
     const pricing = preBindCases.filter(c => ['Submission Summary', 'Premium Generation', 'Policy Comparison', 'Quote Review'].includes(getPreBindStage(c.status, c.agentProgress))).length;
     const bound = preBindCases.filter(c => getPreBindStage(c.status, c.agentProgress) === 'Bound').length;
-    return { total, intake, screening, pricing, bound };
+    // Risk routing buckets — populated when the underwriter Accepts / Overrides
+    // the Risk Prioritization Agent's decision. Cases without a stored decision
+    // sit in "Awaiting routing" (not shown as a bucket; reflected in the gap
+    // between Total and the sum of the 3 buckets).
+    const underwriterReview = preBindCases.filter(c => (c as any).riskDecision === 'Underwriter Review').length;
+    const decline = preBindCases.filter(c => (c as any).riskDecision === 'Decline').length;
+    const quote = preBindCases.filter(c => (c as any).riskDecision === 'Quote').length;
+    return { total, intake, screening, pricing, bound, underwriterReview, decline, quote };
   }, [preBindCases]);
 
   const logoutMutation = useMutation({
@@ -286,7 +296,10 @@ export default function PreBindDashboard() {
           </div>
 
           <div className="px-6 py-6 overflow-auto flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-6">
+            {/* Single-row dashboard: Total + 3 Risk Prioritization routing buckets.
+                Bucket counts update live each time a decision is Accepted / Overridden
+                on the Risk Prioritization Agent against a pre-bind case. */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total Submissions</CardTitle>
@@ -297,44 +310,34 @@ export default function PreBindDashboard() {
                   <p className="text-xs text-muted-foreground">Open submissions in pipeline</p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="border-amber-200 dark:border-amber-900">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Intake</CardTitle>
-                  <FileText className="h-4 w-4 text-blue-600" />
+                  <CardTitle className="text-sm font-medium">Underwriter Review</CardTitle>
+                  <AlertCircle className="h-4 w-4 text-amber-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-blue-600">{stats.intake}</div>
-                  <p className="text-xs text-muted-foreground">Awaiting first review</p>
+                  <div className="text-2xl font-bold text-amber-600">{stats.underwriterReview}</div>
+                  <p className="text-xs text-muted-foreground">Routed for manual review</p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="border-red-200 dark:border-red-900">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Screening</CardTitle>
-                  <ShieldCheck className="h-4 w-4 text-cyan-600" />
+                  <CardTitle className="text-sm font-medium">Decline</CardTitle>
+                  <AlertTriangle className="h-4 w-4 text-red-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-cyan-600">{stats.screening}</div>
-                  <p className="text-xs text-muted-foreground">Risk &amp; sanctions</p>
+                  <div className="text-2xl font-bold text-red-600">{stats.decline}</div>
+                  <p className="text-xs text-muted-foreground">Submission declined</p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="border-green-200 dark:border-green-900">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Pricing</CardTitle>
-                  <Calculator className="h-4 w-4 text-purple-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-purple-600">{stats.pricing}</div>
-                  <p className="text-xs text-muted-foreground">Premium &amp; comparison</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Bound</CardTitle>
+                  <CardTitle className="text-sm font-medium">Quote</CardTitle>
                   <CheckCircle className="h-4 w-4 text-green-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-green-600">{stats.bound}</div>
-                  <p className="text-xs text-muted-foreground">On-risk</p>
+                  <div className="text-2xl font-bold text-green-600">{stats.quote}</div>
+                  <p className="text-xs text-muted-foreground">Cleared to quote</p>
                 </CardContent>
               </Card>
             </div>

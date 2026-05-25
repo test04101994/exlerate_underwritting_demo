@@ -3601,3 +3601,10 @@ PRE-1778237931143-o08say8f,11,Risk Prioritization Agent,risk_prioritization,comp
 PRE-1778237931143-o08say8f,12,Submission Summarization Agent,submission_summary,pending,0,{},2026-05-08T10:58:51.279Z,2026-05-08T10:58:51.279Z
 PRE-1778237931143-o08say8f,13,Peer-to-Peer Policy Comparison Agent,policy_comparison,pending,0,{},2026-05-08T10:58:51.300Z,2026-05-08T10:58:51.300Z
 PRE-1778237931143-o08say8f,14,Premium Generator Agent,premium_generator,pending,0,{},2026-05-08T10:58:51.342Z,2026-05-08T10:58:51.342Z
+PRE-1779713395427-av7crwam,1,Submissions Extraction Agent,submissions_extractor,pending,0,{},2026-05-25T12:49:55.450Z,2026-05-25T12:49:55.450Z
+PRE-1779713395427-av7crwam,2,Sanctions Checker Agent,sanctions_screen,pending,0,{},2026-05-25T12:49:55.484Z,2026-05-25T12:49:55.484Z
+PRE-1779713395427-av7crwam,3,Data Completeness Checker Agent,data_completeness_checker,pending,0,{},2026-05-25T12:49:55.501Z,2026-05-25T12:49:55.501Z
+PRE-1779713395427-av7crwam,4,Risk Prioritization Agent,risk_prioritization,completed,100,"{""agent_name"":""Risk Prioritization Agent"",""status"":""completed"",""confidence"":0.95,""summary"":""Risk Prioritization Agent completed successfully with AI processing""}",2026-05-25T12:49:55.528Z,2026-05-25T12:50:31.975Z
+PRE-1779713395427-av7crwam,5,Submission Summarization Agent,submission_summary,pending,0,{},2026-05-25T12:49:55.555Z,2026-05-25T12:49:55.555Z
+PRE-1779713395427-av7crwam,6,Peer-to-Peer Policy Comparison Agent,policy_comparison,pending,0,{},2026-05-25T12:49:55.575Z,2026-05-25T12:49:55.575Z
+PRE-1779713395427-av7crwam,7,Premium Generator Agent,premium_generator,pending,0,{},2026-05-25T12:49:55.590Z,2026-05-25T12:49:55.590Z
