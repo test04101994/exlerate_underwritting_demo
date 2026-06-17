@@ -1,0 +1,14 @@
+{
+  "DocumentMetadata": { "Pages": 1 },
+  "Blocks": [
+    { "BlockType": "PAGE", "Id": "p1", "Page": 1 },
+    { "BlockType": "LINE", "Id": "l1", "Page": 1, "Text": "LOSS RUN REPORT" },
+    { "BlockType": "LINE", "Id": "l2", "Page": 1, "Text": "Insured: ACME Manufacturing LLC" },
+    { "BlockType": "LINE", "Id": "l3", "Page": 1, "Text": "Valued as of: 05/31/2026" },
+    { "BlockType": "LINE", "Id": "l4", "Page": 1, "Text": "Claim Number | Date of Loss | Paid Loss | Reserve | Status" },
+    { "BlockType": "LINE", "Id": "l5", "Page": 1, "Text": "CL-1001 | 03/14/2024 | $12,500 | $0 | Closed" },
+    { "BlockType": "LINE", "Id": "l6", "Page": 1, "Text": "CL-1002 | 09/02/2025 | $4,200 | $7,500 | Open" },
+    { "BlockType": "LINE", "Id": "l7", "Page": 1, "Text": "Total Incurred: $24,200" },
+    { "BlockType": "TABLE", "Id": "t1", "Page": 1 }
+  ]
+}

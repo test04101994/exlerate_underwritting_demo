@@ -1,0 +1,21 @@
+{
+  "package_id": "ACME-2026-001",
+  "documents": [
+    {
+      "file_name": "broker.eml",
+      "modality": "email",
+      "text": "Subject: New Business Submission - ACME Manufacturing LLC\n\nDear Underwriter,\nWe are pleased to submit this new business submission for your review and quote. Coverage requested: General Liability and Commercial Property. Insured: ACME Manufacturing LLC. Effective date 07/01/2026. Please find attached the ACORD application, statement of values, and loss runs."
+    },
+    {
+      "file_name": "loss_run.json",
+      "modality": "pdf",
+      "text": "LOSS RUN REPORT\nInsured: ACME Manufacturing LLC\nClaim Number CL-1001 Date of Loss 03/14/2024 Paid Loss $12,500 Reserve $0 Status Closed\nClaim Number CL-1002 Date of Loss 09/02/2025 Paid Loss $4,200 Reserve $7,500 Status Open\nTotal Incurred $24,200"
+    },
+    {
+      "file_name": "sov.xlsx",
+      "modality": "excel",
+      "text": "[SHEET] Statement of Values\nLocation | Building Value | Contents Value | Construction\n100 Industrial Way | $3,500,000 | $1,200,000 | Masonry Non-Combustible",
+      "table_count": 1
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "package_id": "BORDEREAU-Q2",
+  "documents": [
+    {
+      "file_name": "premium_bordereau.xlsx",
+      "modality": "excel",
+      "text": "[SHEET] Premium Bordereau\nPolicy Number | Insured | Line of Business | Written Premium\nWC-1001 | ACME Manufacturing LLC | Workers Compensation | 48000\nWC-1002 | Brightline Logistics | Workers Compensation | 31500",
+      "table_count": 1
+    }
+  ]
+}

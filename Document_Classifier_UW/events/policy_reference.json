@@ -1,0 +1,16 @@
+{
+  "package_id": "ACME-2026-014",
+  "documents": [
+    {
+      "file_name": "broker.eml",
+      "modality": "email",
+      "text": "Subject: Renewal - ACME Manufacturing LLC - Policy PH3123131\n\nDear Underwriter,\nPlease renew the expiring policy PH3123131 for ACME Manufacturing LLC. Statement of values attached."
+    },
+    {
+      "file_name": "sov.xlsx",
+      "modality": "excel",
+      "text": "[SHEET] Statement of Values\nLocation | Building Value | Contents Value | Construction\n100 Industrial Way | $3,500,000 | $1,200,000 | Masonry Non-Combustible",
+      "table_count": 1
+    }
+  ]
+}

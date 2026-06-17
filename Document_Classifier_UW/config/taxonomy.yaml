@@ -1,0 +1,234 @@
+# =============================================================================
+# Underwriting classification taxonomy + modality configuration.
+#
+# THIS FILE IS THE ONLY PLACE YOU EDIT TO CHANGE WHAT THE SYSTEM CLASSIFIES.
+# Add a document type, line of business, use case, or whole new modality here
+# and every agent picks it up on the next run — no code change.
+#
+# Sections:
+#   modalities          per-channel behavior: which file extensions belong to
+#                       it, which document-type set it uses, and WHICH
+#                       classification heads run for it (document_type / lob /
+#                       use_case). e.g. email runs use_case; pdf/excel do not.
+#   document_types      the "standard" document-type set (pdf + email).
+#   excel_document_types a SEPARATE set used only for Excel documents.
+#   document_type_sets  (optional) any additional named sets for the future.
+#   lines_of_business   shared across all modalities.
+#   use_cases           shared across all modalities (only used where enabled).
+#
+# Each category needs: name (unique), description (injected into prompts, so a
+# new category is classified from what you write), optional keywords (hints for
+# rules), optional typical/expected_documents.
+#
+# Validate:  python -c "from classifier import taxonomy; print(taxonomy.reload().source_path)"
+# =============================================================================
+
+default_modality: pdf
+
+modalities:
+  email:
+    extensions: [".eml", ".txt"]
+    document_type_set: standard
+    classify: [document_type, lob, use_case]   # emails carry intent -> use case
+  pdf:
+    extensions: [".json", ".pdf"]              # .json = Textract OCR output
+    document_type_set: standard
+    classify: [document_type, lob]             # no use_case for PDF-only
+  excel:
+    extensions: [".xlsx", ".xlsm"]
+    document_type_set: excel                    # SEPARATE Excel classes
+    classify: [document_type, lob]             # no use_case for Excel-only
+
+# --- Standard document types (PDF / email) -----------------------------------
+document_types:
+  - name: ACORD Application
+    description: >
+      Standard ACORD commercial insurance application forms (e.g. ACORD 125/126).
+    keywords: [acord, commercial insurance application, applicant information,
+               premises information, nature of business, acord 125, acord 126]
+  - name: Loss Run
+    description: >
+      A carrier report listing prior claims with claim numbers, dates of loss,
+      paid losses, reserves, and status.
+    keywords: [loss run, claim number, date of loss, paid loss, reserve,
+               valued as of, claimant, loss history, incurred]
+  - name: Statement of Values (SOV)
+    description: >
+      A schedule of insured property locations with building/contents values,
+      year built, construction type, and occupancy.
+    keywords: [statement of values, sov, building value, contents value,
+               year built, construction type, occupancy, location schedule]
+  - name: Financial Statement
+    description: >
+      Balance sheets, income statements, or P&L reports describing financial
+      condition.
+    keywords: [balance sheet, income statement, profit and loss, "p&l",
+               total assets, total liabilities, net income, revenue, ebitda]
+  - name: Broker Cover Letter / Email
+    description: >
+      A transmittal letter or email from the broker introducing the submission.
+    keywords: [dear underwriter, please find attached, submission for, broker,
+               we are pleased to submit, looking forward to your quote, regards]
+  - name: Supplemental Questionnaire
+    description: >
+      A coverage- or industry-specific supplemental application.
+    keywords: [supplemental application, questionnaire, please answer,
+               supplemental questions]
+  - name: Inspection / Risk Report
+    description: >
+      A loss-control or inspection report describing site conditions and hazards.
+    keywords: [inspection report, risk assessment, recommendations, site visit,
+               hazard, loss control, inspector]
+  - name: Driver List / MVR
+    description: >
+      A list of drivers and/or vehicles with license numbers, VINs, and MVRs.
+    keywords: [driver, license number, mvr, motor vehicle record, vin,
+               vehicle schedule, date of birth, cdl]
+  - name: Certificate of Insurance
+    description: >
+      An ACORD 25 (or similar) certificate evidencing coverage.
+    keywords: [certificate of insurance, certificate holder, acord 25,
+               this certificate is issued]
+  - name: Policy / Binder
+    description: >
+      A policy, binder, or declarations page.
+    keywords: [binder, policy number, declarations, named insured,
+               policy period, endorsement, coverage form]
+  - name: Other / Unclassified
+    description: Use only when no other standard document type fits.
+    keywords: []
+
+# --- Excel document types (SEPARATE classes for spreadsheets) -----------------
+# Add future spreadsheet types here; they are used only for Excel documents.
+excel_document_types:
+  - name: Premium Bordereau
+    description: >
+      A spreadsheet listing premiums by policy/risk for a period (delegated
+      authority / binder reporting).
+    keywords: [premium bordereau, bordereau, premium by policy, gross premium,
+               net premium, written premium]
+  - name: Loss Bordereau
+    description: >
+      A spreadsheet listing claims/losses by policy for a period.
+    keywords: [loss bordereau, claims bordereau, paid, outstanding, incurred,
+               claim reference]
+  - name: Schedule of Values (Excel)
+    description: >
+      A statement of values delivered as a spreadsheet: locations, building and
+      contents values, construction, occupancy.
+    keywords: [statement of values, sov, building value, contents value,
+               construction, occupancy, tiv]
+  - name: Exposure Schedule
+    description: >
+      A spreadsheet of rating exposures (payroll, sales, square footage, units).
+    keywords: [exposure, payroll, sales, square footage, class code, units]
+  - name: Vehicle Schedule (Excel)
+    description: >
+      A spreadsheet fleet list with VINs, makes/models, values, and drivers.
+    keywords: [vehicle schedule, vin, make, model, fleet, gvw, radius]
+  - name: Claims Triangle
+    description: >
+      An actuarial loss-development triangle spreadsheet by accident/report year.
+    keywords: [triangle, development, accident year, ultimate, ldf, paid triangle]
+  - name: Rating Worksheet
+    description: >
+      A premium calculation / rating worksheet spreadsheet.
+    keywords: [rating, rate, premium calculation, factor, base rate, worksheet]
+  - name: Other / Unclassified (Excel)
+    description: Use only when no other Excel document type fits.
+    keywords: []
+
+# --- Lines of business (shared) ----------------------------------------------
+lines_of_business:
+  - name: General Liability
+    description: >
+      Commercial general liability — premises/operations and products-completed-
+      operations bodily injury and property damage.
+    keywords: [general liability, premises liability, products completed operations,
+               bodily injury, property damage liability, cgl, occurrence]
+    typical_documents: [ACORD Application, Loss Run]
+  - name: Commercial Property
+    description: >
+      First-party coverage for buildings and business personal property.
+    keywords: [property, building, business personal property, replacement cost,
+               statement of values, fire, wind, flood, tiv]
+    typical_documents: [Statement of Values (SOV), ACORD Application]
+  - name: Commercial Auto
+    description: >
+      Liability and physical damage for commercial vehicles and fleets.
+    keywords: [commercial auto, vehicle, fleet, driver, vin, mvr,
+               hired auto, non-owned auto]
+    typical_documents: [Driver List / MVR, ACORD Application]
+  - name: Workers Compensation
+    description: >
+      Statutory coverage for employee work-related injuries, rated on payroll.
+    keywords: [workers compensation, workers comp, class code, payroll,
+               experience mod, ncci, x-mod]
+    typical_documents: [ACORD Application, Loss Run]
+  - name: Professional Liability (E&O)
+    description: >
+      Errors & omissions coverage for professional services.
+    keywords: [professional liability, errors and omissions, "e&o",
+               malpractice, professional services]
+    typical_documents: [ACORD Application, Supplemental Questionnaire]
+  - name: Cyber Liability
+    description: >
+      Coverage for data breach, ransomware, privacy, and network security.
+    keywords: [cyber, data breach, ransomware, privacy liability,
+               network security, pii, phi records]
+    typical_documents: [Supplemental Questionnaire, ACORD Application]
+  - name: Umbrella / Excess
+    description: Excess limits above underlying primary policies.
+    keywords: [umbrella, excess liability, underlying limits, excess of]
+    typical_documents: [ACORD Application]
+  - name: Directors & Officers (D&O)
+    description: Management liability for directors and officers.
+    keywords: [directors and officers, "d&o", management liability,
+               fiduciary liability, board of directors]
+    typical_documents: [Financial Statement, ACORD Application]
+  - name: Business Owners Policy (BOP)
+    description: A packaged property + general liability policy for small business.
+    keywords: [businessowners, business owners policy, bop]
+    typical_documents: [ACORD Application, Statement of Values (SOV)]
+  - name: Unknown
+    description: Use only when the line of business cannot be determined.
+    keywords: []
+    typical_documents: []
+
+# --- Use cases (shared; only run where a modality enables use_case) -----------
+use_cases:
+  - name: New Business
+    description: >
+      A first-time submission for a prospective insured requesting a new quote;
+      does not reference a prior/expiring policy with this carrier.
+    keywords: [new business, new submission, first time, prospective insured,
+               quote request, request for quote, new applicant]
+    expected_documents: [ACORD Application]
+  - name: Renewal
+    description: >
+      A request to renew or rewrite an expiring policy; references prior coverage
+      and usually includes loss history.
+    keywords: [renewal, renew, expiring policy, prior policy,
+               currently insured with, rewrite]
+    expected_documents: [ACORD Application, Loss Run]
+  - name: Endorsement
+    description: A mid-term change to an existing policy.
+    keywords: [endorsement, policy change, add location, add driver,
+               mid-term change, amend]
+    expected_documents: []
+  - name: Audit
+    description: A premium audit reconciling estimated exposures to actual.
+    keywords: [premium audit, audit, final payroll, audited exposures]
+    expected_documents: [Financial Statement]
+  - name: Claim
+    description: A first notice of loss or claim-related submission.
+    keywords: [claim, first notice of loss, fnol, date of loss, claimant]
+    expected_documents: [Loss Run]
+  - name: Cancellation
+    description: A request to cancel or non-renew an existing policy.
+    keywords: [cancellation, cancel policy, notice of cancellation, non-renewal]
+    expected_documents: []
+  - name: Unknown
+    description: Use only when the use case cannot be determined or does not apply.
+    keywords: []
+    expected_documents: []

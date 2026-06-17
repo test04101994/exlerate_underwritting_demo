@@ -1,0 +1,13 @@
+{
+  "DocumentMetadata": { "Pages": 1 },
+  "Blocks": [
+    { "BlockType": "PAGE", "Id": "p1", "Page": 1 },
+    { "BlockType": "LINE", "Id": "l1", "Page": 1, "Text": "STATEMENT OF VALUES (SOV)" },
+    { "BlockType": "LINE", "Id": "l2", "Page": 1, "Text": "Insured: ACME Manufacturing LLC" },
+    { "BlockType": "LINE", "Id": "l3", "Page": 1, "Text": "Location | Building Value | Contents Value | Year Built | Construction Type" },
+    { "BlockType": "LINE", "Id": "l4", "Page": 1, "Text": "100 Industrial Way | $3,500,000 | $1,200,000 | 1998 | Masonry Non-Combustible" },
+    { "BlockType": "LINE", "Id": "l5", "Page": 1, "Text": "Occupancy: Light manufacturing" },
+    { "BlockType": "LINE", "Id": "l6", "Page": 1, "Text": "Replacement cost basis" },
+    { "BlockType": "TABLE", "Id": "t1", "Page": 1 }
+  ]
+}

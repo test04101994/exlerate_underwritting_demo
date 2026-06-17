@@ -1,0 +1,18 @@
+{
+  "DocumentMetadata": { "Pages": 2 },
+  "Blocks": [
+    { "BlockType": "PAGE", "Id": "p1", "Page": 1 },
+    { "BlockType": "PAGE", "Id": "p2", "Page": 2 },
+    { "BlockType": "LINE", "Id": "l1", "Page": 1, "Text": "ACORD 125 COMMERCIAL INSURANCE APPLICATION" },
+    { "BlockType": "LINE", "Id": "l2", "Page": 1, "Text": "APPLICANT INFORMATION" },
+    { "BlockType": "LINE", "Id": "l3", "Page": 1, "Text": "Named Insured: ACME Manufacturing LLC" },
+    { "BlockType": "LINE", "Id": "l4", "Page": 1, "Text": "Nature of Business: Metal fabrication" },
+    { "BlockType": "LINE", "Id": "l5", "Page": 1, "Text": "PREMISES INFORMATION" },
+    { "BlockType": "LINE", "Id": "l6", "Page": 1, "Text": "Location 1: 100 Industrial Way, Springfield" },
+    { "BlockType": "LINE", "Id": "l7", "Page": 2, "Text": "GENERAL LIABILITY" },
+    { "BlockType": "LINE", "Id": "l8", "Page": 2, "Text": "Products completed operations aggregate: $2,000,000" },
+    { "BlockType": "LINE", "Id": "l9", "Page": 2, "Text": "Bodily injury and property damage liability included" },
+    { "BlockType": "LINE", "Id": "l10", "Page": 2, "Text": "Effective Date: 07/01/2026" },
+    { "BlockType": "TABLE", "Id": "t1", "Page": 2 }
+  ]
+}

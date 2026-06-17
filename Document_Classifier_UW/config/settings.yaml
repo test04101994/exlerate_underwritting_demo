@@ -1,0 +1,28 @@
+# =============================================================================
+# Project settings (how the engine RUNS). The classification vocabulary lives
+# in config/taxonomy.yaml. Every value can be overridden by an env var
+# (CLASSIFIER_* prefix) — convenient for Lambda environment variables.
+# Classification is done by Claude on Amazon Bedrock; deterministic overrides
+# are added via rules (see plugins.rules_module).
+# =============================================================================
+
+# Logging level: DEBUG | INFO | WARNING | ERROR.
+log_level: INFO                  # env: CLASSIFIER_LOG_LEVEL
+
+bedrock:
+  region: us-east-1              # env: AWS_REGION
+  # The Bedrock model id OR cross-region inference profile id. Confirm the exact
+  # value enabled for your account/region in the Bedrock console.
+  model_profile_id: us.anthropic.claude-opus-4-8   # env: CLASSIFIER_MODEL
+  # Optional per-agent model overrides, keyed by the agent function name
+  # (env: CLASSIFIER_MODEL_<NAME>, e.g. CLASSIFIER_MODEL_EXTRACT_KEYWORDS):
+  agent_models: {}
+
+paths:
+  taxonomy: config/taxonomy.yaml          # env: CLASSIFIER_TAXONOMY
+
+plugins:
+  # Importable module of custom override functions (env: CLASSIFIER_RULES_MODULE).
+  rules_module: null
+  # Importable module of output enrichers (env: CLASSIFIER_ENRICHERS_MODULE).
+  enrichers_module: classifier.example_enrichers
